@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Api文档</title>
+    <title><?php echo $config['doc_name'];?></title>
 
     <!-- Bootstrap core CSS -->
     <style>
@@ -44,7 +44,7 @@
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">Api文档</a>
+                <a class="navbar-brand" href="#"><?php echo $config['doc_name'];?></a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -74,7 +74,7 @@
                             <ul aria-expanded="true" class="collapse">
                                 <?php foreach($item as $method => $api) {?>
                                     <li>
-                                        <a href="#<?php echo "{$version}-{$method}";?>">
+                                        <a href="javascript:;" onclick="locationUrl('<?php echo "{$version}-{$method}";?>');">
                                             <span class="sidebar-nav-item-icon"></span><?php echo $method;?>
                                         </a>
                                     </li>
@@ -245,7 +245,16 @@
          } else {
              t.childNodes[3].style.display = 'none';
          }
+     }
 
+     function locationUrl(ver) {
+         var e = window.event || event;
+         if ( e.stopPropagation ){
+             e.stopPropagation();
+         } else{
+             window.event.cancelBubble = true;
+         }
+         window.location.href = '#'+ver;
      }
     </script>
 </body>

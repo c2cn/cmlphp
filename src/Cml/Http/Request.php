@@ -53,7 +53,7 @@ class Request {
      * @return string
      */
     public static function baseUrl() {
-        $protocol = $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
         return $protocol . self::host();
     }
 
