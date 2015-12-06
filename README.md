@@ -18,7 +18,9 @@
 
 > CmlPHP V2.5 提供了详细的开发文档，方便新手快速入门
 
-> CmlPHP V2.5 支持灵活的扩展机制，自带了常用的扩展，
+> CmlPHP V2.5 支持灵活的扩展机制，自带了常用的扩展
+
+> CmlPHP V2.5 支持灵活配置规则，开发、线上互不干扰
 
 > CmlPHP V2.5 拥有简单高效的插件机制，方便你对系统功能进行扩展
 
@@ -42,7 +44,9 @@
 
 
 ## 视频教程
-> 近期推出
+> [CmlPHP简介](http://v.youku.com/v_show/id_XMTQwNTc1MTI0MA==.html)
+> 
+> [CmlPHP项目目录骨架及api项目演示](http://v.youku.com/v_show/id_XMTQwNTc4MDk2OA==.html)
 
 ## 联系我
 因为工作的原因QQ用得很少，所以也就不建qq群了。有任何建议或问题欢迎给我发邮件。 linhechengbush@live.com
