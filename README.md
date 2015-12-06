@@ -34,6 +34,12 @@
 开发手册放在作业部落上。感谢作业部落提供了这么好用的markdown编辑器
 [CmlPHP V2.5开发手册](https://www.zybuluo.com/linhecheng/note/226146 "CmlPHP V2.5开发手册")
 
+## 项目推荐目录骨架
+> 提供了基础目录结构及示例，[点击这里查看](http://git.oschina.net/linhecheng/cmlphp2.5-demo-proj)。
+
+## Api项目示例
+> web开发中很大一部分是接口开发，本示例包含了api开发的两个接口示例以及根据代码注释自动生成文档的示例。 [点击这里查看](http://git.oschina.net/linhecheng/cmlphp2.5-demo-api)
+
 
 ## 视频教程
 > 近期推出
