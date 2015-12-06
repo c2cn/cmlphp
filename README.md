@@ -45,4 +45,4 @@
 > 近期推出
 
 ## 联系我
-因为工作的原因QQ用得很少，所以也就不建qq群了。有任何建义或问题欢迎给我发邮件。 linhechengbush@live.com
+因为工作的原因QQ用得很少，所以也就不建qq群了。有任何建议或问题欢迎给我发邮件。 linhechengbush@live.com
