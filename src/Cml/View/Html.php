@@ -171,8 +171,8 @@ class Html extends Base {
             '#'.$leftDeper.'\/(loop|foreach)'.$rightDeper.'#',//替换 /foreach|/loop
             '#'.$leftDeper.'hook\s+(\w+?)\s*'.$rightDeper.'#i',//替换 hook
             '#'.$leftDeper.'(get|post|request)\s+(\w+?)\s*'.$rightDeper.'#i',//替换 get/post/request
-            '#'.$leftDeper.'lang\s+([A-Za-z0-9\.]+)\s*'.$rightDeper.'#i',//替换 lang
-            '#'.$leftDeper.'config\s+([A-Za-z0-9\.]+)\s*'.$rightDeper.'#i',//替换 config
+            '#'.$leftDeper.'lang\s+([A-Za-z0-9_\.]+)\s*'.$rightDeper.'#i',//替换 lang
+            '#'.$leftDeper.'config\s+([A-Za-z0-9_\.]+)\s*'.$rightDeper.'#i',//替换 config
             '#'.$leftDeper.'url\s+(.*?)\s*'.$rightDeper.'#i',//替换 url
             '#'.$leftDeper.'public'.$rightDeper.'#i',//替换 {{public}}
             '#'.$leftDeper.'self'.$rightDeper.'#i',//替换 {{self}}
@@ -232,8 +232,7 @@ class Html extends Base {
 
         //添加 头信息
 
-        $template = '<?php if (!class_exists(\'\Cml\View\')) die(\'Access Denied\');'
-            . "?>\r\n{$template}";
+        $template = '<?php if (!class_exists(\'\Cml\View\')) die(\'Access Denied\');?>' . $template;
 
         //写入缓存文件
         $this->makePath($cacheFile);
@@ -258,9 +257,9 @@ class Html extends Base {
 
             //获取子模板内容
             $presult = preg_match_all(
-	            '#'.$ldeper.'to\s+([a_zA-Z]+?)'.$rdeper.'(.*?)'.$ldeper.'\/to'.$rdeper.'#is',
-	            $tplCon,
-	            $tmpl
+                '#'.$ldeper.'to\s+([a_zA-Z]+?)'.$rdeper.'(.*?)'.$ldeper.'\/to'.$rdeper.'#is',
+                $tplCon,
+                $tmpl
             );
             $tplCon = null;
             if ($presult > 0) {
@@ -275,21 +274,21 @@ class Html extends Base {
             //将子模板内容替换到布局文件返回
             $layoutBlockData = &$this->layoutBlockData;
             $layoutCon = preg_replace_callback(
-	            '#'.$ldeper.'block\s+([a_zA-Z]+?)'.$rdeper.'(.*?)'.$ldeper.'\/block'.$rdeper.'#is',
-	            function($matches) use($layoutBlockData) {
-	                array_shift($matches);
-	                if (isset($layoutBlockData[$matches[0]])) {
-	                    //替换{parent}标签并返回
-	                    return str_replace(
-		                    Config::get('html_left_deper').'parent'.Config::get('html_right_deper'),
-		                    $matches[1],
+                '#'.$ldeper.'block\s+([a_zA-Z]+?)'.$rdeper.'(.*?)'.$ldeper.'\/block'.$rdeper.'#is',
+                function($matches) use($layoutBlockData) {
+                    array_shift($matches);
+                    if (isset($layoutBlockData[$matches[0]])) {
+                        //替换{parent}标签并返回
+                        return str_replace(
+                            Config::get('html_left_deper').'parent'.Config::get('html_right_deper'),
+                            $matches[1],
                             $layoutBlockData[$matches[0]]
-	                    );
-	                } else {
-	                    return '';
-	                }
-	            },
-		        $layoutCon
+                        );
+                    } else {
+                        return '';
+                    }
+                },
+                $layoutCon
             );
             unset($layoutBlockData);
             $this->layoutBlockData = array();
@@ -387,17 +386,17 @@ class Html extends Base {
         // 网页字符编码
         header('Content-Type:text/html; charset='.Config::get('default_charset'));
 
-	    if (Config::get('form_token')) {
-		    Secure::seToken();
-	    }
+        if (Config::get('form_token')) {
+            Secure::seToken();
+        }
 
-	    if (!empty($this->args)) {
-		    extract($this->args, EXTR_PREFIX_SAME, "xxx");
-		    $this->args = array();
-	    }
+        if (!empty($this->args)) {
+            extract($this->args, EXTR_PREFIX_SAME, "xxx");
+            $this->args = array();
+        }
 
-	    require $this->getFile($this->initBaseDir($templateFile, $inOtherApp));
-	    Cml::cmlStop();
+        require $this->getFile($this->initBaseDir($templateFile, $inOtherApp));
+        Cml::cmlStop();
     }
 
     /**
@@ -412,20 +411,20 @@ class Html extends Base {
     {
         $this->layout = CML_APP_FULL_PATH.DIRECTORY_SEPARATOR .
             (
-                CML_IS_MULTI_MODULES
-                    ? \Cml\Config::get('application_dir') .
-                        (
-                            $layoutInOtherApp
-                            ? DIRECTORY_SEPARATOR.$layoutInOtherApp.DIRECTORY_SEPARATOR
-                            : Route::$urlParams['path']
-                        )
-                    : ''
+            CML_IS_MULTI_MODULES
+                ? \Cml\Config::get('application_dir') .
+                (
+                $layoutInOtherApp
+                    ? DIRECTORY_SEPARATOR.$layoutInOtherApp.DIRECTORY_SEPARATOR
+                    : Route::$urlParams['path']
+                )
+                : ''
             )
             . 'View' . DIRECTORY_SEPARATOR .
-	        (
-	            Config::get('html_theme') != '' ? Config::get('html_theme').DIRECTORY_SEPARATOR : ''
-	        )
-	        .'layout'.DIRECTORY_SEPARATOR.$layout.Config::get('html_template_suffix');
+            (
+            Config::get('html_theme') != '' ? Config::get('html_theme').DIRECTORY_SEPARATOR : ''
+            )
+            .'layout'.DIRECTORY_SEPARATOR.$layout.Config::get('html_template_suffix');
         $this->display($templateFile, $tplInOtherApp);
     }
 }
