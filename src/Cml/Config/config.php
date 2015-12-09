@@ -128,4 +128,5 @@ return array(
     'cmlframework_system_command' => array(
         'cmlframeworkstaticparse' => '\\Cml\\Tools\\StaticResource::parseResourceFile'
     ),
+    'static_file_version' => 'v1', //开发模式会自动在静态文件后加时间缀，实时过期,线上模板版本号固定，如有需要在这里改版本号强制过期
 );

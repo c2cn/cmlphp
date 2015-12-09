@@ -58,14 +58,14 @@ class StaticResource
      */
     public static function parseResourceUrl($resource = '')
     {
+        //简单判断没有.的时候当作是目录不加版本号
+        $isDir = strpos($resource, '.') === false ? true : false;
         if ($GLOBALS['debug'] && CML_IS_MULTI_MODULES) {
-            //简单判断没有.的时候当作是目录不加版本号
-            $isDir = strpos($resource, '.') === false ? true : false;
-
             $file = Response::url("cmlframeworkstaticparse/{$resource}", false);
             $isDir || $file .= ( \Cml\Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Cml::$nowTime;
         } else {
-            $file = Config::get("static__path", \Cml\Route::$urlParams["root"]."public/{$resource}");
+            $file = Config::get("static__path", \Cml\Route::$urlParams["root"]."public/").$resource;
+            $isDir || $file .= ( \Cml\Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Config::get('static_file_version');
         }
         echo $file;
     }
