@@ -239,7 +239,7 @@ abstract class Base
      *
      * @return $this
      */
-    public function where($column, $value)
+    public function where($column, $value = '')
     {
         if (is_array($column)) {
             foreach ($column as $key => $val) {
