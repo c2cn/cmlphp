@@ -32,13 +32,10 @@ class Cml
         if ($error = error_get_last()) {//获取最后一个发生的错误的信息。 包括提醒、警告、致命错误
             Plugin::hook('cml.before_fatal_error', $error);
 
-            if (in_array($error['type'], array(1, 4, 16, 64, 32, 128))) { //当捕获到的错误为致命错误时 报告
+            if (in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING))) { //当捕获到的错误为致命错误时 报告
                 if (!$GLOBALS['debug']) {
                     //正式环境 只显示‘系统错误’并将错误信息记录到日志
-                    $log_dir = CML_RUNTIME_LOGS_PATH.DIRECTORY_SEPARATOR.date('Y').DIRECTORY_SEPARATOR.date('m');
-                    is_dir($log_dir) || mkdir($log_dir, 0700, true);
-                    error_log('['.date('Y-m-d h:i:s').'] [message]'.$error['message'].'[file]'.$error['file'].'[line]'.
-                        $error['line']."\r\n", 3, $log_dir.DIRECTORY_SEPARATOR.date('d').'_fatal_error_.log');
+                    Log::emergency('fatal_error', array($error));
                     $error = array();
                     $error['message'] = Lang::get('_CML_ERROR_');
                 } else {
@@ -77,15 +74,8 @@ class Cml
 
         if (!$GLOBALS['debug']) {
             //正式环境 只显示‘系统错误’并将错误信息记录到日志
-            $log_dir = CML_RUNTIME_LOGS_PATH.DIRECTORY_SEPARATOR.date('Y').DIRECTORY_SEPARATOR.date('m');
-            is_dir($log_dir) || mkdir($log_dir, 0700, true);
+            Log::emergency($error['message'], array($error['files'][0]));
 
-            error_log(
-                '['.date('Y-m-d h:i:s').'] [message]'.$error['message'].'[file]' .
-                $error['files'][0]['file'].'[line]'.$error['files'][0]['line']."\r\n",
-                3,
-                $log_dir.DIRECTORY_SEPARATOR.date('d').'_fatal_error_.log'
-            );
             $error = array();
             $error['message'] = Lang::get('_CML_ERROR_');
         }
@@ -182,7 +172,7 @@ class Cml
         //spl_autoload_register('Cml\Cml::autoload');
 
         //设置自定义捕获致命异常函数
-        //普通错误由Cml\Debug::Catcher捕获 php默认在display_errors为On时致命错误直接输出 为off时 直接显示服务器错误或空白页,体验不好
+        //普通错误由Cml\Debug::catcher捕获 php默认在display_errors为On时致命错误直接输出 为off时 直接显示服务器错误或空白页,体验不好
         register_shutdown_function('Cml\Cml::fatalError'); //捕获致命异常
 
         //设置自定义的异常处理函数。
@@ -204,7 +194,7 @@ class Cml
             $GLOBALS['debug'] = true;//开启debug
             Debug::start();//记录开始运行时间\内存初始使用
             //设置捕获系统异常 使用set_error_handler()后，error_reporting将会失效。所有的错误都会交给set_error_handler。
-            set_error_handler('\Cml\Debug::Catcher');
+            set_error_handler('\Cml\Debug::catcher');
 
             spl_autoload_register('Cml\Cml::autoloadComposerAdditional', true, true);
 
@@ -222,12 +212,12 @@ class Cml
             Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', 'Cml\Http\Request'), 1);
         } else {
             $GLOBALS['debug'] = false;//关闭debug
-            ini_set('error_reporting', E_ALL & ~E_NOTICE);//记录除了notice之外的错误
-            ini_set('log_errors', 'on'); //开启错误日志
-            $log_dir = CML_RUNTIME_LOGS_PATH.DIRECTORY_SEPARATOR.date('Y').DIRECTORY_SEPARATOR.date('m');
-            is_dir($log_dir) || mkdir($log_dir, 0700, true);
-            ini_set('error_log', $log_dir.DIRECTORY_SEPARATOR.date('d').'_warn.log');//将错误文件指定到Runtime/Logs下
-            $log_dir = null;
+            //ini_set('error_reporting', E_ALL & ~E_NOTICE);//记录除了notice之外的错误
+            ini_set('log_errors', 'off'); //关闭php自带错误日志
+            //严重错误已经通过fatalError记录。为了防止日志过多,默认不记录致命错误以外的日志。有需要可以修改配置开启
+            if (Config::get('log_warn_log')) {
+                set_error_handler('\Cml\Log::catcherPhpError');
+            }
 
             //线上模式包含runtime.php
             $runTimeFile = CML_RUNTIME_PATH.DIRECTORY_SEPARATOR.'_runtime_.php';

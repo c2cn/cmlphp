@@ -81,14 +81,14 @@ class Debug
     /**
      *错误handler
      *
-     * @param string $errno 错误类型 分运行时警告、运行时提醒、自定义错误、自定义提醒、未知等
+     * @param int $errno 错误类型 分运行时警告、运行时提醒、自定义错误、自定义提醒、未知等
      * @param string $errstr 错误提示
      * @param string $errfile 发生错误的文件
-     * @param string $errstr 错误所在行数
+     * @param int $errline 错误所在行数
      *
      * @return void
      */
-    public static function Catcher($errno, $errstr, $errfile, $errline)
+    public static function catcher($errno, $errstr, $errfile, $errline)
     {
         if (!isset(self::$tipInfoType[$errno])) {
             $errno = 'Unknow';

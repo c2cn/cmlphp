@@ -4,59 +4,140 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-8 下午3:07
  * @version  2.5
- * cml框架 文件Log类
+ * cml框架 文件Log类 依赖monolog
  * *********************************************************** */
 namespace Cml;
 
+use Cml\Logger\Base;
+
 class Log
 {
-
     /**
-     * 获取文件名
+     * 获取Logger实例
      *
-     * @param string $name
+     * @param string | null $logger 使用的log驱动
      *
-     * @return string
+     * @return Base
      */
-    private static function getDir($name)
+    private static function getLogger($logger = null)
     {
-        $name = str_replace(array("..", "/", "\\"), "", $name);
-        $dir = CML_RUNTIME_LOGS_PATH.DIRECTORY_SEPARATOR.'AppLogs'.date('/Y/m/d');
-        is_dir($dir) || mkdir($dir, 0700, true);
-        return $dir.DIRECTORY_SEPARATOR.$name;
+        static $instance = null;
+        if(is_null($instance)) {
+            $driver = '\\Cml\\Logger\\' . (is_null($logger) ? Config::get('log_driver', 'File') : $logger);
+            $instance = new $driver();
+        }
+        return $instance;
     }
 
     /**
-     * 写入缓存
+     * 添加debug类型的日志
      *
-     * @param string $key key
-     * @param mixed $value 要缓存的数据
+     * @param string $log
+     * @param array $context
      *
      * @return bool
      */
-    public static function save($name, $value)
+    public static function debug($log, array $context = array())
     {
-        is_array($value) || (array)$value;
-        $value['logtime'] = date('Y-m-d H:i:s');
-        file_put_contents(
-            self::getDir($name),
-            json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0),
-            LOCK_EX
-        );
-        return true;
+        return self::getLogger()->debug($log, $context);
     }
 
     /**
-     * 删除缓存
+     * 添加info类型的日志
      *
-     * @param string $key key
+     * @param string $log
+     * @param array $context
      *
      * @return bool
      */
-    public static function rm($name)
+    public static function info($log, array $context = array())
     {
-        unlink(self::getDir($name));
-        return true;
+        return self::getLogger()->info($log, $context);
+    }
+
+    /**
+     * 添加notice类型的日志
+     *
+     * @param string $log
+     * @param array $context
+     *
+     * @return bool
+     */
+    public static function notice($log, array $context = array())
+    {
+        return self::getLogger()->notice($log, $context);
+    }
+
+    /**
+     * 添加warning类型的日志
+     *
+     * @param string $log
+     * @param array $context
+     *
+     * @return bool
+     */
+    public static function warning($log, array $context = array())
+    {
+        return self::getLogger()->warning($log, $context);
+    }
+
+    /**
+     * 添加error类型的日志
+     *
+     * @param string $log
+     * @param array $context
+     *
+     * @return bool
+     */
+    public static function error($log, array $context = array())
+    {
+        return self::getLogger()->error($log, $context);
+    }
+
+    /**
+     * 添加critical类型的日志
+     *
+     * @param string $log
+     * @param array $context
+     *
+     * @return bool
+     */
+    public static function critical($log, array $context = array())
+    {
+        return self::getLogger()->critical($log, $context);
+    }
+
+    /**
+     * 添加critical类型的日志
+     *
+     * @param string $log
+     * @param array $context
+     *
+     * @return bool
+     */
+    public static function emergency($log, array $context = array())
+    {
+        return self::getLogger()->emergency($log, $context);
+    }
+
+    /**
+     * 错误日志handler
+     *
+     * @param int $errno 错误类型 分运行时警告、运行时提醒、自定义错误、自定义提醒、未知等
+     * @param string $errstr 错误提示
+     * @param string $errfile 发生错误的文件
+     * @param string $errline 错误所在行数
+     *
+     * @return void
+     */
+    public static function catcherPhpError($errno, $errstr, $errfile, $errline)
+    {
+        if (in_array($errno, array(E_NOTICE, E_STRICT, E_DEPRECATED, E_USER_DEPRECATED, E_USER_NOTICE))) {
+            return ;//只记录warning以上级别日志
+        }
+
+        self::getLogger()->log(self::getLogger()->phpErrorToLevel[$errno], $errstr, array('file' => $errfile, 'line' => $errline));
+        return;
     }
 
 }
