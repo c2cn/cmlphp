@@ -4,7 +4,7 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-8 下午3:07
  * @version  2.5
- * cml框架 文件Log类 依赖monolog
+ * cml框架 文件Log类
  * *********************************************************** */
 namespace Cml;
 
