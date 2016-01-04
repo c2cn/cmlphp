@@ -418,10 +418,12 @@ class Pdo extends namespace\Base
             Debug::addTipInfo(vsprintf(str_replace('?', "'%s'", $sql), $bindParams), 2);
         }
 
-        try{
-            return $link->prepare($sql);
-        } catch (\PDOException $e) {
-            \Cml\throwException('Pdo Prepare Sql error! Code:'.$e->getCode().',ErrorInfo!:'.$e->getMessage().'<br />');
+        $stmt = $link->prepare($sql);//pdo默认情况prepare出错不抛出异常只返回Pdo::errorInfo
+        if ($stmt === false) {
+            $error = $link->errorInfo();
+            \Cml\throwException('Pdo Prepare Sql error! Code:'.$link->errorCode ().',ErrorInfo!:'.$error[2].'<br />');
+        } else {
+            return $stmt;
         }
         return false;
     }

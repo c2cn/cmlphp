@@ -387,7 +387,7 @@ class Html extends Base {
         header('Content-Type:text/html; charset='.Config::get('default_charset'));
 
         if (Config::get('form_token')) {
-            Secure::seToken();
+            Secure::setToken();
         }
 
         if (!empty($this->args)) {

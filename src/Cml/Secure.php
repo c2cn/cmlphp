@@ -226,7 +226,7 @@ class Secure
      *
      *  @return void
      */
-    public static function seToken()
+    public static function setToken()
     {
         if (!isset($_COOKIE['CML_TOKEN']) || empty($_COOKIE['CML_TOKEN'])) {
             $str = substr(md5(Cml::$nowTime. Request::getService('HTTP_USER_AGENT')), 5, 8);
