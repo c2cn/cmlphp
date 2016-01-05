@@ -326,7 +326,7 @@ class Pdo extends namespace\Base
         $link = '';
         try {
             $host = explode(':', $host);
-            $dsn = "mysql:host={$host[0]};".(isset($host[1]) ? "port:{$host[1]};" : '')."dbname={$dbName}";
+            $dsn = "mysql:host={$host[0]};".(isset($host[1]) ? "port={$host[1]};" : '')."dbname={$dbName}";
             if ($pConnect) {
                 $link = new \PDO($dsn, $username, $password, array(
                     \PDO::ATTR_PERSISTENT => true
