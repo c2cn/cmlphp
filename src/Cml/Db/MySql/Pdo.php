@@ -170,7 +170,7 @@ class Pdo extends namespace\Base
             $data = $key;
         }
 
-        $tableName = empty($tableName) ? key($this->table) : $tablePrefix.$tableName;
+        $tableName = empty($tableName) ? $this->getRealTableName(key($this->table)) : $tablePrefix.$tableName;
         empty($tableName) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'update'));
         $s = $this->arrToCondition($data, substr($tableName, strlen($tablePrefix)), $tablePrefix);
         $whereCondition = $this->sql['where'];
@@ -197,7 +197,7 @@ class Pdo extends namespace\Base
 
         empty($key) || list($tableName, $condition) = $this->parseKey($key, $and, true, true);
 
-        $tableName = empty($tableName) ? key($this->table) : $this->tablePrefix.$tableName;
+        $tableName = empty($tableName) ? $this->getRealTableName(key($this->table)) : $this->tablePrefix.$tableName;
         empty($tableName) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'delete'));
         $whereCondition = $this->sql['where'];
         $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;
@@ -207,6 +207,17 @@ class Pdo extends namespace\Base
 
         $this->setCacheVer($tableName);
         return $stmt->rowCount();
+    }
+
+    /**
+     * 获取处理后的表名
+     *
+     * @param $table
+     * @return string
+     */
+    private function getRealTableName($table)
+    {
+        return substr($table, strpos($table, '_') + 1);
     }
 
     /**
@@ -235,12 +246,13 @@ class Pdo extends namespace\Base
         $this->sql['columns'] == '' && ($this->sql['columns'] = '*');
 
         $columns = ($this->sql['columns'] == '*')  ? (
-            Config::get('db_fields_cache') ? $this->getDbFields(key($this->table), null, 1) : '*'
+        Config::get('db_fields_cache') ? $this->getDbFields($this->getRealTableName(key($this->table)), null, 1) : '*'
         ) : $this->sql['columns'];
 
         $table = $operator = $cacheKey = '';
         foreach ($this->table as $key => $val) {
-            $cacheKey .= $this->getCacheVer($key);
+            $realTable = $this->getRealTableName($key);
+            $cacheKey .= $this->getCacheVer($realTable);
 
             $on = null;
             if (isset($this->join[$key])) {
@@ -253,12 +265,12 @@ class Pdo extends namespace\Base
                 $operator = ' RIGHT JOIN';
                 $on = $this->rightJoin[$key];
             } else {
-                !empty($table) && $operator = ' ,';
+                empty($table) || $operator = ' ,';
             }
             if (is_null($val)) {
-                $table .= "{$operator} `{$key}`";
+                $table .= "{$operator} `{$realTable}`";
             } else {
-                $table .= "{$operator} `{$key}` AS `{$val}`";
+                $table .= "{$operator} `{$realTable}` AS `{$val}`";
             }
             is_null($on) || $table .= " ON {$on}";
         }

@@ -84,9 +84,8 @@ abstract class Base
         $hasAlias = is_array($table) ? true : false;
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         $tableName = $tablePrefix.($hasAlias  ? key($table) : $table);
-        if (!isset($this->table[$tableName])) {
-            $this->table[$tableName] = $hasAlias ? current($table) : null;
-        }
+
+        $this->table[count($this->table) . '_' . $tableName] = $hasAlias ? current($table) : null;
         return $this;
     }
 
@@ -681,7 +680,7 @@ abstract class Base
         $this->table($table);
         $hasAlias = is_array($table) ? true : false;
         $tableName = $this->tablePrefix.($hasAlias  ? key($table) : $table);
-        $this->join[$tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
+        $this->join[count($this->table) - 1 . '_' . $tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
         return $this;
     }
 
@@ -698,7 +697,7 @@ abstract class Base
         $this->table($table);
         $hasAlias = is_array($table) ? true : false;
         $tableName = $this->tablePrefix.($hasAlias  ? key($table) : $table);
-        $this->leftJoin[$tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
+        $this->leftJoin[count($this->table) - 1 . '_' . $tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
         return $this;
     }
 
@@ -715,7 +714,7 @@ abstract class Base
         $this->table($table);
         $hasAlias = is_array($table) ? true : false;
         $tableName = $this->tablePrefix.($hasAlias  ? key($table) : $table);
-        $this->rightJoin[$tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
+        $this->rightJoin[count($this->table) - 1 . '_' . $tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
         return $this;
     }
 
