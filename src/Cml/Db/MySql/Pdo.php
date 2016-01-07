@@ -65,7 +65,7 @@ class Pdo extends namespace\Base
             $info = \Cml\simpleFileCache($this->conf['master']['dbname'].'.'.$table);
             if (!$info || $GLOBALS['debug']) {
                 $stmt = $this->prepare("SHOW COLUMNS FROM $table", $this->rlink, false);
-                $this->execute($stmt, array(), false);
+                $this->execute($stmt, false);
                 $info = array();
                 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                     $info[$row['Field']] = array(
@@ -115,7 +115,7 @@ class Pdo extends namespace\Base
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) { //cache中不存在这条记录
             $stmt = $this->prepare($sql, $this->rlink);
-            $this->execute($stmt, $this->bindParams);
+            $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
         } else {
@@ -141,7 +141,7 @@ class Pdo extends namespace\Base
         if (is_array($data)) {
             $s = $this->arrToCondition($data, $table, $tablePrefix);
             $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
-            $this->execute($stmt, $this->bindParams);
+            $this->execute($stmt);
 
             $this->setCacheVer($tableName);
             return  $stmt->rowCount();
@@ -177,7 +177,7 @@ class Pdo extends namespace\Base
         $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;
         empty($whereCondition) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'update'));
         $stmt = $this->prepare("UPDATE {$tableName} SET {$s} {$whereCondition}", $this->wlink);
-        $this->execute($stmt, $this->bindParams);
+        $this->execute($stmt);
 
         $this->setCacheVer($tableName);
         return $stmt->rowCount();
@@ -203,7 +203,7 @@ class Pdo extends namespace\Base
         $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;
         empty($whereCondition) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'delete'));
         $stmt = $this->prepare("DELETE FROM {$tableName} {$whereCondition}", $this->wlink);
-        $this->execute($stmt, $this->bindParams);
+        $this->execute($stmt);
 
         $this->setCacheVer($tableName);
         return $stmt->rowCount();
@@ -285,7 +285,7 @@ class Pdo extends namespace\Base
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) {
             $stmt = $this->prepare($sql, $this->rlink);
-            $this->execute($stmt, $this->bindParams);
+            $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
         } else {
@@ -341,10 +341,13 @@ class Pdo extends namespace\Base
             $dsn = "mysql:host={$host[0]};".(isset($host[1]) ? "port={$host[1]};" : '')."dbname={$dbName}";
             if ($pConnect) {
                 $link = new \PDO($dsn, $username, $password, array(
-                    \PDO::ATTR_PERSISTENT => true
+                    \PDO::ATTR_PERSISTENT => true,
+                    \PDO::ATTR_EMULATE_PREPARES=> false
                 ));
             } else {
-                $link = new \PDO($dsn, $username, $password);
+                $link = new \PDO($dsn, $username, $password, array(
+                    \PDO::ATTR_EMULATE_PREPARES=> false
+                ));
             }
         } catch (\PDOException $e) {
             \Cml\throwException('Pdo Connect Error! Code:'.$e->getCode().',ErrorInfo!:'.$e->getMessage().'<br />');
@@ -377,7 +380,7 @@ class Pdo extends namespace\Base
 
         $stmt = $this->prepare('UPDATE  `'.$tableName."` SET  `{$field}` =  `{$field}` + {$val}  WHERE  $condition");
 
-        $this->execute($stmt, $this->bindParams);
+        $this->execute($stmt);
         $this->setCacheVer($tableName);
         return $stmt->rowCount();
     }
@@ -403,7 +406,7 @@ class Pdo extends namespace\Base
         $tableName = $this->tablePrefix.$tableName;
         $stmt = $this->prepare('UPDATE  `'.$tableName."` SET  `$field` =  `$field` - $val  WHERE  $condition");
 
-        $this->execute($stmt, $this->bindParams);
+        $this->execute($stmt);
         $this->setCacheVer($tableName);
         return $stmt->rowCount();
     }
@@ -424,17 +427,26 @@ class Pdo extends namespace\Base
         is_null($link) && $link = $this->wlink;
         if ($GLOBALS['debug']) {
             $bindParams = $this->bindParams;
-            foreach($bindParams as $key => $val) {
+            foreach ($bindParams as $key => $val) {
                 $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
             }
-            Debug::addTipInfo(vsprintf(str_replace('?', "'%s'", $sql), $bindParams), 2);
+            Debug::addTipInfo(vsprintf(str_replace('%s', "'%s'", $sql), $bindParams), 2);
         }
+
+        $sqlParams = array();
+        foreach ($this->bindParams as $key => $val) {
+            $sqlParams[] = ':param'.$key;
+        }
+        $sql = vsprintf($sql, $sqlParams);
 
         $stmt = $link->prepare($sql);//pdo默认情况prepare出错不抛出异常只返回Pdo::errorInfo
         if ($stmt === false) {
             $error = $link->errorInfo();
             \Cml\throwException('Pdo Prepare Sql error! Code:'.$link->errorCode ().',ErrorInfo!:'.$error[2].'<br />');
         } else {
+            foreach($this->bindParams as $key => $val) {
+                is_int($val) ? $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_INT) : $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_STR);
+            }
             return $stmt;
         }
         return false;
@@ -444,16 +456,15 @@ class Pdo extends namespace\Base
      * 执行预处理语句
      *
      * @param object $stmt PDOStatement
-     * @param array $param
      * @param bool $clearBindParams
      *
      * @return bool
      */
-    private function execute($stmt, $param = array(), $clearBindParams = true)
+    private function execute($stmt, $clearBindParams = true)
     {
-        empty($param) && $param = $this->bindParams;
+        //empty($param) && $param = $this->bindParams;
         $clearBindParams && $this->bindParams = array();
-        if (!$stmt->execute($param)) {
+        if (!$stmt->execute()) {
             $error = $stmt->errorInfo();
             \Cml\throwException($error[2]);
         }
@@ -552,8 +563,9 @@ class Pdo extends namespace\Base
      */
     public function callProcedure($procedureName = '', $bindParams = array(), $isSelect = true)
     {
+        $this->bindParams = $bindParams;
         $stmt = $this->prepare("exec {$procedureName}");
-        $this->execute($stmt, $bindParams);
+        $this->execute($stmt);
         if ($isSelect) {
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } else {

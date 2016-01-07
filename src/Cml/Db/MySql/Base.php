@@ -505,12 +505,12 @@ abstract class Base
             //这边可直接跳过不组装sql，但是为了给用户提示无条件 便于调试还是加上where field in(0)
             $inValue = '(';
             foreach ($value as $val) {
-                $inValue .= '? ,';
+                $inValue .= '%s ,';
                 $this->bindParams[] = $val;
             }
             $this->sql['where'] .= "{$column} {$operator} ".rtrim($inValue, ',').') ';
         } elseif ($operator == 'BETWEEN' || $operator == 'NOT BETWEEN') {
-            $betweenValue = '? AND ? ';
+            $betweenValue = '%s AND %s ';
             $this->bindParams[] = $value[0];
             $this->bindParams[] = $value[1];
             $this->sql['where'] .= "{$column} {$operator} {$betweenValue}";
@@ -518,7 +518,7 @@ abstract class Base
             $this->sql['where'] .= "{$column} {$operator}";
         } else {
             $this->bindParams[] = $value;
-            $value = '?';
+            $value = '%s';
             $this->sql['where'] .= "{$column} {$operator} {$value} ";
         }
     }
@@ -662,7 +662,7 @@ abstract class Base
     public function having($column, $operator = '=', $value)
     {
         $having = $this->sql['having'] == '' ? 'HAVING' : ',';
-        $this->sql['having'] = "{$having} {$column}{$operator}? ";
+        $this->sql['having'] = "{$having} {$column}{$operator}%s ";
         $this->bindParams[] = $value;
         return $this;
     }
@@ -831,7 +831,7 @@ abstract class Base
                         break;
                 }
             } else {
-                $p = "`{$k}`= ?";
+                $p = "`{$k}`= %s";
                 $params[] = $v;
             }
 
@@ -857,7 +857,7 @@ abstract class Base
         $arr = explode('-', $key);
         $len = count($arr);
         for ($i = 1; $i < $len; $i += 2) {
-            isset($arr[$i + 1]) &&  $condition .= ($condition ? ($and ? ' AND ' : ' OR ') : '')."`{$arr[$i]}` = ?";
+            isset($arr[$i + 1]) &&  $condition .= ($condition ? ($and ? ' AND ' : ' OR ') : '')."`{$arr[$i]}` = %s";
             $this->bindParams[] = $arr[$i + 1];
         }
         $table = strtolower($arr[0]);
