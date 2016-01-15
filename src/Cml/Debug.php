@@ -201,7 +201,7 @@ EOT;
             $debugInfo = json_encode(array(
                 'sql' => self::$sqls,
                 'tipInfo' => self::$tipInfo
-            ));
+            ), PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0);
             echo <<<str
 <script>
     console.log($debugInfo);

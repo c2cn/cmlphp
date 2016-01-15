@@ -66,7 +66,7 @@ class Redis extends namespace\Base
      *
      * @param mixed $key
      *
-     * @return bool
+     * @return bool | array
      */
     public function get($key)
     {
@@ -86,7 +86,7 @@ class Redis extends namespace\Base
      */
     public function set($key, $value, $expire = 0)
     {
-        $value = (is_array($value) || is_object($value)) ? json_encode($value) : $value;
+        $value = json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0);
         if ($expire > 0) {
             return $this->hash($key)->setex($this->conf['prefix'] . $key, $expire, $value);
         } else {
@@ -105,10 +105,9 @@ class Redis extends namespace\Base
      */
     public function update($key, $value, $expire = 0)
     {
-        $arr = $this->get($key);
-        if (!empty($arr)) {
-            $arr = array_merge($arr, $value);
-            return $this->set($key, $arr, $expire);
+        $array = $this->get($key);
+        if (!empty($array)) {
+            return $this->set($key, array_merge($array, $value), $expire);
         }
         return 0;
     }

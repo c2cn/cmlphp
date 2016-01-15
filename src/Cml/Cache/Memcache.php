@@ -81,8 +81,7 @@ class Memcache extends namespace\Base
      */
     public function set($key, $value, $expire = 0)
     {
-        $value = (is_array($value) || is_object($value)) ? json_encode($value) : $value;
-        return $this->memcache->set($this->conf['prefix'] . $key, $value, false, $expire);
+        return $this->memcache->set($this->conf['prefix'] . $key, json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0), false, $expire);
     }
 
     /**
@@ -96,8 +95,7 @@ class Memcache extends namespace\Base
      */
     public function update($key, $value, $expire = 0)
     {
-        $value = (is_array($value) || is_object($value)) ? json_encode($value) : $value;
-        $this->memcache->replace($this->conf['prefix'] . $key, $value, false, $expire);
+        $this->memcache->replace($this->conf['prefix'] . $key, json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0), false, $expire);
     }
 
     /**
