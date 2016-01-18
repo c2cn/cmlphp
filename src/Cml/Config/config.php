@@ -38,7 +38,8 @@ return array(
         'server' => array(
             array(
                 'host' => '127.0.0.1',
-                'port' => '11211'
+                'port' => '11211',
+                //'weight' => 100 //权重memcached扩展有效
             ),
             //多台...
         ),

@@ -14,14 +14,19 @@ use Cml\Lang;
 class Memcache extends namespace\Base
 {
     /**
-    * @var bool|array
-    */
+     * @var bool|array
+     */
     private $conf;
 
     /**
-    * @var \Memcache | \Memcached
-    */
+     * @var \Memcache | \Memcached
+     */
     private $memcache;
+
+    /**
+     * @var int 类型 1Memcached 2 Memcache
+     */
+    private $type = 1;
 
     /**
      * @param bool $conf
@@ -31,29 +36,42 @@ class Memcache extends namespace\Base
         $this->conf = $conf ? $conf : Config::get('CACHE');
 
         if (extension_loaded('Memcached')) {
-            $this->memcache = new \Memcached;
+            $this->memcache = new \Memcached('cml_memcache_pool');
+            $this->type = 1;
         } elseif (extension_loaded('Memcache')) {
             $this->memcache = new \Memcache;
+            $this->type = 2;
         } else {
-            \Cml\throwException(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Memcache'));
+            \Cml\throwException(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Memcached/Memcache'));
         }
 
         if (!$this->memcache) {
             \Cml\throwException(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Memcache'));
         }
 
-        if (count($this->conf['server']) > 1) { //单台
-            if (!$this->memcache->connect($this->conf['host'], $this->conf['port'])) {
-                \Cml\throwException(Lang::get('_CACHE_CONNECT_FAIL_', 'Memcache',
-                    $this->conf['host'] . ':' . $this->conf['port']
-                ));
-            }
-        } else { //多台
+        if ($this->type == 2) {//memcache
             foreach ($this->conf['server'] as $val) {
-                $this->memcache->addServer($val['host'], $val['port']); //增加服务器
+                if (!$this->memcache->addServer($val['host'], $val['port'])) {
+                    \Cml\throwException(Lang::get('_CACHE_CONNECT_FAIL_', 'Memcache',
+                        $this->conf['host'] . ':' . $this->conf['port']
+                    ));
+                }
             }
+            return;
         }
 
+        if (md5(json_encode($this->conf['server'])) !== md5(json_encode($this->memcache->getServerList()))) {
+            $this->memcache->quit();
+            $this->memcache->resetServerList();
+            $this->memcache->setOption(\Memcached::OPT_PREFIX_KEY, $this->conf['prefix']);
+            \Memcached::HAVE_JSON  && $this->memcache->setOption(\Memcached::OPT_SERIALIZER, \Memcached::SERIALIZER_JSON_ARRAY);
+            if (!$this->memcache->addServers(array_values($this->conf['server']))) {
+                \Cml\throwException(
+                    Lang::get('_CACHE_CONNECT_FAIL_', 'Memcache',
+                        json_encode($this->conf['server'])
+                    ));
+            }
+        }
     }
 
     /**
@@ -65,7 +83,12 @@ class Memcache extends namespace\Base
      */
     public function get($key)
     {
-        $return = json_decode($this->memcache->get($this->conf['prefix'] . $key), true);
+        if ($this->type === 1) {
+            $return = $this->memcache->get($key);
+        } else {
+            $return = json_decode($this->memcache->get($this->conf['prefix'] . $key), true);
+        }
+
         is_null($return) && $return = false;
         return $return; //orm层做判断用
     }
@@ -81,7 +104,11 @@ class Memcache extends namespace\Base
      */
     public function set($key, $value, $expire = 0)
     {
-        return $this->memcache->set($this->conf['prefix'] . $key, json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0), false, $expire);
+        if ($this->type === 1) {
+            return $this->memcache->set($key, $value, $expire);
+        } else {
+            return $this->memcache->set($this->conf['prefix'] . $key, json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0), false, $expire);
+        }
     }
 
     /**
@@ -95,7 +122,12 @@ class Memcache extends namespace\Base
      */
     public function update($key, $value, $expire = 0)
     {
-        $this->memcache->replace($this->conf['prefix'] . $key, json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0), false, $expire);
+        if ($this->type === 1) {
+            return $this->memcache->replace($key, $value, $expire);
+        } else {
+            return $this->memcache->replace($this->conf['prefix'] . $key, json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0), false, $expire);
+        }
+
     }
 
     /**
@@ -107,7 +139,8 @@ class Memcache extends namespace\Base
      */
     public function delete($key)
     {
-        return $this->memcache->delete($this->conf['prefix'] . $key);
+        $this->type === 2 && $key = $this->conf['prefix'] . $key;
+        return $this->memcache->delete($key);
     }
 
     /**
@@ -130,7 +163,8 @@ class Memcache extends namespace\Base
      */
     public function increment($key, $val = 1)
     {
-        $this->memcache->increment($this->conf['prefix'] . $key, $val);
+        $this->type === 2 && $key = $this->conf['prefix'] . $key;
+        $this->memcache->increment($key, $val);
     }
 
     /**
@@ -143,7 +177,8 @@ class Memcache extends namespace\Base
      */
     public function decrement($key, $val = 1)
     {
-        $this->memcache->decrement($this->conf['prefix'] . $key, $val);
+        $this->type === 2 && $key = $this->conf['prefix'] . $key;
+        $this->memcache->decrement($key, $val);
     }
 
     /**
