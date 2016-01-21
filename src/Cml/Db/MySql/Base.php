@@ -821,6 +821,17 @@ abstract class Base
                     case 'dec':
                         $p = "`{$k}`= `{$k}`-" . abs(intval(current($v)));
                         break;
+                    case 'func':
+                        $func = strtoupper(key(current($v)));
+                        $funcParams = current(current($v));
+                        foreach($funcParams as $key => $val) {
+                            if (!isset($dbFields[$val])) {
+                                $funcParams[$key] = '%s';
+                                $params[] = $val;
+                            }
+                        }
+                        $p =  "`{$k}`= {$func}(" . implode($funcParams, ','). ')';
+                        break;
                     default ://计算类型
                         $conkey = key($v);
                         if (!isset($dbFields[$conkey])) $conkey = $k;

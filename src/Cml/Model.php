@@ -133,8 +133,10 @@ class Model
     public function getByColumn($val, $column = null)
     {
         is_null($column) && $column = $this->db($this->getDbConf())->getPk($this->getTableName());
-        $data = $this->db($this->getDbConf())
-            ->get($this->getTableName().'-'.$column.'-'.$val);
+        $data = $this->db($this->getDbConf())->table($this->getTableName())
+            ->where($column, $val)
+            ->limit(0, 1)
+            ->select();
         if (isset($data[0])) {
             return $data[0];
         } else {
