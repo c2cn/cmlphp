@@ -26,7 +26,15 @@ class RunCliCommand
         echo $deper.$deper."//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^{$deper}";
         echo "//^^^^^^^^^^^^^^^^^^^^^^^^^   cml.cmd start!   ^^^^^^^^^^^^^^^^^^^{$deper}";
 
-        call_user_func('\\Cml\\Tools\\'.$_SERVER['argv'][2]);
+        array_shift($_SERVER['argv']);
+        array_shift($_SERVER['argv']);
+        $tool = array_shift($_SERVER['argv']);
+        $args = array();
+        foreach($_SERVER['argv'] as $val) {
+            $args[] = $val;
+        }
+
+        call_user_func_array('\\Cml\\Tools\\'.$tool, $args);
 
         echo $deper.$deper."//^^^^^^^^^^^^^^^^^^^^^^^^^ cml.cmd end! ^^^^^^^^^^^^^^^^^^^^^^^^^{$deper}";
         echo "//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^{$deper}";

@@ -9,15 +9,49 @@
 namespace Cml\Lock;
 
 use Cml\Config;
+use Cml\Model;
 
 abstract class Base
 {
+    /**
+     * 使用的缓存
+     *
+     * @var string
+     */
+    protected $userCache = 'default_cache';
+
+    public function __construct($userCache) {
+        is_null($userCache) || $this->userCache = $userCache;
+    }
+
+    /**
+     * 锁的过期时间针对Memcache/Redis两种锁有效,File锁无效 单位s
+     * 设为0时不过期。此时假如开发未手动unlock且这时出现程序挂掉的情况 __destruct未执行。这时锁必须人工介入处理
+     * 这个值可根据业务需要进行修改比如60等
+     *
+     * @var int
+     */
+    protected $expire = 100;
+
     /**
      * 保存锁数据
      *
      * @var array
      */
     protected static $lockCache = array();
+
+    /**
+     * 设置锁的过期时间
+     *
+     * @param int $expire
+     *
+     * @return \Cml\Lock\Redis | \Cml\Lock\Memcache | \Cml\Lock\File
+     */
+    public function setExpire($expire = 100)
+    {
+        $this->expire = $expire;
+        return $this;
+    }
 
     /**
      * 组装key
@@ -46,12 +80,34 @@ abstract class Base
      *
      * @param string $key
      *
-     * @return mixed
+     * @return void
      */
-    abstract public function unlock($key);
+    public function unlock($key)
+    {
+        $key = $this->getKey($key);
+
+        if (
+            isset(self::$lockCache[$key])
+            && self::$lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
+        ) {
+            Model::getInstance()->cache($this->userCache)->getInstance()->delete($key);
+            self::$lockCache[$key] = null;//防止gc延迟,判断有误
+            unset(self::$lockCache[$key]);
+        }
+    }
 
     /**
      * 定义析构函数 自动释放获得的锁
+     *
      */
-   abstract public function __destruct();
+    public function __destruct()
+    {
+        foreach (self::$lockCache as $key => $isMyLock) {
+            if ($isMyLock == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)) {
+                Model::getInstance()->cache($this->userCache)->getInstance()->delete($key);
+            }
+            self::$lockCache[$key] = null;//防止gc延迟,判断有误
+            unset(self::$lockCache[$key]);
+        }
+    }
 }

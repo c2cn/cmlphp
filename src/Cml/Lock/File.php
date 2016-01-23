@@ -4,17 +4,6 @@ namespace Cml\Lock;
 class File extends Base
 {
     /**
-     * 使用的缓存
-     *
-     * @var string
-     */
-    private $userCache = 'default_cache';
-
-    public function __construct($userCache){
-        is_null($userCache) || $this->userCache = $userCache;
-    }
-
-    /**
      * 上锁
      *
      * @param string $key
@@ -28,26 +17,29 @@ class File extends Base
             return false;
         }
 
+        if (isset(self::$lockCache[$key])) {//FileLock不支持设置过期时间
+            return true;
+        }
+
         $fileName = $this->getFileName($key);
         if(!$fp = fopen($fileName, 'w+')) {
             return false;
         }
 
-        if (flock($fp, LOCK_EX)) {
+        if (flock($fp, LOCK_EX | LOCK_NB)) {
             self::$lockCache[$fileName] = $fp;
             return true;
         }
 
         //非堵塞模式
         if (!$wouldblock) {
-            self::$lockCache[$fileName] = 0;
             return false;
         }
 
         //堵塞模式
         do {
             usleep(200);
-        } while (!flock($fp, LOCK_EX));
+        } while (!flock($fp, LOCK_EX | LOCK_NB));
 
         self::$lockCache[$fileName] = $fp;
         return true;
@@ -61,9 +53,11 @@ class File extends Base
     public function unlock($key) {
         $fileName = $this->getFileName($key);
 
-        if (isset(self::$lockCache[$fileName]) && self::$lockCache[$fileName]) {
-            is_file($fileName) && unlink($fileName);
+        if (isset(self::$lockCache[$fileName])) {
+            flock(self::$lockCache[$fileName], LOCK_UN);//5.3.2 在文件资源句柄关闭时不再自动解锁。现在要解锁必须手动进行。
             fclose(self::$lockCache[$fileName]);
+            is_file($fileName) && unlink($fileName);
+            self::$lockCache[$fileName] = null;
             unset(self::$lockCache[$fileName]);
         }
     }
@@ -72,13 +66,12 @@ class File extends Base
      * 定义析构函数 自动释放获得的锁
      */
     public function __destruct() {
-        foreach (self::$lockCache as $key => $islock) {
-            if ($islock) {
-                if (is_file($key)) {
-                    fclose($islock);
-                    unlink($key);
-                }
-            }
+        foreach (self::$lockCache as $key => $fp) {
+            flock($fp, LOCK_UN);//5.3.2 在文件资源句柄关闭时不再自动解锁。现在要解锁必须手动进行。
+            fclose($fp);
+            is_file($key) && unlink($key);
+            self::$lockCache[$key] = null;//防止gc延迟,判断有误
+            unset(self::$lockCache[$key]);
         }
     }
 

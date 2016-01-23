@@ -9,20 +9,11 @@
 
 namespace Cml\Lock;
 
+use Cml\Cml;
 use Cml\Model;
 
 class Memcache extends Base
 {
-    /**
-     * 使用的缓存
-     *
-     * @var string
-     */
-    private $userCache = 'default_cache';
-
-    public function __construct($userCache){
-        is_null($userCache) || $this->userCache = $userCache;
-    }
 
     /**
      * 上锁
@@ -39,51 +30,41 @@ class Memcache extends Base
         }
         $key = $this->getKey($key);
 
-        if (Model::getInstance()->cache($this->userCache)->getInstance()->add($key, 1, 0)) {
-            self::$lockCache[$key] = 1;
+        if (
+            isset(self::$lockCache[$key])
+            && self::$lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
+        ) {
+            return true;
+        }
+
+        $driverType = Model::getInstance()->cache($this->userCache)->getDriverType();
+        if ($driverType === 1) { //memcached
+            $isLock = Model::getInstance()->cache($this->userCache)->getInstance()->add($key, (string)Cml::$nowMicroTime, $this->expire);
+        } else {//memcache
+            $isLock = Model::getInstance()->cache($this->userCache)->getInstance()->add($key, (string)Cml::$nowMicroTime, 0, $this->expire);
+        }
+        if ($isLock) {
+            self::$lockCache[$key] = (string)Cml::$nowMicroTime;
             return true;
         }
 
         //非堵塞模式
         if (!$wouldblock) {
-            self::$lockCache[$key] = 0;
             return false;
         }
 
         //堵塞模式
         do {
             usleep(200);
-        } while (!Model::getInstance()->cache($this->userCache)->getInstance()->add($key, 1, 0));
 
-        self::$lockCache[$key] = 1;
-        return true;
-    }
-
-    /**
-     * 解锁
-     *
-     * @param string $key
-     */
-    public function unlock($key)
-    {
-        $key = $this->getKey($key);
-
-        if (isset(self::$lockCache[$key]) && self::$lockCache[$key]) {
-            Model::getInstance()->cache($this->userCache)->getInstance()->delete($key);
-            unset(self::$lockCache[$key]);
-        }
-    }
-
-    /**
-     * 定义析构函数 自动释放获得的锁
-     */
-    public function __destruct()
-    {
-        foreach (self::$lockCache as $key => $islock) {
-            if ($islock) {
-                Model::getInstance()->cache($this->userCache)->getInstance()->delete($key);
-                unset(self::$lockCache[$key]);
+            if ($driverType === 1) { //memcached
+                $isLock = Model::getInstance()->cache($this->userCache)->getInstance()->add($key, (string)Cml::$nowMicroTime, $this->expire);
+            } else {//memcache
+                $isLock = Model::getInstance()->cache($this->userCache)->getInstance()->add($key, (string)Cml::$nowMicroTime, 0, $this->expire);
             }
-        }
+        } while (!$isLock);
+
+        self::$lockCache[$key] = (string)Cml::$nowMicroTime;
+        return true;
     }
 }

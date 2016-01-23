@@ -29,6 +29,16 @@ class Memcache extends namespace\Base
     private $type = 1;
 
     /**
+     * 返回memcache驱动类型  加锁时用
+     *
+     * @return int
+     */
+    public function getDriverType()
+    {
+        return $this->type;
+    }
+
+    /**
      * @param bool $conf
      */
     public function __construct($conf = false)
