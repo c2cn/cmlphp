@@ -21,10 +21,6 @@ class RunCliCommand
         if($_SERVER['argv'][1] != 'cml.cmd') {
             return ;
         }
-        $deper = (Request::isCli() ? PHP_EOL : '<br />');
-
-        echo $deper.$deper."//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^{$deper}";
-        echo "//^^^^^^^^^^^^^^^^^^^^^^^^^   cml.cmd start!   ^^^^^^^^^^^^^^^^^^^{$deper}";
 
         array_shift($_SERVER['argv']);
         array_shift($_SERVER['argv']);
@@ -34,10 +30,29 @@ class RunCliCommand
             $args[] = $val;
         }
 
-        call_user_func_array('\\Cml\\Tools\\'.$tool, $args);
+        $deper = Request::isCli() ? PHP_EOL : '<br />';
+        self::printMessage('//*********************cml.cmd start!**************************'.$deper);
 
-        echo $deper.$deper."//^^^^^^^^^^^^^^^^^^^^^^^^^ cml.cmd end! ^^^^^^^^^^^^^^^^^^^^^^^^^{$deper}";
-        echo "//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^{$deper}";
+        if (call_user_func_array('\\Cml\\Tools\\'.$tool, $args) === false) {
+            self::printMessage("call result is false please check method is exists! or method return false?...");
+        }
+
+        self::printMessage($deper.'*********************cml.cmd end!**************************//');
+
         exit();
+    }
+
+    /**
+     * 打印一行
+     *
+     * @param string $msg
+     * @param string $deper
+     *
+     * @return void
+     */
+    private static function printMessage($msg)
+    {
+        $deper = Request::isCli() ? PHP_EOL : '<br />';
+        echo $deper.$msg .$deper;
     }
 }

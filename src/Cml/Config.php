@@ -128,7 +128,10 @@ class Config
     /**
      * 从文件载入Config
      *
-     * @param $file
+     * @param string $file
+     * @param bool $global 是否从全局加载
+     *
+     * @return array
      */
     public static function load($file, $global = true)
     {
@@ -137,7 +140,7 @@ class Config
         } else {
             $file = CML_APP_FULL_PATH.DIRECTORY_SEPARATOR
                 .
-                ( $global ? '' : \Cml\Config::get('application_dir') . Route::$urlParams['path'] )
+                ( $global ? '' : Config::get('application_dir') . Route::$urlParams['path'] )
                 .
                 'Config'.DIRECTORY_SEPARATOR
                 .

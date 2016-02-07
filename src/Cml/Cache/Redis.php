@@ -34,19 +34,15 @@ class Redis extends namespace\Base
 
     /**
      * 根据key获取redis实例
+     * 这边还是用取模的方式，一致性hash用php实现性能开销过大。取模的方式对只有几台机器的情况足够用了
+     * 如果有集群需要，直接使用redis3.0+自带的集群功能就好了。不管是可用性还是性能都比用php自己实现好
      *
      * @param $key
      *
      * @return \Redis
      */
     private function hash($key) {
-        $len = strlen($key);
-        $success = 0;
-        for($i = 0; $i < $len; $i++) {
-            $success += ord($key[$i]);
-        }
-
-        $success = $success % count($this->conf['server']);
+        $success = sprintf('%u', crc32($key)) % count($this->conf['server']);
 
         if(!isset($this->redis[$success]) || !is_object($this->redis[$success])) {
             $instance = new \Redis();
@@ -138,8 +134,8 @@ class Redis extends namespace\Base
                 } else {
                     \Cml\throwException(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Redis'));
                 }
-                $this->redis[$key]->flushDB();
             }
+            $this->redis[$key]->flushDB();
         }
         return true;
     }
@@ -185,6 +181,8 @@ class Redis extends namespace\Base
 
     /**
      * 返回实例便于操作未封装的方法
+     *
+     * @param string $key
      *
      * @return \Redis
      */

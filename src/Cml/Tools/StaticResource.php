@@ -20,7 +20,7 @@ class StaticResource
 
         $deper = (Request::isCli() ? PHP_EOL : '<br />');
 
-        echo "{$deper}**************************=create link start!*********************{$deper}";
+        echo "{$deper}**************************create link start!*********************{$deper}";
 
         echo '|' . str_pad('', 64, ' ', STR_PAD_BOTH) . '|';
 

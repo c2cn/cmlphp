@@ -93,6 +93,8 @@ abstract class Base
     /**
      * 返回实例便于操作未封装的方法
      *
+     * @param string $key
+     *
      * @return \Redis | \Memcache | \Memcached
      */
     abstract public function getInstance($key = '');

@@ -8,7 +8,7 @@
  * *********************************************************** */
 namespace Cml;
 
-class Lang extends \Cml\Config
+class Lang extends Config
 {
     /**
      * @var array 存放了所有语言信息

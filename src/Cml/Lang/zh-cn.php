@@ -15,8 +15,6 @@ return array(
 	'_ERROR_LINE_' => '错误位置',
 	'_FILE_NOT_FOUND_' => '%s不存在',
 	'_ACTION_NOT_FOUND_' => '没有%s这个操作！',
-	'_SUCCESS_JUMP_PAGE_TIP_' => '页面将在 <span id = "wait" class="wait">%d</span> 秒后自动关闭，如果不想等待请点击 <a id = "jump" href="%s">这里</a> 关闭',
-	'_FAIL_JUMP_PAGE_TIP_' => '页面将在 <span id = "wait" class="wait">%d</span> 秒后自动跳转，如果不想等待请点击 <a id = "jump" href="%s">这里</a> 跳转',
 	'_DB_PARAM_ERROR_WHERE_BETWEEN_' => 'whereBetween参数出错,必须为whereBetween(字段,区间1,区间2)或whereBetween(字段，array(区间1， 区间2)',
 	'_DB_PARAM_ERROR_PARSE_KEY_' => '解析%s失败, %s为空',
 	'_DB_PARAM_ERROR_PARSE_ON_' => '解析SQL语句失败联结表[%s]时on条件不能为空',
@@ -32,7 +30,7 @@ return array(
 	'_ILLEGAL_REQUEST_' => '非法请求',
 	'_TEMPLATE_FILE_NOT_FOUND_'=> '模板或布局文件[%s]未找到或者无法打开',
 	'_CREATE_DIR_ERROR_' => '无法创建目录',
-	'_NOT_OPEN_' => '未启用',
+	'_NOT_OPEN_' => '%s未启用',
 	'_ROUTE_PARAM_ERROR_' => '[%s]路由配置错误,【至少要控制器/方法】2个参数',
 
 

@@ -89,7 +89,7 @@ class Controller
                 $_instance[$useCache] = new $lock($useCache);
                 return $_instance[$useCache];
             } else {
-                throwException($useCache.Lang::get('_NOT_OPEN_'));
+                throwException(Lang::get('_NOT_OPEN_', $useCache));
                 return false;
             }
         }

@@ -25,8 +25,14 @@ class Json extends Base {
             if (isset($sqls[0])) {
                 $this->args['sql'] = implode($sqls, ', ');
             }
+        } else {
+            $deBugLogData = \Cml\dump('', 1);
+            if (!empty($deBugLogData)) {
+                $this->args['cml_debug_info'] = $deBugLogData;
+            }
         }
         Plugin::hook('cml.before_cml_stop');
+
         exit(json_encode($this->args, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0));
     }
 

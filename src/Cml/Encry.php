@@ -31,6 +31,7 @@ class Encry
      *
      * @param string $string  加密或解密内容
      * @param int $type 类型:1加密 2解密
+     * @param string $key
      *
      * @return mixed
      */
@@ -87,7 +88,7 @@ class Encry
     /**
      * 解密方法
      *
-     * @param string $string  解密字符串
+     * @param string $data  解密字符串
      * @param string $key   密钥
      *
      * @return mixed

@@ -127,6 +127,8 @@ return array(
     'log_prefix' => 'cml_log', //会显示到日志内容中,同时当以redis为驱动的时候会做为队列的前缀
     //上锁使用的缓存
     'log_use_cache' => 'default_cache',//只有在该缓存的驱动为redis的时候才有效,否则会报错
+    //队列使用的缓存
+    'queue_use_cache' => 'default_cache',//只有在该缓存的驱动为redis的时候才有效,否则会报错
 
     'is_multi_modules' => true, //是否为分模块设计,//默认为true 这个选项是为了兼容旧项目，新项目最好不要开启
     'application_dir' => 'Application',//分模块的时候主目录名称

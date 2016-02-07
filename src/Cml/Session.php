@@ -21,6 +21,7 @@ class Session
 
     /**
      * @var \Cml\Db\Mysql\Pdo || Cml\Cache\File
+     *
      */
     private $handler;
 
@@ -54,11 +55,7 @@ class Session
     public function close()
     {
         if (Config::get('session_user_LOC') == 'db') {
-            if (Config::get('default_db.driver') == 'MySql') {
-                mysql_close($this->handler ->wlink);
-            } else {
-                $this->handler ->wlink = null;
-            }
+            $this->handler ->wlink = null;
         }
         //$GLOBALS['debug'] && \Cml\Debug::stop(); 开启ob_start()的时候 php此时已经不能使用压缩，所以这边输出的数据是没压缩的，而之前已经告诉浏览器数据是压缩的，所以会导致火狐、ie不能正常解压
         //$this->gc($this->lifeTime);
@@ -99,7 +96,8 @@ class Session
     {
         if (Config::get('session_user_LOC') == 'db') {
             $lifeTime || $lifeTime = $this->lifeTime;
-            $this->handler->exec('DELETE FROM `cml_session` where `time` < '.Cml::$nowTime - $lifeTime);
+            $stmt = $this->handler->prepare('DELETE FROM `cml_session` where `time` < '.Cml::$nowTime - $lifeTime);
+            $stmt->execute();
         } else {
             //cache 本身会回收
         }

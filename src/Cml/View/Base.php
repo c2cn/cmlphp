@@ -21,6 +21,8 @@ abstract class Base {
      *
      * @param string | array $key 数组或字符串为数组时批量赋值
      * @param mixed $val
+     *
+     * @return $this
      */
     public function assign($key, $val = null) {
         if (is_array($key)) {
@@ -36,6 +38,8 @@ abstract class Base {
      *
      * @param string | array $key 数组或字符串为数组时批量赋值
      * @param mixed $val
+     *
+     * @return $this
      */
     public function assignByRef($key, &$val = null) {
         if (is_array($key)) {

@@ -224,6 +224,8 @@ class File extends namespace\Base
     /**
      * 返回实例便于操作未封装的方法
      *
+     * @param string $key
+     *
      * @return void
      */
     public function getInstance($key = '') {}

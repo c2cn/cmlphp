@@ -194,6 +194,8 @@ class Memcache extends namespace\Base
     /**
      * 返回实例便于操作未封装的方法
      *
+     * @param string $key
+     *
      * @return \Memcache|\Memcached
      */
     public function getInstance($key = '')

@@ -170,7 +170,7 @@ class Secure
                 self::filterAll($v);
             }
         } else {
-            get_magic_quotes_gpc() || $var = addslashes($var);
+            $var = addslashes($var);
             $var = self::filterStr($var);
             $var = self::filterSql($var);
         }
