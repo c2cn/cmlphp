@@ -23,11 +23,10 @@ abstract class Base
      * 从列表头出队
      *
      * @param string $name
-     * @param mixed $data
      *
      * @return mixed
      */
-    abstract public function lPop($name, $data);
+    abstract public function lPop($name);
 
     /**
      * 从列表尾入队
@@ -43,11 +42,10 @@ abstract class Base
      * 从列表尾出队
      *
      * @param string $name
-     * @param mixed $data
      *
      * @return mixed
      */
-    abstract public function rPop($name, $data);
+    abstract public function rPop($name);
 
     /**
      * 从列表尾出队

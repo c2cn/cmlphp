@@ -29,11 +29,10 @@ class Redis extends Base
      * 从列表头出队
      *
      * @param string $name
-     * @param mixed $data
      *
      * @return mixed
      */
-    public function lPop($name, $data)
+    public function lPop($name)
     {
         $data = $this->getDriver()->lPop($name);
         $data && $this->decodeDate($data);
@@ -57,11 +56,10 @@ class Redis extends Base
      * 从列表尾出队
      *
      * @param string $name
-     * @param mixed $data
      *
      * @return mixed
      */
-    public function rPop($name, $data)
+    public function rPop($name)
     {
         $data = $this->getDriver()->rPop($name);
         $data && $this->decodeDate($data);
