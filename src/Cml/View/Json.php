@@ -21,14 +21,20 @@ class Json extends Base {
     public function display() {
         header('Content-Type: application/json;charset='.Config::get('default_charset'));
         if ($GLOBALS['debug']) {
-            $sqls = Debug::getSqls();
-            if (isset($sqls[0])) {
-                $this->args['sql'] = implode($sqls, ', ');
+            $sql = Debug::getSqls();
+            if (Config::get('dump_use_php_console')) {
+                $sql && \Cml\dumpUsePHPConsole($sql, 'sql');
+                \Cml\dumpUsePHPConsole(Debug::getTipInfo(), 'tipInfo');
+                \Cml\dumpUsePHPConsole(Debug::getIncludeFiles(), 'includeFile');
+            } else {
+                if (isset($sql[0])) {
+                    $this->args['sql'] = implode($sql, ', ');
+                }
             }
         } else {
             $deBugLogData = \Cml\dump('', 1);
             if (!empty($deBugLogData)) {
-                $this->args['cml_debug_info'] = $deBugLogData;
+                Config::get('dump_use_php_console') ? \Cml\dumpUsePHPConsole($deBugLogData, 'debug') : $this->args['cml_debug_info'] = $deBugLogData;
             }
         }
         Plugin::hook('cml.before_cml_stop');

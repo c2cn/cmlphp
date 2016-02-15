@@ -40,6 +40,26 @@ class Debug
         return self::$sqls;
     }
 
+    /**
+     * 返回提示信息
+     *
+     * @return array
+     */
+    public static function getTipInfo()
+    {
+        return self::$tipInfo;
+    }
+
+    /**
+     * 返回包含的文件
+     *
+     * @return array
+     */
+    public static function getIncludeFiles()
+    {
+        return self::$includefile;
+    }
+
 
     /**
      * 在脚本开始处调用获取脚本开始时间的微秒值\及内存的使用量
@@ -607,9 +627,9 @@ class dBug {
     //parse xml
     function xmlParse($xml_parser,$data,$bFinal) {
         if (!xml_parse($xml_parser,$data,$bFinal)) {
-                   die(sprintf("XML error: %s at line %d\n",
-                               xml_error_string(xml_get_error_code($xml_parser)),
-                               xml_get_current_line_number($xml_parser)));
+            die(sprintf("XML error: %s at line %d\n",
+                xml_error_string(xml_get_error_code($xml_parser)),
+                xml_get_current_line_number($xml_parser)));
         }
     }
 
