@@ -166,7 +166,7 @@ class Cml
         self::$nowMicroTime = microtime(true);
 
         //包含框架中的框架函数库文件
-        require CML_PATH.DIRECTORY_SEPARATOR.'Cml'.DIRECTORY_SEPARATOR.'Function'.DIRECTORY_SEPARATOR.'function.php';
+        require CML_PATH.DIRECTORY_SEPARATOR.'Cml'.DIRECTORY_SEPARATOR.'Tools'.DIRECTORY_SEPARATOR.'functions.php';
 
         // 注册AUTOLOAD方法
         //spl_autoload_register('Cml\Cml::autoload');
@@ -336,7 +336,7 @@ class Cml
         Plugin::mount('cml.before_show_404_page', array(
             function() {
                 $cmdLists = Config::get('cmlframework_system_command');
-                $cmd = trim(Route::$urlParams['path'], DIRECTORY_SEPARATOR);
+                $cmd = strtolower(trim(Route::$urlParams['path'], DIRECTORY_SEPARATOR));
                 if (isset($cmdLists[$cmd])) {
                     call_user_func($cmdLists[$cmd]);
                 }
@@ -359,7 +359,9 @@ class Cml
             Debug::stop();
         } else {
             $deBugLogData = dump('', 1);
-            if (!empty($deBugLogData)) require CML_PATH.DIRECTORY_SEPARATOR.'Cml'.DIRECTORY_SEPARATOR.'ConsoleLog.php';
+            if (!empty($deBugLogData)) {
+                Config::get('dump_use_php_console') ? \Cml\dumpUsePHPConsole($deBugLogData) : require CML_PATH.DIRECTORY_SEPARATOR.'Cml'.DIRECTORY_SEPARATOR.'ConsoleLog.php';
+            };
             CML_OB_START && ob_end_flush();
             exit();
         }

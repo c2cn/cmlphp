@@ -134,9 +134,14 @@ return array(
     'application_dir' => 'Application',//分模块的时候主目录名称
     'modules_static_path_name' => 'Resource',//分模块的时候如有静态资源默认目录名
 
-    /*系统路由*/
+    /*系统路由-统一用小写url*/
     'cmlframework_system_command' => array(
         'cmlframeworkstaticparse' => '\\Cml\\Tools\\StaticResource::parseResourceFile'
     ),
     'static_file_version' => 'v1', //开发模式会自动在静态文件后加时间缀，实时过期,线上模板版本号固定，如有需要在这里改版本号强制过期
+
+    /*php-console配置*/
+    'dump_use_php_console' => false, //开启本功能需要先安装php-console composer require php-console/php-console ~3.0
+    'php_console_password' => 'cmlphp_php_console_pw123456',
+
 );

@@ -198,15 +198,17 @@ EOT;
     private static function showCmlPHPConsole()
     {
         if (Request::isAjax()) {
-            $debugInfo = json_encode(array(
-                'sql' => self::$sqls,
-                'tipInfo' => self::$tipInfo
-            ), PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0);
-            echo <<<str
-<script>
-    console.log($debugInfo);
-</script>
-str;
+            if (Config::get('dump_use_php_console')) {
+                self::$sqls && \Cml\dumpUsePHPConsole(self::$sqls, 'sql');
+                \Cml\dumpUsePHPConsole(self::$tipInfo, 'tipInfo');
+                \Cml\dumpUsePHPConsole(self::$includefile, 'includeFile');
+            } else {
+                $deBugLogData = array(
+                    'tipInfo' => self::$tipInfo
+                );
+                self::$sqls && $deBugLogData['sql'] = self::$sqls;
+                if (!empty($deBugLogData)) require CML_PATH.DIRECTORY_SEPARATOR.'Cml'.DIRECTORY_SEPARATOR.'ConsoleLog.php';
+            }
         } else {
             echo '<div id="cmlphp_console_info" style="letter-spacing: -.0em;position: fixed;bottom:0;right:0;font-size:14px;width:100%;z-index: 999999;color: #000;text-align:left;font-family:\'微软雅黑\';">
                     <div id="cmlphp_console_info_switch" style="height: 26px; bottom: 0px; color: rgb(0, 0, 0); line-height: 26px; cursor: pointer; display: block; width: 100%; border-bottom: 3px rgb(255, 102, 0) solid;">

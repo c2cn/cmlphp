@@ -67,7 +67,7 @@ class Redis extends Base
     }
 
     /**
-     * 从列表尾出队
+     * 弹入弹出
      *
      * @param string $from
      * @param string $to

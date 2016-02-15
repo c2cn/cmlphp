@@ -13,10 +13,10 @@ class VerifyCode
     /**
      * 生成图像数字验证码
      *
-     * @param string $length  位数
+     * @param int $length  位数
      * @param string $type 图像格式
-     * @param string $width  宽度
-     * @param string $height  高度
+     * @param int $width  宽度
+     * @param int $height  高度
      * @param string $font字体名
      *
      * @return void
@@ -212,7 +212,7 @@ class VerifyCode
     /**
      * 输出图片
      *
-     * @param string $image 被载入的图片
+     * @param resource $image 被载入的图片
      * @param string $type 输出的类型
      * @param string $filename 保存的文件名
      * @param int $quality jpeg保存的质量
