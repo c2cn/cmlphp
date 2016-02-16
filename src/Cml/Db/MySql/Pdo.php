@@ -437,12 +437,19 @@ class Pdo extends namespace\Base
         foreach ($this->bindParams as $key => $val) {
             $sqlParams[] = ':param'.$key;
         }
+        $tipSql = $sql;
         $sql = vsprintf($sql, $sqlParams);
 
         $stmt = $link->prepare($sql);//pdo默认情况prepare出错不抛出异常只返回Pdo::errorInfo
         if ($stmt === false) {
             $error = $link->errorInfo();
-            \Cml\throwException('Pdo Prepare Sql error! Code:'.$link->errorCode ().',ErrorInfo!:'.$error[2].'<br />');
+            $bindParams = $this->bindParams;
+            foreach ($bindParams as $key => $val) {
+                $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
+            }
+            \Cml\throwException(
+                'Pdo Prepare Sql error! ,【Sql : '.vsprintf(str_replace('%s', "'%s'", $tipSql), $bindParams).'】,【Code:'.$link->errorCode ().'】, 【ErrorInfo!:'.$error[2].'】 <br />'
+            );
         } else {
             foreach($this->bindParams as $key => $val) {
                 is_int($val) ? $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_INT) : $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_STR);
