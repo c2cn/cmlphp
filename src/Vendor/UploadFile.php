@@ -11,6 +11,11 @@ namespace Cml\Vendor;
 
 use Cml\Cml;
 
+/**
+ * 文件上传扩展类
+ *
+ * @package Cml\Vendor
+ */
 class UploadFile
 {
     private $config = array(
@@ -59,7 +64,7 @@ class UploadFile
      * @param string $name
      * @param string $value
      *
-     * @param void
+     * @return void
      */
     public function __set($name, $value)
     {

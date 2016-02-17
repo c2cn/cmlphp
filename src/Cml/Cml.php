@@ -12,6 +12,11 @@ use Cml\Http\Request;
 use Cml\Http\Response;
 use Cml\Tools\RunCliCommand;
 
+/**
+ * 框架基础类,负责初始化应用的一系列工作,如配置初始化、语言包载入、错误异常机制的处理等
+ *
+ * @package Cml
+ */
 class Cml
 {
     /**

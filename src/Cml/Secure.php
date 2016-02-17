@@ -12,6 +12,11 @@ use Cml\Http\Input;
 use Cml\Http\Request;
 use Cml\Http\Response;
 
+/**
+ * 安全处理类,封装了常用的安全过滤接口
+ *
+ * @package Cml
+ */
 class Secure
 {
 

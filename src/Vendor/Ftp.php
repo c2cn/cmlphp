@@ -4,11 +4,16 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-211 下午2:23
  * @version  2.5
- * cml框架 Ftp扩展类
+ * cml框架 Ftp操作类
  * *********************************************************** */
 namespace Cml\Vendor;
 
 
+/**
+ * Ftp操作类
+ *
+ * @package Cml\Vendor
+ */
 class Ftp
 {
 

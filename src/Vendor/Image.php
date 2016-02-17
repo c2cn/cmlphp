@@ -9,6 +9,11 @@
 
 namespace Cml\Vendor;
 
+/**
+ * 图片处理扩展类
+ *
+ * @package Cml\Vendor
+ */
 class Image
 {
 

@@ -10,6 +10,11 @@ namespace Cml;
 
 use Cml\Http\Request;
 
+/**
+ * Url解析类,负责路由及Url的解析
+ *
+ * @package Cml
+ */
 class Route
 {
     /**
@@ -45,7 +50,8 @@ class Route
     private static $rules = array();
 
     /**
-     * 控制器、操作
+     * 解析得到的请求信息 含应用名、控制器、操作
+     *
      * @var array
      */
     public static $urlParams = array(
@@ -293,11 +299,11 @@ class Route
     /**
      * 匹配路由
      *
-     * @param $pathinfo
+     * @param string $pathinfo
      *
      * @return mixed
      */
-    public static function isRoute(&$pathinfo)
+    private static function isRoute(&$pathinfo)
     {
         empty($pathinfo) && $pathinfo[0] = '/';//网站根地址
         $issuccess = array();

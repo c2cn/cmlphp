@@ -11,7 +11,13 @@ namespace Cml\View;
 use Cml\Config;
 use Cml\Plugin;
 
-class Xml extends Base {
+/**
+ * 视图 Json渲染引擎
+ *
+ * @package Cml\View
+ */
+class Xml extends Base
+{
 
     /**
      * 输出数据
@@ -26,8 +32,8 @@ class Xml extends Base {
     /**
      * 数组转xml
      *
-     * @param array $arr
-     * @param int $level
+     * @param array $arr 要转换的数组
+     * @param int $level 层级
      *
      * @return string
      */

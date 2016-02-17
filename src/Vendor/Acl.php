@@ -15,67 +15,82 @@ use Cml\Http\Cookie;
 use Cml\Model;
 use Cml\Route;
 
-/*
- 加到normal.php配置中
-//权限控制配置
-'administratorid'=>'1', //超管理员id
- */
-
 /**
- * 建库语句
+ * 权限控制类
 
-CREATE TABLE `hadm_access` (
-`id` int(11) NOT NULL AUTO_INCREMENT COMMENT '权限ID',
-`userid` int(11) DEFAULT '0' COMMENT '所属用户权限ID',
-`groupid` int(11) DEFAULT '0' COMMENT '所属群组权限ID',
-`menuid` int(11) NOT NULL DEFAULT '0' COMMENT '权限模块ID',
-PRIMARY KEY (`id`),
-KEY `idx_userid` (`userid`) USING BTREE,
-KEY `idx_groupid` (`groupid`) USING BTREE,
-KEY `idx_menuid` (`menuid`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=1038 DEFAULT CHARSET=utf8 COMMENT='用户或者用户组权限记录';
+    加到normal.php配置中
+    //权限控制配置
+    'administratorid'=>'1', //超管理员id
 
-CREATE TABLE `hadm_group` (
-`id` smallint(3) unsigned NOT NULL AUTO_INCREMENT,
-`name` varchar(150) DEFAULT NULL,
-`status` tinyint(1) unsigned DEFAULT '1' COMMENT '1正常，0删除',
-PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+    建库语句
+    CREATE TABLE `hadm_access` (
+        `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '权限ID',
+        `userid` int(11) DEFAULT '0' COMMENT '所属用户权限ID',
+        `groupid` int(11) DEFAULT '0' COMMENT '所属群组权限ID',
+        `menuid` int(11) NOT NULL DEFAULT '0' COMMENT '权限模块ID',
+        PRIMARY KEY (`id`),
+        KEY `idx_userid` (`userid`) USING BTREE,
+        KEY `idx_groupid` (`groupid`) USING BTREE,
+        KEY `idx_menuid` (`menuid`) USING BTREE
+    ) ENGINE=MyISAM AUTO_INCREMENT=1038 DEFAULT CHARSET=utf8 COMMENT='用户或者用户组权限记录';
 
-CREATE TABLE `hadm_menu` (
-`id` int(11) NOT NULL AUTO_INCREMENT,
-`pid` int(11) NOT NULL DEFAULT '0' COMMENT '父模块ID编号 0则为顶级模块',
-`title` char(64) NOT NULL COMMENT '标题',
-`url` char(64) NOT NULL COMMENT 'url路径',
-`isshow` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否显示',
-`order` int(4) NOT NULL DEFAULT '0' COMMENT '排序倒序',
-PRIMARY KEY (`id`),
-KEY `idex_pid` (`pid`) USING BTREE,
-KEY `idex_order` (`order`) USING BTREE,
-KEY `idx_action` (`url`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='权限模块信息表';
+    CREATE TABLE `hadm_group` (
+        `id` smallint(3) unsigned NOT NULL AUTO_INCREMENT,
+        `name` varchar(150) DEFAULT NULL,
+        `status` tinyint(1) unsigned DEFAULT '1' COMMENT '1正常，0删除',
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
-CREATE TABLE `hadm_users` (
-`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-`groupid` smallint(3) NOT NULL DEFAULT '0',
-`username` varchar(40) NOT NULL DEFAULT '',
-`password` varchar(40) NOT NULL DEFAULT '',
-`lastlogin` int(10) unsigned NOT NULL DEFAULT '0',
-`ctime` int(10) unsigned NOT NULL DEFAULT '0',
-`stime` int(10) unsigned NOT NULL DEFAULT '0',
-`status` tinyint(1) unsigned DEFAULT '1' COMMENT '1正常，0删除',
-PRIMARY KEY (`id`),
-UNIQUE KEY `username` (`username`)
-) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
+    CREATE TABLE `hadm_menu` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `pid` int(11) NOT NULL DEFAULT '0' COMMENT '父模块ID编号 0则为顶级模块',
+        `title` char(64) NOT NULL COMMENT '标题',
+        `url` char(64) NOT NULL COMMENT 'url路径',
+        `isshow` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否显示',
+        `order` int(4) NOT NULL DEFAULT '0' COMMENT '排序倒序',
+        PRIMARY KEY (`id`),
+        KEY `idex_pid` (`pid`) USING BTREE,
+        KEY `idex_order` (`order`) USING BTREE,
+        KEY `idx_action` (`url`)
+    ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='权限模块信息表';
 
+    CREATE TABLE `hadm_users` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `groupid` smallint(3) NOT NULL DEFAULT '0',
+        `username` varchar(40) NOT NULL DEFAULT '',
+        `password` varchar(40) NOT NULL DEFAULT '',
+        `lastlogin` int(10) unsigned NOT NULL DEFAULT '0',
+        `ctime` int(10) unsigned NOT NULL DEFAULT '0',
+        `stime` int(10) unsigned NOT NULL DEFAULT '0',
+        `status` tinyint(1) unsigned DEFAULT '1' COMMENT '1正常，0删除',
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `username` (`username`)
+    ) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
+
+ * @package Cml\Vendor
  */
-
-
 class Acl
 {
+    /**
+     * 加密用的混淆key
+     *
+     * @var string
+     */
     public static $encryptKey = 'pnnle-oienngls-llentne-lnegxe';
-    public static $aclNames = array();//有权限的时候保存权限的显示名称用于记录log
-    public static $authUser = null;//当前登录的用户信息
+
+    /**
+     * 有权限的时候保存权限的显示名称用于记录log
+     *
+     * @var array
+     */
+    public static $aclNames = array();
+
+    /**
+     * 当前登录的用户信息
+     *
+     * @var null
+     */
+    public static $authUser = null;
 
     /**
      * 设置用户登录Cookie

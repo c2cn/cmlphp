@@ -8,7 +8,13 @@
  * *********************************************************** */
 namespace Cml\Http;
 
-class Request {
+/**
+ * 请求处理类，获取用户请求信息以发起curl请求
+ *
+ * @package Cml\Http
+ */
+class Request
+{
     /**
      * 获取IP地址
      *
@@ -184,10 +190,11 @@ class Request {
     /**
      * 发起curl请求
      *
-     * @param string $url
-     * @param array $parameter
-     * @param array $header
-     * @param string $type
+     * @param string $url 要请求的url
+     * @param array $parameter 请求参数
+     * @param array $header header头信息
+     * @param string $type 请求的数据类型 json/post/file/get
+     * @param int $timeout 请求的超时时间默认10s
      *
      * @return bool|mixed
      */

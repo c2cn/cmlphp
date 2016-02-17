@@ -10,6 +10,11 @@ namespace Cml\Vendor;
 
 use Cml\Cml;
 
+/**
+ * stmp邮件发送处理类
+ *
+ * @package Cml\Vendor
+ */
 class Email
 {
     public $config = array(

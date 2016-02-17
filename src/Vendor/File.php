@@ -8,6 +8,11 @@
  * *********************************************************** */
 namespace Cml\Vendor;
 
+/**
+ * 文件操作类
+ *
+ * @package Cml\Vendor
+ */
 class File
 {
 

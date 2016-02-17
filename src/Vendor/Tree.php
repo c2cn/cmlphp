@@ -9,6 +9,11 @@
 
 namespace Cml\Vendor;
 
+/**
+ * 无限级分类处理
+ *
+ * @package Cml\Vendor
+ */
 class Tree
 {
     /**
@@ -124,7 +129,7 @@ class Tree
     /**
      * 获取父集
      *
-     * @param  array $tree 树的数组
+     * @param  array $list 树的数组
      * @param  int   $id   子集ID
      *
      * @return string|array

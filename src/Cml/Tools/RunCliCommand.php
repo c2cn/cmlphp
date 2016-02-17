@@ -8,6 +8,11 @@
  * *********************************************************** */
 use Cml\Http\Request;
 
+/**
+ * 系统cli命令解析
+ *
+ * @package Cml\Tools
+ */
 class RunCliCommand
 {
     /**
@@ -46,7 +51,6 @@ class RunCliCommand
      * 打印一行
      *
      * @param string $msg
-     * @param string $deper
      *
      * @return void
      */

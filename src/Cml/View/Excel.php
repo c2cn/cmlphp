@@ -10,7 +10,13 @@ namespace Cml\View;
 
 use Cml\Plugin;
 
-class Excel extends Base {
+/**
+ * 视图 Excel渲染引擎
+ *
+ * @package Cml\View
+ */
+class Excel extends Base
+{
     /**
      * 文档头
      *

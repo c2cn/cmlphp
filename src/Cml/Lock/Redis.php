@@ -4,7 +4,7 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 15-1-25 下午3:07
  * @version  2.5
- * cml框架 锁Redis驱动
+ * cml框架 锁机制Redis驱动
  * *********************************************************** */
 
 namespace Cml\Lock;
@@ -12,12 +12,17 @@ namespace Cml\Lock;
 use Cml\Cml;
 use Cml\Model;
 
+/**
+ * 锁机制Redis驱动
+ *
+ * @package Cml\Lock
+ */
 class Redis extends Base
 {
     /**
      * 上锁
      *
-     * @param string $key
+     * @param string $key 要上的锁的key
      * @param bool $wouldblock 是否堵塞
      *
      * @return mixed

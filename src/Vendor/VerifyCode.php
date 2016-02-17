@@ -8,6 +8,11 @@
  * *********************************************************** */
 namespace Cml\Vendor;
 
+/**
+ * 验证码扩展类 用于生成验证码
+ *
+ * @package Cml\Vendor
+ */
 class VerifyCode
 {
     /**
@@ -17,7 +22,8 @@ class VerifyCode
      * @param string $type 图像格式
      * @param int $width  宽度
      * @param int $height  高度
-     * @param string $font字体名
+     * @param string $verifyName Cookie中保存的名称
+     * @param string $font 字体名
      *
      * @return void
      */
@@ -189,11 +195,11 @@ class VerifyCode
     /**
      * 校验验证码
      *
-     * @param bool $isCn 是否为中文验证码
      * @param string $input 用户输入
+     * @param bool $isCn 是否为中文验证码
      * @param string $verifyName 生成验证码时的字段
      *
-     * @return bool 正确返回true，错误返回false
+     * @return bool 正确返回true,错误返回false
      */
     public static function checkCode($input, $isCn = false, $verifyName = 'verifyCode')
     {

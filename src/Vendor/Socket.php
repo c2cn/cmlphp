@@ -9,6 +9,11 @@
 
 namespace Cml\Vendor;
 
+/**
+ * Socket客户端扩展
+ *
+ * @package Cml\Vendor
+ */
 class Socket
 {
     protected $config = array(
@@ -19,8 +24,19 @@ class Socket
         'timeout'       => 30
     );
 
-    public $connection = null; //保存连接资源符
-    public $connected = false; //是否建立了连接
+    /**
+     * 保存连接资源符
+     *
+     * @var null
+     */
+    public $connection = null;
+
+    /**
+     * 是否建立了连接
+     *
+     * @var bool
+     */
+    public $connected = false;
 
     /**
      * 构造函数
@@ -94,7 +110,7 @@ class Socket
     /**
      * 从服务端读取数据
      *
-     * @param int $length要读取的字节数
+     * @param int $length 要读取的字节数
      *
      * @return bool|string
      */

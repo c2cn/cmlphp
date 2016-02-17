@@ -4,12 +4,17 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 15-21-22 下午1:11
  * @version  2.5
- * cml框架 Log Redis实现
+ * cml框架 Log Redis驱动实现
  * *********************************************************** */
 
 use Cml\Config;
 use Cml\Model;
 
+/**
+ * Log Redis驱动实现
+ *
+ * @package Cml\Logger
+ */
 class Redis extends Base
 {
     /**

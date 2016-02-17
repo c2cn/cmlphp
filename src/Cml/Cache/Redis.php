@@ -11,6 +11,11 @@ namespace Cml\Cache;
 use Cml\Config;
 use Cml\Lang;
 
+/**
+ * Redis缓存驱动
+ *
+ * @package Cml\Cache
+ */
 class Redis extends namespace\Base
 {
     /**
@@ -23,9 +28,14 @@ class Redis extends namespace\Base
      */
     private $redis = array();
 
+    /**
+     * 使用的缓存配置 默认为使用default_cache配置的参数
+     *
+     * @param bool｜array $conf
+     */
     public function __construct($conf = false)
     {
-        $this->conf = $conf ? $conf : Config::get('CACHE');
+        $this->conf = $conf ? $conf : Config::get('default_cache');
 
         if (!extension_loaded('redis') ) {
             \Cml\throwException(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Redis'));
@@ -60,7 +70,7 @@ class Redis extends namespace\Base
     /**
      * 根据key取值
      *
-     * @param mixed $key
+     * @param mixed $key 要获取的缓存key
      *
      * @return bool | array
      */
@@ -74,9 +84,9 @@ class Redis extends namespace\Base
     /**
      * 存储对象
      *
-     * @param mixed $key
-     * @param mixed $value
-     * @param int $expire
+     * @param mixed $key 要缓存的数据的key
+     * @param mixed $value 要缓存的值,除resource类型外的数据类型
+     * @param int $expire 缓存的有效时间 0为不过期
      *
      * @return bool
      */
@@ -93,9 +103,9 @@ class Redis extends namespace\Base
     /**
      * 更新对象
      *
-     * @param mixed $key
-     * @param mixed $value
-     * @param int $expire
+     * @param mixed $key 要更新的数据的key
+     * @param mixed $value 要更新缓存的值,除resource类型外的数据类型
+     * @param int $expire 缓存的有效时间 0为不过期
      *
      * @return bool|int
      */
@@ -111,7 +121,7 @@ class Redis extends namespace\Base
     /**
      * 删除对象
      *
-     * @param mixed $key
+     * @param mixed $key 要删除的数据的key
      *
      * @return bool
      */
@@ -143,36 +153,58 @@ class Redis extends namespace\Base
     /**
      * 自增
      *
-     * @param mixed $key
-     * @param int $val
+     * @param mixed $key 要自增的缓存的数据的key
+     * @param int $val 自增的进步值,默认为1
      *
      * @return bool
      */
     public function increment($key, $val = 1)
     {
-        return $this->hash($key)->incr($this->conf['prefix'] . $key);
+        $val = abs(intval($val));
+        if ($val === 1) {
+            return $this->hash($key)->incr($this->conf['prefix'] . $key);
+        } else {
+            $return = true;
+            for($i = 0; $i < $val; $i++) {
+                if (!$this->hash($key)->incr($this->conf['prefix'] . $key)) {
+                    $return = false;
+                }
+            }
+            return $return;
+        }
     }
 
     /**
      * 自减
      *
-     * @param mixed $key
-     * @param int $val
+     * @param mixed $key 要自减的缓存的数据的key
+     * @param int $val 自减的进步值,默认为1
      *
      * @return bool
      */
     public function decrement($key, $val = 1)
     {
-        return $this->hash($key)->decr($this->conf['prefix'] . $key);
+        $val = abs(intval($val));
+        if ($val === 1) {
+            return $this->hash($key)->decr($this->conf['prefix'] . $key);
+        } else {
+            $return = true;
+            for($i = 0; $i < $val; $i++) {
+                if (!$this->hash($key)->decr($this->conf['prefix'] . $key)) {
+                    $return = false;
+                }
+            }
+            return $return;
+        }
+
     }
 
     /**
      * 判断key值是否存在
      *
-     * @param mixed $key
-     * @return mixed
+     * @param mixed $key 要判断的缓存的数据的key
      *
-     * @return bool
+     * @return mixed
      */
     public function exists($key)
     {

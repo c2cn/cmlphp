@@ -12,7 +12,13 @@ use Cml\Config;
 use Cml\Debug;
 use Cml\Plugin;
 
-class Json extends Base {
+/**
+ * 视图 Json渲染引擎
+ *
+ * @package Cml\View
+ */
+class Json extends Base
+{
 
     /**
      * 输出数据

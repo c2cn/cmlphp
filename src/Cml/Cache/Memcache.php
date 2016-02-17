@@ -11,6 +11,11 @@ namespace Cml\Cache;
 use Cml\Config;
 use Cml\Lang;
 
+/**
+ * memcache缓存驱动
+ *
+ * @package Cml\Cache
+ */
 class Memcache extends namespace\Base
 {
     /**
@@ -39,11 +44,13 @@ class Memcache extends namespace\Base
     }
 
     /**
-     * @param bool $conf
+     * 使用的缓存配置 默认为使用default_cache配置的参数
+     *
+     * @param bool｜array $conf
      */
     public function __construct($conf = false)
     {
-        $this->conf = $conf ? $conf : Config::get('CACHE');
+        $this->conf = $conf ? $conf : Config::get('default_cache');
 
         if (extension_loaded('Memcached')) {
             $this->memcache = new \Memcached('cml_memcache_pool');
@@ -87,7 +94,7 @@ class Memcache extends namespace\Base
     /**
      * 根据key取值
      *
-     * @param mixed $key
+     * @param mixed $key 要获取的缓存key
      *
      * @return mixed
      */
@@ -106,9 +113,9 @@ class Memcache extends namespace\Base
     /**
      * 存储对象
      *
-     * @param mixed $key
-     * @param mixed $value
-     * @param int $expire
+     * @param mixed $key 要缓存的数据的key
+     * @param mixed $value 要缓存的值,除resource类型外的数据类型
+     * @param int $expire 缓存的有效时间 0为不过期
      *
      * @return bool
      */
@@ -124,9 +131,9 @@ class Memcache extends namespace\Base
     /**
      * 更新对象
      *
-     * @param mixed $key
-     * @param mixed $value
-     * @param int $expire
+     * @param mixed $key 要更新的数据的key
+     * @param mixed $value 要更新缓存的值,除resource类型外的数据类型
+     * @param int $expire 缓存的有效时间 0为不过期
      *
      * @return bool
      */
@@ -143,7 +150,7 @@ class Memcache extends namespace\Base
     /**
      * 删除对象
      *
-     * @param mixed $key
+     * @param mixed $key 要删除的数据的key
      *
      * @return bool
      */
@@ -166,29 +173,29 @@ class Memcache extends namespace\Base
     /**
      * 自增
      *
-     * @param mixed $key
-     * @param int $val
+     * @param mixed $key 要自增的缓存的数据的key
+     * @param int $val 自增的进步值,默认为1
      *
      * @return bool
      */
     public function increment($key, $val = 1)
     {
         $this->type === 2 && $key = $this->conf['prefix'] . $key;
-        $this->memcache->increment($key, $val);
+        $this->memcache->increment($key, abs(intval($val)));
     }
 
     /**
      * 自减
      *
-     * @param mixed $key
-     * @param int $val
+     * @param mixed $key 要自减的缓存的数据的key
+     * @param int $val 自减的进步值,默认为1
      *
      * @return bool
      */
     public function decrement($key, $val = 1)
     {
         $this->type === 2 && $key = $this->conf['prefix'] . $key;
-        $this->memcache->decrement($key, $val);
+        $this->memcache->decrement($key, abs(intval($val)));
     }
 
     /**

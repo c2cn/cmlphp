@@ -10,10 +10,16 @@ namespace Cml;
 
 use Cml\Http\Request;
 
+/**
+ * 配置读写类、负责配置文件的读取
+ *
+ * @package Cml
+ */
 class Config
 {
     /**
      * 配置文件类型
+     *
      * @var string
      */
     public static $isLocal = 'product';
@@ -88,8 +94,8 @@ class Config
     /**
      * 设置配置【语言】 支持批量设置 /a.b.c方式设置
      *
-     * @param string|array $key
-     * @param mixed $value
+     * @param string|array $key 要设置的key,为数组时是批量设置
+     * @param mixed $value 要设置的值
      *
      * @return null
      */

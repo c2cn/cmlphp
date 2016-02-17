@@ -4,10 +4,15 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 13-12-26 上午11:23
  * @version  2.5
- * cml框架 php多线程
+ * cml框架 php多线程工作类
  * *********************************************************** */
 namespace Cml\Vendor;
 
+/**
+ * php多线程工作类
+ *
+ * @package Cml\Vendor
+ */
 class PhpThread
 {
     /**
@@ -56,6 +61,7 @@ class PhpThread
      * 构造函数
      *
      * @param int $max 最大线程数
+     * @param bool $saveSuccess 是否保存成功的信息
      */
     public function __construct($max = 10, $saveSuccess = false)
     {

@@ -9,6 +9,11 @@
 
 namespace Cml\Vendor;
 
+/**
+ * C数据验证类,封装了常用的数据验证接口
+ *
+ * @package Cml\Vendor
+ */
 class Validate
 {
 

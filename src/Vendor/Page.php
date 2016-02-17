@@ -10,31 +10,83 @@ namespace Cml\Vendor;
 
 use Cml\Config;
 use Cml\Http\Input;
+use Cml\Http\Response;
 use Cml\Route;
 
+/**
+ * 分页类,对外系统现在一般使用js分页很少用到php分页了
+ *
+ * @package Cml\Vendor
+ */
 class Page
 {
-    //分页栏每页显示的页数
-    public $rollPage = 5;
-    //页数跳转时要带的参数
+    /**
+     * 分页栏每页显示的页数
+     *
+     * @var int
+     */
+    public $barShowPage = 5;
+
+    /**
+     * 页数跳转时要带的参数
+     *
+     * @var array
+     */
     public $param;
-    //分页url地址
+
+    /**
+     * 分页的基础url地址默认获取当前操作
+     *
+     * @var string
+     */
     public $url = '';
-    //列表每页显示条数
-    public $listRows;
-    //起始行数
+
+    /**
+     * 列表每页显示条数
+     *
+     * @var int
+     */
+    public $numPerPage;
+
+    /**
+     * 起始行数
+     *
+     * @var int
+     */
     public $firstRow;
-    //分页总页数
+
+    /**
+     * 分页总页数
+     *
+     * @var int
+     */
     protected $totalPages;
-    //总行数
+
+    /**
+     * 总行数
+     *
+     * @var int
+     */
     protected $totalRows;
-    //当前页数
+
+    /**
+     * @var int 当前页数
+     */
     protected $nowPage;
-    //分页栏的总页数
+
+    /**
+     * @var int 分页栏的总页数
+     */
     protected $coolPages;
-    //分页变量名
-    protected $varPage;
-    //分页定制显示
+
+    /**
+     * @var mixed|string 分页变量名
+     */
+    protected $pageShowVarName;
+
+    /**
+     * @var array 分页定制显示
+     */
     protected $config = array(
         'header' => '条记录',
         'prev' => '上一页',
@@ -48,26 +100,24 @@ class Page
      * 构造函数
      *
      * @param int $totalRows 总行数
-     * @param int $listRows 每页显示条数
-     * @param string $param分页跳转时带的参数
-     *
-     * @return void
+     * @param int $numPerPage 每页显示条数
+     * @param array $param 分页跳转时带的参数 如：array('name' => '张三')
      */
-    public function __construct($totalRows, $listRows = 20, $param = '')
+    public function __construct($totalRows, $numPerPage = 20, $param = array())
     {
         $this->totalRows = $totalRows;
-        $this->listRows = $listRows ? intval($listRows) : 10;
-        $this->varPage = Config::get('VAR_PAGE') ? Config::get('VAR_PAGE') : 'p';
+        $this->numPerPage = $numPerPage ? intval($numPerPage) : 10;
+        $this->pageShowVarName = Config::get('VAR_PAGE') ? Config::get('VAR_PAGE') : 'p';
         $this->param = $param;
-        $this->totalPages = ceil($this->totalRows/$this->listRows);
-        $this->coolPages = ceil($this->totalPages/$this->rollPage);
-        $this->nowPage = Input::getInt($this->varPage, 2);
+        $this->totalPages = ceil($this->totalRows/$this->numPerPage);
+        $this->coolPages = ceil($this->totalPages/$this->barShowPage);
+        $this->nowPage = Input::getInt($this->pageShowVarName, 1);
         if ($this->nowPage < 1) {
             $this->nowPage = 1;
         } elseif (!empty($this->totalRows) && $this->nowPage > $this->totalPages) {
             $this->nowPage = $this->totalPages;
         }
-        $this->firstRow = $this->listRows*($this->nowPage - 1);
+        $this->firstRow = $this->numPerPage*($this->nowPage - 1);
     }
 
     /**
@@ -89,15 +139,21 @@ class Page
     public function show()
     {
         if ($this->totalRows == 0)  return '';
-        $p = $this->varPage;
-        $nowCoolPage = ceil($this->nowPage/$this->rollPage);
-        $depr = \Cml\Config::get('url_pathinfo_depr');
+        $nowCoolPage = ceil($this->nowPage/$this->barShowPage);
+        $delimiter = Config::get('url_pathinfo_depr');
+        $params = array_merge($this->param, array($this->pageShowVarName => '__PAGE__'));
+        $paramsString = '';
+        foreach($params as $key => $val) {
+            $paramsString .= $key . '/' . $val;
+        }
+
         if ($this->url) {
-            $url = rtrim(\Cml\Http\Response::Url($this->url.'/__PAGE__', $this->param, false), $depr);
+            $url = rtrim(Response::Url($this->url . '/' . $paramsString, false), $delimiter);
         } else {
-            $addUrl = \Cml\Config::get('APP_MODULE') ? CML_MODULE_NAME.'/' : '';
-            $this->param = array_merge($this->param, array($p => '__PAGE__'));
-            $url = rtrim(\Cml\Http\Response::Url($addUrl.Route::$urlParams['controller'].'/'.Route::$urlParams['action'], $this->param, false), $depr);
+            $url = Route::$urlParams;
+            $url['path'] = trim($url['path'], '\\');
+            unset($url['root']);
+            $url = rtrim(Response::Url(implode('/', $url)  . '/' .  $paramsString, false), $delimiter);
         }
         $upRow = $this->nowPage - 1;
         $downRow = $this->nowPage + 1;
@@ -108,24 +164,24 @@ class Page
         if ($nowCoolPage == 1) {
             $theFirst = $prePage = '';
         } else {
-            $preRow = $this->nowPage - $this->rollPage;
-            $prePage = '<li><a href="'.str_replace('__PAGE__', $preRow, $url).'">上'.$this->rollPage.'页</a></li>';
+            $preRow = $this->nowPage - $this->barShowPage;
+            $prePage = '<li><a href="'.str_replace('__PAGE__', $preRow, $url).'">上'.$this->barShowPage.'页</a></li>';
             $theFirst = '<li><a href="'.str_replace('__PAGE__', 1, $url).'">'.$this->config['first'].'</a></li>';
         }
 
         if ($nowCoolPage == $this->coolPages) {
             $nextPage = $theEnd = '';
         } else {
-            $nextRow = $this->nowPage + $this->rollPage;
+            $nextRow = $this->nowPage + $this->barShowPage;
             $theEndRow = $this->totalPages;
-            $nextPage = '<li><a href="'.str_replace('__PAGE__', $nextRow, $url).'">下'.$this->rollPage.'页</a></li>';
+            $nextPage = '<li><a href="'.str_replace('__PAGE__', $nextRow, $url).'">下'.$this->barShowPage.'页</a></li>';
             $theEnd = '<li><a href="'.str_replace('__PAGE__', $theEndRow, $url).'">'.$this->config['last'].'</a></li>';
         }
 
         //1 2 3 4 5
         $linkPage = '';
-        for ($i = 1; $i <= $this->rollPage; $i++) {
-            $page = ($nowCoolPage -1) * $this->rollPage + $i;
+        for ($i = 1; $i <= $this->barShowPage; $i++) {
+            $page = ($nowCoolPage -1) * $this->barShowPage + $i;
             if ($page != $this->nowPage) {
                 if ($page <= $this->totalPages) {
                     $linkPage .= '&nbsp;<li><a href="'.str_replace('__PAGE__', $page, $url).'">&nbsp;'.$page.'&nbsp;</a></li>';

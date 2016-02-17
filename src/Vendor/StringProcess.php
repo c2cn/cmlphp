@@ -8,6 +8,11 @@
  * *********************************************************** */
 namespace Cml\Vendor;
 
+/**
+ * 字符串处理类,包含字符串截取、获取随机字符串等
+ *
+ * @package Cml\Vendor
+ */
 class StringProcess
 {
     /**
@@ -17,11 +22,11 @@ class StringProcess
      *
     * @return Boolean
     */
-    public static function isUtf8($str)
+    public static function isUtf8($string)
     {
-        $len = strlen($str);
+        $len = strlen($string);
         for ($i = 0; $i < $len; $i++){
-            $c = ord($str[$i]);
+            $c = ord($string[$i]);
             if ($c > 128){
                 if (($c >= 254)) {
                     return false;
@@ -41,7 +46,7 @@ class StringProcess
                 if (($i + $bits) > $len) return false;
                 while ($bits > 1){
                     $i++;
-                    $b = ord($str[$i]);
+                    $b = ord($string[$i]);
                     if ($b < 128 || $b > 191) return false;
                     $bits--;
                 }
@@ -53,25 +58,26 @@ class StringProcess
     /**
      * 字符串截取，支持中文和其他编码
      *
-     * @param string $str 需要转换的字符串
-     * @param string $start 开始位置
-     * @param string $length 截取长度
+     * @param string $string 需要转换的字符串
+     * @param int $start 开始位置
+     * @param int $length 截取长度
      * @param string $charset 编码格式
      * @param string $suffix 截断字符串后缀
+     *
      * @return string
      */
-    public static function substrCn($str, $start = 0, $length, $charset = "utf-8", $suffix = '')
+    public static function substrCn($string, $start = 0, $length, $charset = "utf-8", $suffix = '')
     {
         if (function_exists("mb_substr")){
-            return mb_substr($str, $start, $length, $charset).$suffix;
+            return mb_substr($string, $start, $length, $charset).$suffix;
         } elseif (function_exists('iconv_substr')) {
-            return iconv_substr($str, $start, $length, $charset).$suffix;
+            return iconv_substr($string, $start, $length, $charset).$suffix;
         }
         $re['utf-8']  = "/[\x01-\x7f]|[\xc2-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xff][\x80-\xbf]{3}/";
         $re['gb2312'] = "/[\x01-\x7f]|[\xb0-\xf7][\xa0-\xfe]/";
         $re['gbk']    = "/[\x01-\x7f]|[\x81-\xfe][\x40-\xfe]/";
         $re['big5']   = "/[\x01-\x7f]|[\x81-\xfe]([\x40-\x7e]|\xa1-\xfe])/";
-        preg_match_all($re[$charset], $str, $match);
+        preg_match_all($re[$charset], $string, $match);
         $slice = join("",array_slice($match[0], $start, $length));
         return $slice.$suffix;
     }
@@ -80,14 +86,15 @@ class StringProcess
      * 产生随机字串 //中文 需要php_mbstring扩展支持
      *
      * 默认长度6位 字母和数字混合 支持中文
-     * @param string $len 长度
-     * @param int $type 字串类型
-     * 0 字母 1 数字 其它 混合
+     * @param int $len 长度
+     * @param int $type 字串类型 0 字母 1 数字 其它 混合
+     * @param string $addChars 自定义一部分字符
+     *
      * @return string
      */
     public static function randString($len = 6, $type = 0, $addChars = '')
     {
-        $str = '';
+        $string = '';
         switch ($type) {
             case 0:
                 $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.$addChars;
@@ -114,13 +121,13 @@ class StringProcess
         }
         if ($type != 4) {
             $chars = str_shuffle($chars);
-            $str = substr($chars, 0, $len);
+            $string = substr($chars, 0, $len);
         } else {
             // 中文 需要php_mbstring扩展支持
             for ($i = 0; $i < $len; $i++){
-                $str .= self::substrCn($chars, floor(mt_rand(0, mb_strlen($chars, 'utf-8') - 1)), 1, 'utf-8', false);
+                $string .= self::substrCn($chars, floor(mt_rand(0, mb_strlen($chars, 'utf-8') - 1)), 1, 'utf-8', false);
             }
         }
-        return $str;
+        return $string;
     }
 }

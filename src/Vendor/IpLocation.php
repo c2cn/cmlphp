@@ -4,11 +4,16 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-211 下午2:23
  * @version  2.5
- * cml框架 *  IP 地理位置查询类 修改自 CoolCode.CN
+ * cml框架  IP 地理位置查询类 修改自 CoolCode.CN
  * 由于使用UTF8编码 如果使用纯真IP地址库的话 需要对返回结果进行编码转换
  * *********************************************************** */
 namespace Cml\Vendor;
 
+/**
+ * IP 地理位置查询类 修改自 CoolCode.CN
+ *
+ * @package Cml\Vendor
+ */
 class IpLocation
 {
     /**

@@ -1,12 +1,25 @@
 <?php
+/* * *********************************************************
+ * [cml] (C)2012 - 3000 cml http://cmlphp.51beautylife.com
+ * @Author  linhecheng<linhechengbush@live.com>
+ * @Date: 15-1-25 下午3:07
+ * @version  2.5
+ * cml框架 锁机制File驱动
+ * *********************************************************** */
+
 namespace Cml\Lock;
 
+/**
+ * 锁机制File驱动
+ *
+ * @package Cml\Lock
+ */
 class File extends Base
 {
     /**
      * 上锁
      *
-     * @param string $key
+     * @param string $key 要上的锁的key
      * @param bool $wouldblock 是否堵塞
      *
      * @return mixed
@@ -48,7 +61,7 @@ class File extends Base
     /**
      * 解锁
      *
-     * @param string $key
+     * @param string $key 要解锁的锁的key
      */
     public function unlock($key) {
         $fileName = $this->getFileName($key);

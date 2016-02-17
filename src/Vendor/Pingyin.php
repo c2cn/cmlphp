@@ -4,20 +4,26 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-211 下午2:23
  * @version  2.5
- * cml框架 拼音类
+ * cml框架 中文转拼音类
  * *********************************************************** */
 namespace Cml\Vendor;
 
+/**
+ * 中文转拼音类
+ *
+ * @package Cml\Vendor
+ */
 class Pingyin
 {
 
     private static $pinyinArr = null;
 
     /**
-     * 对外接口
+     * 中文转拼音
      *
      * @param $string
      * @param bool $utf8
+     *
      * @return string
      */
     public static function pinyin($string, $utf8 = true)

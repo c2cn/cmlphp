@@ -11,6 +11,11 @@ namespace Cml\Cache;
 use Cml\Cml;
 use Cml\Config;
 
+/**
+ * 文件缓存驱动
+ *
+ * @package Cml\Cache
+ */
 class File extends namespace\Base
 {
     /**
@@ -23,9 +28,14 @@ class File extends namespace\Base
      */
     private $lock = false;//是否对文件锁操作 值为bool或打开的文件指针
 
+    /**
+     * 使用的缓存配置 默认为使用default_cache配置的参数
+     *
+     * @param bool｜array $conf
+     */
     public function __construct($conf = false)
     {
-        $this->conf = $conf ? $conf : Config::get('CACHE');
+        $this->conf = $conf ? $conf : Config::get('default_cache');
         $this->conf['CACHE_PATH'] = isset($this->conf['CACHE_PATH']) ? $this->conf['CACHE_PATH'] : \CML_RUNTIME_CACHE_PATH.DIRECTORY_SEPARATOR.'FileCache'.DIRECTORY_SEPARATOR;
         is_dir($this->conf['CACHE_PATH']) || mkdir($this->conf['CACHE_PATH'], 0700, true);
     }
@@ -33,7 +43,7 @@ class File extends namespace\Base
     /**
      * 获取缓存
      *
-     * @param string $key
+     * @param string $key 要获取的缓存key
      *
      * @return mixed
      */
@@ -71,9 +81,9 @@ class File extends namespace\Base
     /**
      * 写入缓存
      *
-     * @param string $key key
-     * @param mixed $value 要缓存的数据
-     * @param int $expire 缓存的过期时间 0为不过期
+     * @param string $key key 要缓存的数据的key
+     * @param mixed $value 要缓存的数据 要缓存的值,除resource类型外的数据类型
+     * @param int $expire 缓存的有效时间 0为不过期
      *
      * @return bool
      */
@@ -98,9 +108,9 @@ class File extends namespace\Base
     /**
      * 更新缓存  可以直接用set但是为了一致性操作所以做此兼容
      *
-     * @param string $key
-     * @param mixed $value
-     * @param int $expire
+     * @param string $key 要更新的数据的key
+     * @param mixed $value 要更新缓存的值,除resource类型外的数据类型
+     * @param int $expire 缓存的有效时间 0为不过期
      *
      * @return bool
      */
@@ -112,7 +122,7 @@ class File extends namespace\Base
     /**
      * 删除缓存
      *
-     * @param string $key
+     * @param string $key 要删除的数据的key
      *
      * @return bool
      */
@@ -169,8 +179,8 @@ class File extends namespace\Base
     /**
      * 自增
      *
-     * @param string $key
-     * @param int $val
+     * @param string $key 要自增的缓存的数据的key
+     * @param int $val 自增的进步值,默认为1
      *
      * @return bool
      */
@@ -179,7 +189,7 @@ class File extends namespace\Base
         $this->lock = true;
         $v = $this->get($key);
         if (is_int($v)) {
-            return $this->update($key,  $v + intval($val));
+            return $this->update($key,  $v + abs(intval($val)));
         } else {
             return false;
         }
@@ -188,8 +198,8 @@ class File extends namespace\Base
     /**
      * 自减
      *
-     * @param string $key
-     * @param int $val
+     * @param string $key 要自减的缓存的数据的key
+     * @param int $val 自减的进步值,默认为1
      *
      * @return bool
      */
@@ -198,7 +208,7 @@ class File extends namespace\Base
         $this->lock = true;
         $v = $this->get($key);
         if (is_int($v)) {
-            return $this->update($key,  $v - intval($val));
+            return $this->update($key,  $v - abs(intval($val)));
         } else {
             return false;
         }

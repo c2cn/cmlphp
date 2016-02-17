@@ -10,8 +10,18 @@ namespace Cml\Http;
 
 use Cml\Config;
 
+/**
+ * session 管理类,封装了对session的操作
+ *
+ * @package Cml\Http
+ */
 class Session
 {
+    /**
+     * session的前缀
+     *
+     * @var string
+     */
     public static $prefix = '';
 
     /**
@@ -38,7 +48,7 @@ class Session
     /**
      * 获取session值
      *
-     * @param  string $key
+     * @param  string $key 要获取的session的key
      *
      * @return string
      */
@@ -51,7 +61,7 @@ class Session
     /**
      * 删除session值
      *
-     * @param string $key
+     * @param string $key 要删除的session的key
      *
      * @return string
      */

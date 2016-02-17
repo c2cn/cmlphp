@@ -9,14 +9,19 @@
 use Cml\Config;
 use Cml\Model;
 
+/**
+ * 队列Redis驱动
+ *
+ * @package Cml\Queue
+ */
 class Redis extends Base
 {
 
     /**
      * 从列表头入队
      *
-     * @param string $name
-     * @param mixed $data
+     * @param string $name 要从列表头入队的队列的名称
+     * @param mixed $data 要入队的数据
      *
      * @return mixed
      */
@@ -28,7 +33,7 @@ class Redis extends Base
     /**
      * 从列表头出队
      *
-     * @param string $name
+     * @param string $name 要从列表头出队的队列的名称
      *
      * @return mixed
      */
@@ -42,8 +47,8 @@ class Redis extends Base
     /**
      * 从列表尾入队
      *
-     * @param string $name
-     * @param mixed $data
+     * @param string $name 要从列表尾入队的队列的名称
+     * @param mixed $data 要入队的数据
      *
      * @return mixed
      */
@@ -55,7 +60,7 @@ class Redis extends Base
     /**
      * 从列表尾出队
      *
-     * @param string $name
+     * @param string $name 要从列表尾出队的队列的名称
      *
      * @return mixed
      */
@@ -69,8 +74,8 @@ class Redis extends Base
     /**
      * 弹入弹出
      *
-     * @param string $from
-     * @param string $to
+     * @param string $from 要弹出的队列名称
+     * @param string $to 要入队的队列名称
      *
      * @return mixed
      */

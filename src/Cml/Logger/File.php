@@ -4,9 +4,14 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 15-21-22 下午1:11
  * @version  2.5
- * cml框架 Log 文件实现
+ * cml框架 Log 文件驱动实现
  * *********************************************************** */
 
+/**
+ *  Log 文件驱动实现
+ *
+ * @package Cml\Logger
+ */
 class File extends Base
 {
     /**

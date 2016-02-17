@@ -15,7 +15,13 @@ use Cml\Lang;
 use Cml\Route;
 use Cml\Secure;
 
-class Html extends Base {
+/**
+ * 视图 html渲染引擎
+ *
+ * @package Cml\View
+ */
+class Html extends Base
+{
     /**
      * 模板参数信息
      *
@@ -339,14 +345,14 @@ class Html extends Base {
     /**
      * 初始化目录
      *
-     * @param string $templateFile
-     * @param bool|false $inOtherApp
+     * @param string $templateFile 模板文件名
+     * @param bool|false $inOtherApp 是否在其它app
      *
      * @return string
      */
     private function initBaseDir($templateFile, $inOtherApp = false) {
         $baseDir = CML_IS_MULTI_MODULES
-            ? \Cml\Config::get('application_dir') . (
+            ? Config::get('application_dir') . (
             $inOtherApp
                 ? DIRECTORY_SEPARATOR.$inOtherApp.DIRECTORY_SEPARATOR
                 : Route::$urlParams['path']

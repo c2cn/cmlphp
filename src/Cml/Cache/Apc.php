@@ -11,20 +11,30 @@ namespace Cml\Cache;
 use Cml\Config;
 use Cml\Lang;
 
+/**
+ * Apc缓存驱动
+ *
+ * @package Cml\Cache
+ */
 class Apc extends namespace\Base
 {
+    /**
+     * 使用的缓存配置 默认为使用default_cache配置的参数
+     *
+     * @param bool｜array $conf
+     */
     public function __construct($conf = false)
     {
         if (!function_exists('apc_cache_info')) {
             \Cml\throwException(Lang::get('_CACHE_EXTENT_NOT_INSTALL_', 'Apc'));
         }
-        $this->conf = $conf ? $conf : Config::get('CACHE');
+        $this->conf = $conf ? $conf : Config::get('default_cache');
     }
 
     /**
      * 根据key取值
      *
-     * @param mixed $key
+     * @param mixed $key 要获取的缓存key
      *
      * @return mixed
      */
@@ -36,9 +46,9 @@ class Apc extends namespace\Base
     /**
      * 存储对象
      *
-     * @param mixed $key
-     * @param $value
-     * @param int $expire
+     * @param mixed $key 要缓存的数据的key
+     * @param mixed $value 要缓存的值,除resource类型外的数据类型
+     * @param int $expire 缓存的有效时间 0为不过期
      *
      * @return bool
      */
@@ -51,9 +61,9 @@ class Apc extends namespace\Base
     /**
      * 更新对象
      *
-     * @param mixed $key
-     * @param mixed $value
-     * @param int $expire
+     * @param mixed $key 要更新的缓存的数据的key
+     * @param mixed $value 要更新的要缓存的值,除resource类型外的数据类型
+     * @param int $expire 缓存的有效时间 0为不过期
      *
      * @return bool|int
      */
@@ -70,7 +80,7 @@ class Apc extends namespace\Base
     /**
      * 删除对象
      *
-     * @param mixed $key
+     * @param mixed $key 要删除的缓存的数据的key
      *
      * @return bool
      */
@@ -91,27 +101,27 @@ class Apc extends namespace\Base
     /**
      * 自增
      *
-     * @param mixed $key
-     * @param int $val
+     * @param mixed $key 要自增的缓存的数据的key
+     * @param int $val 自增的进步值,默认为1
      *
      * @return bool
      */
     public function increment($key, $val = 1)
     {
-        return apc_inc($this->conf['prefix'] . $key, (int)$val);
+        return apc_inc($this->conf['prefix'] . $key, abs(intval($val)));
     }
 
     /**
      * 自减
      *
-     * @param mixed $key
-     * @param int $val
+     * @param mixed $key 要自减的缓存的数据的key
+     * @param int $val 自减的进步值,默认为1
      *
      * @return bool
      */
     public function decrement($key, $val =1)
     {
-        return apc_dec($this->conf['prefix'] . $key, (int)$val);
+        return apc_dec($this->conf['prefix'] . $key, abs(intval($val)));
     }
 
     /**

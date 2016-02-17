@@ -4,13 +4,18 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 15-1-25 下午3:07
  * @version  2.5
- * cml框架 锁驱动抽象类基类
+ * cml框架 锁机制驱动抽象类基类
  * *********************************************************** */
 namespace Cml\Lock;
 
 use Cml\Config;
 use Cml\Model;
 
+/**
+ * 锁驱动抽象类基类
+ *
+ * @package Cml\Lock
+ */
 abstract class Base
 {
     /**
@@ -56,7 +61,7 @@ abstract class Base
     /**
      * 组装key
      *
-     * @param string $key
+     * @param string $key 要上的锁的key
      *
      * @return string
      */
@@ -68,7 +73,7 @@ abstract class Base
     /**
      * 上锁
      *
-     * @param string $key
+     * @param string $key 要解锁的锁的key
      * @param bool $wouldblock 是否堵塞
      *
      * @return mixed

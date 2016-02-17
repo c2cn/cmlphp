@@ -8,6 +8,10 @@
  * *********************************************************** */
 namespace Cml;
 
+/**
+ * 基础Model类，在CmlPHP中负责数据的存取(目前包含db/cache)
+ * @package Cml
+ */
 class Model
 {
     /**
@@ -28,7 +32,7 @@ class Model
     /**
      * 获取db实例
      *
-     * @param string $conf;
+     * @param string $conf 使用的数据库配置;
      *
      * @return \Cml\Db\MySql\Pdo
      */
@@ -48,7 +52,7 @@ class Model
     /**
      * 当程序连接N个db的时候用于释放于用连接以节省内存
      *
-     * @param string $conf
+     * @param string $conf 使用的数据库配置;
      */
     public function closeDb($conf = 'default_db')
     {
@@ -59,7 +63,7 @@ class Model
     /**
      * 获取cache实例
      *
-     * @param string $conf;
+     * @param string $conf 使用的缓存配置;
      *
      * @return \Cml\Cache\Redis | \Cml\Cache\Apc | \Cml\Cache\File | \Cml\Cache\Memcache
      */

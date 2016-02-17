@@ -9,6 +9,11 @@
 namespace Cml\Vendor;
 
 
+/**
+ * Html 扩展类 静态页面生成
+ *
+ * @package Cml\Vendor
+ */
 class Html
 {
 

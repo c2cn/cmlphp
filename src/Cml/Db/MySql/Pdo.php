@@ -13,6 +13,11 @@ use Cml\Debug;
 use Cml\Lang;
 use Cml\Model;
 
+/**
+ * Orm MySql数据库Pdo实现类
+ *
+ * @package Cml\Db\MySql
+ */
 class Pdo extends namespace\Base
 {
     /**
@@ -223,7 +228,7 @@ class Pdo extends namespace\Base
     /**
      * 根据表名删除数据
      *
-     * @param string $tableName
+     * @param string $tableName 要清空的表名
      *
      * @return bool
      */
@@ -323,15 +328,15 @@ class Pdo extends namespace\Base
     /**
      * Db连接
      *
-     * @param $host
-     * @param $username
-     * @param $password
-     * @param $dbName
-     * @param string $charset
-     * @param string $engine
-     * @param bool|false $pConnect
+     * @param string $host 数据库host
+     * @param string $username 数据库用户名
+     * @param string $password 数据库密码
+     * @param string $dbName 数据库名
+     * @param string $charset 字符集
+     * @param string $engine 引擎
+     * @param bool $pConnect 是否为长连接
      *
-     * @return \Pdo
+     * @return mixed
      */
     public function connect($host, $username, $password, $dbName, $charset = 'utf8', $engine = '', $pConnect = false)
     {
@@ -362,7 +367,7 @@ class Pdo extends namespace\Base
     /**
      * 指定字段的值+1
      *
-     * @param string $key user-id-1
+     * @param string $key 操作的key user-id-1
      * @param int $val
      * @param string $field 要改变的字段
      *
@@ -388,7 +393,7 @@ class Pdo extends namespace\Base
     /**
      * 指定字段的值-1
      *
-     * @param string $key user-id-1
+     * @param string $key 操作的key user-id-1
      * @param int $val
      * @param string $field 要改变的字段
      *
@@ -414,7 +419,7 @@ class Pdo extends namespace\Base
     /**
      * 预处理语句
      *
-     * @param string $sql
+     * @param string $sql 要预处理的sql语句
      * @param \PDO $link
      * @param bool $resetParams
      *
@@ -546,7 +551,7 @@ class Pdo extends namespace\Base
     /**
      * 回滚事务
      *
-     * @param string $rollBackTo 是否为还原到某个保存点
+     * @param bool $rollBackTo 是否为还原到某个保存点
      *
      * @return bool
      */

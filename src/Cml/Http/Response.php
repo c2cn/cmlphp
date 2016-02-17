@@ -10,17 +10,22 @@ namespace Cml\Http;
 
 use Cml\Config;
 use Cml\Lang;
-use Cml\Plugin;
 use Cml\Route;
 use Cml\Secure;
 use Cml\View;
 
-class Response {
+/**
+ * 请求响应类,负责url跳转、url组装、http状态码响应等
+ *
+ * @package Cml\Http
+ */
+class Response
+{
     /**
      * 重定向
      *
-     * @param string $url
-     * @param int $time
+     * @param string $url 重写向的目标地址
+     * @param int $time 等待时间
      *
      * @return void
      */
@@ -54,7 +59,7 @@ class Response {
     /**
      * 发送http状态码相对应的信息
      *
-     * @param int $num
+     * @param int $code 要设置的http code
      */
     public static function sendHttpStatus($code)
     {
@@ -131,9 +136,9 @@ class Response {
         // 解析URL
         empty($url) && \Cml\throwException(Lang::get('_CML_ERROR_')); //'U方法参数出错'
         // URL组装
-        $depr = Config::get('url_pathinfo_depr');
+        $delimiter = Config::get('url_pathinfo_depr');
 	    $url = ltrim($url, '/');
-        $url = implode($depr, explode('/', $url));
+        $url = implode($delimiter, explode('/', $url));
 
 	    if (Config::get('url_model') == 1) {
 		    $return = $_SERVER['SCRIPT_NAME'].'/'.$url;

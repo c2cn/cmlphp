@@ -8,6 +8,11 @@
  * *********************************************************** */
 use Cml\Config;
 
+/**
+ * 从注释生成文档实现类
+ *
+ * @package Cml\Tools\Apidoc
+ */
 class AnnotationToDoc
 {
     /**

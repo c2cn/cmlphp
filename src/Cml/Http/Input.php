@@ -4,10 +4,15 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-8 下午2:51
  * @version  2.5
- * cml框架 输入类管理类
+ * cml框架 输入管理类
  * *********************************************************** */
 namespace Cml\Http;
 
+/**
+ * 输入过滤管理类,用户输入数据通过此类获取
+ *
+ * @package Cml\Http
+ */
 class Input
 {
 
@@ -15,6 +20,7 @@ class Input
      * 获取get string数据
      *
      * @param string $name 要获取的变量
+     * @param null $default 未获取到$_GET值时返回的默认值
      *
      * @return string|null
      */
@@ -28,6 +34,7 @@ class Input
      * 获取post string数据
      *
      * @param string $name 要获取的变量
+     * @param null $default 未获取到$_POST值时返回的默认值
      *
      * @return string|null
      */
@@ -41,6 +48,7 @@ class Input
      * 获取$_REQUEST string数据
      *
      * @param string $name 要获取的变量
+     * @param null $default 未获取到$_REQUEST值时返回的默认值
      *
      * @return null|string
      */
@@ -53,7 +61,8 @@ class Input
     /**
      * 获取get int数据
      *
-     * @param string $name
+     * @param string $name 要获取的变量
+     * @param null $default 未获取到$_GET值时返回的默认值
      *
      * @return int|null
      */
@@ -66,7 +75,8 @@ class Input
     /**
      * 获取post int数据
      *
-     * @param string $name
+     * @param string $name 要获取的变量
+     * @param null $default 未获取到$_POST值时返回的默认值
      *
      * @return int|null
      */
@@ -80,6 +90,7 @@ class Input
      * 获取$_REQUEST int数据
      *
      * @param string $name 要获取的变量
+     * @param null $default 未获取到$_REQUEST值时返回的默认值
      *
      * @return null|int
      */
@@ -92,7 +103,8 @@ class Input
     /**
      * 获取get bool数据
      *
-     * @param string $name
+     * @param string $name 要获取的变量
+     * @param null $default 未获取到$_GET值时返回的默认值
      *
      * @return bool|null
      */
@@ -105,7 +117,8 @@ class Input
     /**
      * 获取post bool数据
      *
-     * @param string $name
+     * @param string $name 要获取的变量
+     * @param null $default 未获取到$_POST值时返回的默认值
      *
      * @return bool|null
      */
@@ -119,6 +132,7 @@ class Input
      * 获取$_REQUEST bool数据
      *
      * @param string $name 要获取的变量
+     * @param null $default 未获取到$_REQUEST值时返回的默认值
      *
      * @return null|bool
      */

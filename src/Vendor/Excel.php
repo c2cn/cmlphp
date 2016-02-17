@@ -4,10 +4,15 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-211 下午2:23
  * @version  2.5
- * cml框架 Excel类
+ * cml框架 Excel生成类
  * *********************************************************** */
 namespace Cml\Vendor;
 
+/**
+ * Excel生成类
+ *
+ * @package Cml\Vendor
+ */
 class Excel
 {
     private $header = "<?xml version=\"1.0\" encoding=\"%s\"?\>\n<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\" xmlns:x=\"urn:schemas-microsoft-com:office:excel\" xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\" xmlns:html=\"http://www.w3.org/TR/REC-html40\">";
@@ -20,7 +25,7 @@ class Excel
     /**
      * Excel基础配置
      *
-     * @param string $coding 编码
+     * @param string $enCoding 编码
      * @param boolean $boolean 转换类型
      * @param string $title 表标题
      * @param string $filename Excel文件名
@@ -59,7 +64,7 @@ class Excel
     /**
      * 循环生成Excel行
      *
-     * @param array $cells
+     * @param array $data
      *
      * @return string
      */
@@ -78,7 +83,6 @@ class Excel
      * 生成Excel文件
      *
      * @param array $data
-     * @param string $filename
      *
      * @return void
      */

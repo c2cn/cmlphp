@@ -9,6 +9,11 @@
 namespace Cml;
 
 
+/**
+ * 系统默认的Server类
+ *
+ * @package Cml
+ */
 class Server extends Controller
 {
 

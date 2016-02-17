@@ -9,7 +9,13 @@
 
 namespace Cml;
 
-class View {
+/**
+ * 视图渲染引擎 视图调度工厂
+ *
+ * @package Cml
+ */
+class View
+{
     /**
      * 获取渲染引擎-单例
      *

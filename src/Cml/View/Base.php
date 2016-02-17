@@ -8,7 +8,13 @@
  * *********************************************************** */
 namespace Cml\View;
 
-abstract class Base {
+/**
+ * 视图渲染引擎 抽象基类
+ *
+ * @package Cml\View
+ */
+abstract class Base
+{
     /**
      * 要传到模板的数据
      *
@@ -19,8 +25,8 @@ abstract class Base {
     /**
      * 变量赋值
      *
-     * @param string | array $key 数组或字符串为数组时批量赋值
-     * @param mixed $val
+     * @param string | array $key 赋值到模板的key,数组或字符串为数组时批量赋值
+     * @param mixed $val 赋值到模板的值
      *
      * @return $this
      */
@@ -36,7 +42,7 @@ abstract class Base {
     /**
      * 引用赋值
      *
-     * @param string | array $key 数组或字符串为数组时批量赋值
+     * @param string | array $key 赋值到模板的key,数组或字符串为数组时批量赋值
      * @param mixed $val
      *
      * @return $this
@@ -55,7 +61,7 @@ abstract class Base {
     /**
      * 获取赋到模板的值
      *
-     * @param string $key
+     * @param string $key 要获取的值的key,数组或字符串为数组时批量赋值
      *
      * @return mixed
      */

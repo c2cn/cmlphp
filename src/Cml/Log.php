@@ -4,12 +4,17 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-8 下午3:07
  * @version  2.5
- * cml框架 文件Log类
+ * cml框架 Log处理类
  * *********************************************************** */
 namespace Cml;
 
 use Cml\Logger\Base;
 
+/**
+ * Log处理类,简化的psr-3日志接口,负责Log的处理
+ *
+ * @package Cml
+ */
 class Log
 {
     /**
@@ -32,8 +37,8 @@ class Log
     /**
      * 添加debug类型的日志
      *
-     * @param string $log
-     * @param array $context
+     * @param string $log 要记录到log的信息
+     * @param array $context 上下文信息
      *
      * @return bool
      */
@@ -45,8 +50,8 @@ class Log
     /**
      * 添加info类型的日志
      *
-     * @param string $log
-     * @param array $context
+     * @param string $log 要记录到log的信息
+     * @param array $context 上下文信息
      *
      * @return bool
      */
@@ -58,8 +63,8 @@ class Log
     /**
      * 添加notice类型的日志
      *
-     * @param string $log
-     * @param array $context
+     * @param string $log 要记录到log的信息
+     * @param array $context 上下文信息
      *
      * @return bool
      */
@@ -71,8 +76,8 @@ class Log
     /**
      * 添加warning类型的日志
      *
-     * @param string $log
-     * @param array $context
+     * @param string $log 要记录到log的信息
+     * @param array $context 上下文信息
      *
      * @return bool
      */
@@ -84,8 +89,8 @@ class Log
     /**
      * 添加error类型的日志
      *
-     * @param string $log
-     * @param array $context
+     * @param string $log 要记录到log的信息
+     * @param array $context 上下文信息
      *
      * @return bool
      */
@@ -97,8 +102,8 @@ class Log
     /**
      * 添加critical类型的日志
      *
-     * @param string $log
-     * @param array $context
+     * @param string $log 要记录到log的信息
+     * @param array $context 上下文信息
      *
      * @return bool
      */
@@ -110,8 +115,8 @@ class Log
     /**
      * 添加critical类型的日志
      *
-     * @param string $log
-     * @param array $context
+     * @param string $log 要记录到log的信息
+     * @param array $context 上下文信息
      *
      * @return bool
      */

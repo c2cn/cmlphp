@@ -1,30 +1,40 @@
 <?php
 /* * *********************************************************
  * [cml] (C)2012 - 3000 cml http://cmlphp.51beautylife.com
- * @desc 数据库保存session
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 13-8-9 下午2:22
  * *********************************************************** */
-/*
-CREATE TABLE `cml_session` (
-    `id` char(32) NOT NULL,
-    `value` varchar(5000) NOT NULL,
-    `time` int(11) unsigned NOT NULL,
-    PRIMARY KEY(`id`)
-)ENGINE=MEMORY DEFAULT CHARSET=utf8;
-*/
 namespace Cml;
 
+/**
+ * Session保存位置处理类。封装了Session入库/Cache的逻辑处理
+ * 采用Mysql存储时需要建数据表,语句如下:
+    CREATE TABLE `cml_session` (
+        `id` char(32) NOT NULL,
+        `value` varchar(5000) NOT NULL,
+        `time` int(11) unsigned NOT NULL,
+        PRIMARY KEY(`id`)
+    )ENGINE=MEMORY DEFAULT CHARSET=utf8;
+ *
+ * @package Cml
+ */
 class Session
 {
-    private $lifeTime; //session超时时间
+    /**
+     * @var $lifeTime session超时时间
+     */
+    private $lifeTime;
 
     /**
-     * @var \Cml\Db\Mysql\Pdo || Cml\Cache\File
+     * @var $handler \Cml\Db\Mysql\Pdo || Cml\Cache\File
      *
      */
     private $handler;
 
+    /**
+     * 初始化
+     *
+     */
     public static function init()
     {
         $cmlSession = new Session();
@@ -47,11 +57,24 @@ class Session
         ini_get('session.auto_start') || session_start(); //自动开启session,必须在session_set_save_handler后面执行
     }
 
+    /**
+     * session open
+     *
+     * @param string $savePath
+     * @param string $sessionName
+     *
+     * @return bool
+     */
     public function open($savePath, $sessionName)
     {
         return true;
     }
 
+    /**
+     * session close
+     *
+     * @return bool
+     */
     public function close()
     {
         if (Config::get('session_user_LOC') == 'db') {
@@ -62,6 +85,13 @@ class Session
         return true;
     }
 
+    /**
+     * session读取
+     *
+     * @param string $sessionId
+     *
+     * @return array|null
+     */
     public  function read($sessionId)
     {
         $result = $this->handler ->get('session-id-'.$sessionId);
@@ -72,6 +102,14 @@ class Session
         }
     }
 
+    /**
+     * session 写入
+     *
+     * @param string $sessionId
+     * @param string $value
+     *
+     * @return bool
+     */
     public function write($sessionId, $value)
     {
         if (Config::get('session_user_LOC') == 'db') {
@@ -86,12 +124,26 @@ class Session
         return true;
     }
 
+    /**
+     * session 销毁
+     *
+     * @param string $sessionId
+     *
+     * @return bool
+     */
     public function destroy($sessionId)
     {
         $this->handler->delete('session-id-'.$sessionId);
         return true;
     }
 
+    /**
+     * session gc回收
+     *
+     * @param int $lifeTime
+     *
+     * @return bool
+     */
     public function gc($lifeTime = 0)
     {
         if (Config::get('session_user_LOC') == 'db') {

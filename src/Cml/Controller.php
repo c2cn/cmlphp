@@ -10,6 +10,11 @@ namespace Cml;
 
 use Cml\Http\Response;
 
+/**
+ * 框架基础控制器,所有控制器都要继承该类
+ *
+ * @package Cml
+ */
 class Controller
 {
 
@@ -71,7 +76,7 @@ class Controller
     /**
      * 获取Lock实例
      *
-     * @param string|null $useCache
+     * @param string|null $useCache 使用的锁的配置
      *
      * @return \Cml\Lock\Redis | \Cml\Lock\Memcache | \Cml\Lock\File | false
      * @throws \Exception

@@ -12,6 +12,11 @@ use Cml\Http\Request;
 use Cml\Http\Response;
 use Cml\Route;
 
+/**
+ * 静态资源管理类
+ *
+ * @package Cml\Tools
+ */
 class StaticResource
 {
     public static function createSymbolicLink($rootDir = null)

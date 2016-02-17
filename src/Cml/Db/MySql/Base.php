@@ -12,6 +12,11 @@ use Cml\Lang;
 use Cml\Model;
 use Cml\Route;
 
+/**
+ * Orm MySql数据库抽象基类
+ *
+ * @package Cml\Db\MySql
+ */
 abstract class Base
 {
     /**
@@ -27,7 +32,9 @@ abstract class Base
     protected  $conf; //配置
 
     /**
-     * @var string 表前缀方便外部读取
+     * 表前缀方便外部读取
+     *
+     * @var string
      */
     public $tablePrefix;
 
@@ -197,7 +204,7 @@ abstract class Base
     /**
      * 根据表名删除数据
      *
-     * @param string $tableName
+     * @param string $tableName 要清空的表名
      *
      * @return boolean
      */
@@ -213,8 +220,8 @@ abstract class Base
     /**
      * 获取表主键
      *
-     * @param string $table
-     * @param string $tablePrefix
+     * @param string $table 要获取主键的表名
+     * @param string $tablePrefix 表前缀
      *
      * @return string || false
      */
@@ -594,8 +601,8 @@ abstract class Base
     /**
      * LIMIT
      *
-     * @param int $limit
-     * @param int $offset
+     * @param int $limit 偏移量
+     * @param int $offset 返回的条数
      *
      * @return $this
      */
@@ -612,8 +619,8 @@ abstract class Base
     /**
      * 排序
      *
-     * @param $column
-     * @param string $order
+     * @param $column 要排序的字段
+     * @param string $order 方向,默认为正序
      *
      * @return $this
      */
@@ -630,7 +637,7 @@ abstract class Base
     /**
      * 分组
      *
-     * @param $column
+     * @param $column 要设置分组的字段名
      *
      * @return $this
      */
@@ -647,9 +654,9 @@ abstract class Base
     /**
      * having语句
      *
-     * @param string $column
-     * @param string $operator
-     * @param string $value
+     * @param string $column 字段名
+     * @param string $operator 操作符
+     * @param string $value 值
      *
      * @return $this
      */
@@ -665,7 +672,7 @@ abstract class Base
      * join内联结
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
-     * @param string $on 如：'c.cid = a.cid'
+     * @param string $on 联结的条件 如：'c.cid = a.cid'
      *
      * @return $this
      */
@@ -682,7 +689,7 @@ abstract class Base
      * leftJoin左联结
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
-     * @param string $on
+     * @param string $on 联结的条件 如：'c.cid = a.cid'
      *
      * @return $this
      */
@@ -699,7 +706,7 @@ abstract class Base
      * rightJoin右联结
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
-     * @param string $on
+     * @param string $on 联结的条件 如：'c.cid = a.cid'
      *
      * @return $this
      */
@@ -715,8 +722,8 @@ abstract class Base
     /**
      * union联结
      *
-     * @param string|array $sql
-     * @param bool $all
+     * @param string|array $sql 要union的sql
+     * @param bool $all 是否为union all
      *
      * @return $this
      */
@@ -875,7 +882,7 @@ abstract class Base
     /**
      * 获取count(字段名或*)的结果
      *
-     * @param string $field
+     * @param string $field 要统计的字段名
      * @param bool $isMulti 结果集是否为多条 默认只有一条
      *
      * @return mixed
@@ -915,7 +922,7 @@ abstract class Base
     /**
      * 指定字段的值+1
      *
-     * @param string $key user-id-1
+     * @param string $key 操作的key eg: user-id-1
      * @param int $val
      * @param string $field 要改变的字段
      *
@@ -926,7 +933,7 @@ abstract class Base
     /**
      * 指定字段的值-1
      *
-     * @param string $key user-id-1
+     * @param string $key 操作的key user-id-1
      * @param int $val
      * @param string $field 要改变的字段
      *
@@ -937,13 +944,13 @@ abstract class Base
     /**
      * Db连接
      *
-     * @param $host
-     * @param $username
-     * @param $password
-     * @param $dbName
-     * @param string $charset
-     * @param string $engine
-     * @param bool|false $pConnect
+     * @param string $host 数据库host
+     * @param string $username 数据库用户名
+     * @param string $password 数据库密码
+     * @param string $dbName 数据库名
+     * @param string $charset 字符集
+     * @param string $engine 引擎
+     * @param bool $pConnect 是否为长连接
      *
      * @return mixed
      */

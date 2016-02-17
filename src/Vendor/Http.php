@@ -10,6 +10,11 @@ namespace Cml\Vendor;
 
 use Cml\Cml;
 
+/**
+ * Http扩展类,用于采集、文件下载等
+ *
+ * @package Cml\Vendor
+ */
 class Http
 {
 

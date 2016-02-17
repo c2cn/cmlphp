@@ -7,6 +7,11 @@
  * cml框架 守护进程工作进程
  * *********************************************************** */
 
+/**
+ * 守护进程工作进程工作类
+ *
+ * @package Cml\Tools\Daemon
+ */
 class ProcessManage
 {
     private static $pidFile; //pid文件
