@@ -54,13 +54,13 @@ class Pdo extends namespace\Base
      */
     public function getDbFields($table, $tablePrefix = null, $filter = 0)
     {
-        static $_dbFieldCache = array();
+        static $dbFieldCache = array();
 
         if ($filter == 1 && $GLOBALS['debug']) return '*'; //debug模式时直接返回*
         $table = is_null($tablePrefix) ? strtolower($table) : $tablePrefix.strtolower($table);
 
-        if (isset($_dbFieldCache[$table])) {
-            $info = $_dbFieldCache[$table];
+        if (isset($dbFieldCache[$table])) {
+            $info = $dbFieldCache[$table];
         } else {
             $info = \Cml\simpleFileCache($this->conf['master']['dbname'].'.'.$table);
             if (!$info || $GLOBALS['debug']) {
@@ -80,7 +80,7 @@ class Pdo extends namespace\Base
 
                 count($info) > 0 && \Cml\simpleFileCache($this->conf['master']['dbname'].'.'.$table, $info);
             }
-            $_dbFieldCache[$table] = $info;
+            $dbFieldCache[$table] = $info;
         }
 
         if ($filter) {

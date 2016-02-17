@@ -495,10 +495,6 @@ abstract class Base
     public function conditionFactory($column, $value, $operator = '=')
     {
         if ($this->sql['where'] == '') $this->sql['where'] = 'WHERE ';
-        if (strpos($column, '.')) {
-            $columnArr = explode('.', $column);
-            $column = $columnArr[0].'.'.$columnArr[1];
-        }
 
         if ($operator == 'IN' || $operator == 'NOT IN') {
             empty($value) && $value = array(0);
@@ -623,8 +619,6 @@ abstract class Base
      */
     public function orderBy($column, $order = 'ASC')
     {
-        $column = explode('.', $column);
-        $column = "`{$column[0]}`" . (isset($column[1]) ? ".`{$column[1]}`" : '');
         if ($this->sql['orderBy'] == '') {
             $this->sql['orderBy'] = "ORDER BY {$column} {$order} ";
         } else {
@@ -882,13 +876,22 @@ abstract class Base
      * 获取count(字段名或*)的结果
      *
      * @param string $field
+     * @param bool $isMulti 结果集是否为多条 默认只有一条
      *
-     * @return int
+     * @return mixed
      */
-    public function count($field = '*')
+    public function count($field = '*', $isMulti = false)
     {
         $count = $this->columns(array("Count({$field})" => 'count'))->select();
-        return intval($count[0]['count']);
+        if ($isMulti) {
+            $return = array();
+            foreach($count as $val) {
+                $return[] = intval($val['count']);
+            }
+            return $return;
+        } else {
+            return intval($count[0]['count']);
+        }
     }
 
     /**
