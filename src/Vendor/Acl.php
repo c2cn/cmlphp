@@ -26,7 +26,7 @@ use Cml\Route;
     CREATE TABLE `hadm_access` (
         `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '权限ID',
         `userid` int(11) DEFAULT '0' COMMENT '所属用户权限ID',
-        `groupid` int(11) DEFAULT '0' COMMENT '所属群组权限ID',
+        `groupid` smallint(3) DEFAULT '0' COMMENT '所属群组权限ID',
         `menuid` int(11) NOT NULL DEFAULT '0' COMMENT '权限模块ID',
         PRIMARY KEY (`id`),
         KEY `idx_userid` (`userid`) USING BTREE,
@@ -56,7 +56,7 @@ use Cml\Route;
 
     CREATE TABLE `hadm_users` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-        `groupid` smallint(3) NOT NULL DEFAULT '0',
+        `groupid` varchar(255) NOT NULL DEFAULT '',
         `username` varchar(40) NOT NULL DEFAULT '',
         `password` varchar(40) NOT NULL DEFAULT '',
         `lastlogin` int(10) unsigned NOT NULL DEFAULT '0',
@@ -138,14 +138,21 @@ class Acl
                         'id' => $user['id'],
                         'username' => $user['username'],
                         'nickname' => $user['nickname'],
-                        'groupid' => $user['groupid']
+                        'groupid' => explode('|', $user['groupid'])
                     );
-                    $group = Model::getInstance()->db()->get('groups-id-'.$user['groupid'].'-status-1');
+                    $groups = Model::getInstance()->db()->table('groups')
+                        ->columns('name')
+                        ->whereIn('id', $tmp['groupid'])
+                        ->_and()
+                        ->where('status', 1)
+                        ->select();
 
-                    if (!empty($group)) {
-                        $tmp['groupname'] = $group[0]['name'];
+                    $tmp['groupname'] = array();
+                    foreach($groups as $group) {
+                        $tmp['groupname'][] = $group['name'];
                     }
 
+                    $tmp['groupname'] = implode(',', $tmp['groupname']);
                     //有操作登录超时时间重新设置为1个小时
                     if (self::$authUser['expire'] - Cml::$nowTime < 1800) {
                         self::setLoginStatus($user['id']);
@@ -182,7 +189,7 @@ class Acl
             ->table(array('access'=> 'a'))
             ->join(array('menus' => 'm'), 'a.menuid=m.id')
             ->lBrackets()
-            ->where('a.groupid', $authInfo['groupid'])
+            ->whereIn('a.groupid', $authInfo['groupid'])
             ->_or()
             ->where('a.userid', $authInfo['id'])
             ->rBrackets()
@@ -214,7 +221,7 @@ class Acl
             Model::getInstance()->db()
                 ->join(array('access'=> 'a'), 'a.menuid=m.id')
                 ->lBrackets()
-                ->where('a.groupid', $authInfo['groupid'])
+                ->whereIn('a.groupid', $authInfo['groupid'])
                 ->_or()
                 ->where('a.userid', $authInfo['id'])
                 ->rBrackets()
