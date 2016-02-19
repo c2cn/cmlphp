@@ -39,7 +39,7 @@
 [CmlPHP V2.5开发手册](https://www.zybuluo.com/linhecheng/note/226146 "CmlPHP V2.5开发手册")
 
 ## 你们想要的Api文档
-> 部分看了开发手册的朋友给我发邮件希望我提供一份详细的Api文档,以便更深入的学习CmlPHP，现在它来啦!![CmlPHP V2.5X Api](http://cmlphp-api.51beautylife.com/)。
+> 部分看了开发手册的朋友给我发邮件希望我提供一份详细的Api文档,以便更深入的学习CmlPHP，现在它来啦!! [CmlPHP V2.5X Api](http://cmlphp-api.51beautylife.com/)。
 
 ## 项目推荐目录骨架
 > 提供了基础目录结构及示例，[点击这里查看](http://git.oschina.net/linhecheng/cmlphp2.5-demo-proj)。
