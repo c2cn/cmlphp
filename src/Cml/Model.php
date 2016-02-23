@@ -156,8 +156,7 @@ class Model
      * @return int
      */
     public function set($data){
-        $this->db($this->getDbConf())->set($this->getTableName(), $data);
-        return $this->db($this->getDbConf())->insertId();
+        return $this->db($this->getDbConf())->set($this->getTableName(), $data);
     }
 
     /**

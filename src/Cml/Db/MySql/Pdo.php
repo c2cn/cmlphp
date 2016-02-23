@@ -149,7 +149,7 @@ class Pdo extends namespace\Base
             $this->execute($stmt);
 
             $this->setCacheVer($tableName);
-            return  $stmt->rowCount();
+            return $this->insertId();
         } else {
             return false;
         }
