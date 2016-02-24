@@ -99,4 +99,13 @@ class Controller
             }
         }
     }
+
+    /**
+     * 挂载插件钩子
+     *
+     */
+    public function __destruct()
+    {
+        Plugin::hook('cml.run_controller_end');
+    }
 }
