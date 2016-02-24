@@ -392,6 +392,21 @@ class Html extends Base
         // 网页字符编码
         header('Content-Type:text/html; charset='.Config::get('default_charset'));
 
+        echo $this->fetch($templateFile, $inOtherApp);
+
+        Cml::cmlStop();
+    }
+
+    /**
+     * 渲染模板获取内容 调用内置的模板引擎显示方法，
+     *
+     * @param string $templateFile 指定要调用的模板文件 默认为空 由系统自动定位模板文件
+     * @param bool $inOtherApp 是否为载入其它应用的模板
+     *
+     * @return string
+     */
+    public function fetch($templateFile = '', $inOtherApp = false)
+    {
         if (Config::get('form_token')) {
             Secure::setToken();
         }
@@ -401,8 +416,9 @@ class Html extends Base
             $this->args = array();
         }
 
+        ob_start();
         require $this->getFile($this->initBaseDir($templateFile, $inOtherApp));
-        Cml::cmlStop();
+        return ob_get_clean();
     }
 
     /**
