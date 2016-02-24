@@ -34,10 +34,12 @@ class Cml
     // 致命错误捕获
     public static function fatalError()
     {
-        if ($error = error_get_last()) {//获取最后一个发生的错误的信息。 包括提醒、警告、致命错误
-            Plugin::hook('cml.before_fatal_error', $error);
+        Plugin::hook('cml.before_cml_stop');
 
+        if ($error = error_get_last()) {//获取最后一个发生的错误的信息。 包括提醒、警告、致命错误
             if (in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING))) { //当捕获到的错误为致命错误时 报告
+                Plugin::hook('cml.before_fatal_error', $error);
+                
                 if (!$GLOBALS['debug']) {
                     //正式环境 只显示‘系统错误’并将错误信息记录到日志
                     Log::emergency('fatal_error', array($error));
@@ -356,8 +358,6 @@ class Cml
      */
     public static function cmlStop()
     {
-        Plugin::hook('cml.before_cml_stop');
-
         //输出Debug模式的信息
         if ($GLOBALS['debug']) {
             header('Content-Type:text/html; charset='.Config::get('default_charset'));

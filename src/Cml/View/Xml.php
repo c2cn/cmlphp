@@ -25,7 +25,6 @@ class Xml extends Base
      */
     public function display() {
         header('Content-Type: application/xml;charset='.Config::get('default_charset'));
-        Plugin::hook('cml.before_cml_stop');
         exit($this->array2xml($this->args));
     }
 

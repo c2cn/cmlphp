@@ -118,7 +118,6 @@ class Excel extends Base
         }
         echo "</Table>\n</Worksheet>\n";
         echo "</Workbook>";
-        Plugin::hook('cml.before_cml_stop');
         exit();
     }
 }
