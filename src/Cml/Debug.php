@@ -247,8 +247,8 @@ EOT;
             }
         } else {
             echo '<div id="cmlphp_console_info" style="letter-spacing: -.0em;position: fixed;bottom:0;right:0;font-size:14px;width:100%;z-index: 999999;color: #000;text-align:left;font-family:\'微软雅黑\';">
-                    <div id="cmlphp_console_info_switch" style="height: 27px; bottom: 0px; color: rgb(0, 0, 0); cursor: pointer; display: block; width: 100%; border-top: 3px rgb(255, 102, 0) solid;">
-                        <div style="background:#232323;color:#FFF;padding:2px 6px;height:27px;font-size:14px;">
+                    <div id="cmlphp_console_info_switch" style="height: 28px; bottom: 0px; color: rgb(0, 0, 0); cursor: pointer; display: block; width: 100%; border-top: 3px rgb(255, 102, 0) solid;">
+                        <div style="background:#232323;color:#FFF;padding:2px 6px;height:28px;font-size:14px;">
                              <span id="cmlphp_console_info_simpleinfo">消耗时间<i>' . self::useTime() . 's</i> &nbsp;&nbsp; 消耗内存<i>' . self::useMemory() . ' </i></span>
                              <div style="float:right;margin:0 auto;width:110px;text-align:center;">
                                 <svg id="cmlphp_console_info_logo" width="85" height="25" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
