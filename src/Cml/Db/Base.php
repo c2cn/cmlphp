@@ -4,9 +4,9 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-8 下午3:07
  * @version  2.5
- * cml框架 Db MySql数据库抽象基类
+ * cml框架 Db 数据库抽象基类
  * *********************************************************** */
-namespace Cml\Db\MySql;
+namespace Cml\Db;
 
 use Cml\Lang;
 use Cml\Model;
@@ -15,7 +15,7 @@ use Cml\Route;
 /**
  * Orm MySql数据库抽象基类
  *
- * @package Cml\Db\MySql
+ * @package Cml\Db
  */
 abstract class Base
 {

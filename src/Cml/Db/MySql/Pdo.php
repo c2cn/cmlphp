@@ -9,6 +9,7 @@
 namespace Cml\Db\MySql;
 
 use Cml\Config;
+use Cml\Db\Base;
 use Cml\Debug;
 use Cml\Lang;
 use Cml\Model;
@@ -18,7 +19,7 @@ use Cml\Model;
  *
  * @package Cml\Db\MySql
  */
-class Pdo extends namespace\Base
+class Pdo extends Base
 {
     /**
      * 数据库连接串
