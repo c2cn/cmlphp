@@ -137,15 +137,13 @@ class Pdo extends Base
      * @param string $table
      * @param array $data eg: array('username'=>'admin', 'email'=>'linhechengbush@live.com')
      *
-     * @return bool
+     * @return bool|int
      */
     public function set($table, $data)
     {
-        $tablePrefix = $this->tablePrefix;
-
-        $tableName = $tablePrefix.$table;
+        $tableName = $this->tablePrefix.$table;
         if (is_array($data)) {
-            $s = $this->arrToCondition($data, $table, $tablePrefix);
+            $s = $this->arrToCondition($data, $table, $this->tablePrefix);
             $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
             $this->execute($stmt);
 
@@ -159,7 +157,7 @@ class Pdo extends Base
     /**
      * 根据key更新一条数据
      *
-     * @param string $key eg 'user-uid-$uid'
+     * @param string $key eg 'user-uid-$uid' 如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组
      * @param array | null $data eg: array('username'=>'admin', 'email'=>'linhechengbush@live.com')
      * @param bool $and 多个条件之间是否为and  true为and false为or
      *
@@ -227,7 +225,7 @@ class Pdo extends Base
     }
 
     /**
-     * 根据表名删除数据
+     * 根据表名删除数据 这个操作太危险慎用。不过一般情况程序也没这个权限
      *
      * @param string $tableName 要清空的表名
      *
@@ -305,10 +303,11 @@ class Pdo extends Base
      * 返回INSERT，UPDATE 或 DELETE 查询所影响的记录行数。
      *
      * @param $handle \PDOStatement
+     * @param int $type 执行的类型1:insert、2:update、3:delete
      *
      * @return int
      */
-    public function affectedRows($handle)
+    public function affectedRows($handle, $type)
     {
         return $handle->rowCount();
     }

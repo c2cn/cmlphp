@@ -65,7 +65,8 @@ return array(
         'server' => array(
             array(
                 'host' => '127.0.0.1',
-                'port' => '6379'
+                'port' => '6379',
+                //'password' => '123456' //没有密码的时候不要配置
             ),
             //多台...
         ),

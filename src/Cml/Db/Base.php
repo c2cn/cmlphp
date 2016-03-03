@@ -13,12 +13,22 @@ use Cml\Model;
 use Cml\Route;
 
 /**
- * Orm MySql数据库抽象基类
+ * Orm 数据库抽象基类
  *
  * @package Cml\Db
  */
 abstract class Base
 {
+    /**
+     * where操作需要加上and/or
+     * 0 : 初始化两个都不加
+     * 1 : 要加and
+     * 2： 要加 or
+     * 
+     * @var int
+     */
+    protected $whereNeedAddAndOrOr = 0;
+
     /**
      * 执行sql时绑定的参数
      *
@@ -119,7 +129,7 @@ abstract class Base
      *
      * @param string $db 要连接的数据库类型
      *
-     * @return  resource MySQL 连接标识
+     * @return  resource 数据库 连接标识
      */
     public function __get($db)
     {
@@ -249,7 +259,7 @@ abstract class Base
     {
         if (is_array($column)) {
             foreach ($column as $key => $val) {
-                !empty($this->sql['where']) && ($this->sql['where'] .= ($value === false ? '  OR ' : ' AND '));
+                $this->whereNeedAddAndOrOr > 0 && ($value === false ? $this->_or() : $this->_and());
                 $this->conditionFactory($key, $val, '=');
             }
         } else {
@@ -417,7 +427,7 @@ abstract class Base
      *
      * @return string
      */
-    private function filterLike($val)
+    protected function filterLike($val)
     {
         return str_replace(array('_', '%'), array('\_', '\%'), $val);
     }
@@ -491,17 +501,25 @@ abstract class Base
     }
 
     /**
-     *where 语句组装工厂
+     * where 语句组装工厂
      *
-     *@param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
-     *@param string |int|array $value
-     *@param string $operator 操作符
-     *
-     *@return void
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param array|int|string $value 值
+     * @param string $operator 操作符
+     * @throws \Exception
      */
     public function conditionFactory($column, $value, $operator = '=')
     {
         if ($this->sql['where'] == '') $this->sql['where'] = 'WHERE ';
+
+        if ($this->whereNeedAddAndOrOr === 1) {
+            $this->sql['where'] .= ' AND ';
+        } else if($this->whereNeedAddAndOrOr === 2) {
+            $this->sql['where'] .= ' OR ';
+        }
+
+        //下一次where操作默认加上AND
+        $this->whereNeedAddAndOrOr = 1;
 
         if ($operator == 'IN' || $operator == 'NOT IN') {
             empty($value) && $value = array(0);
@@ -527,13 +545,13 @@ abstract class Base
     }
 
     /**
-     *增加 and条件操作符
+     * 增加 and条件操作符
      *
      * @return $this
      */
     public function _and()
     {
-        $this->sql['where'] .= ' AND ';
+        $this->whereNeedAddAndOrOr = 1;
         return $this;
     }
 
@@ -544,7 +562,7 @@ abstract class Base
      */
     public function _or()
     {
-        $this->sql['where'] .= ' OR ';
+        $this->whereNeedAddAndOrOr = 2;
         return $this;
     }
 
@@ -601,25 +619,25 @@ abstract class Base
     /**
      * LIMIT
      *
-     * @param int $limit 偏移量
-     * @param int $offset 返回的条数
+     * @param int $offset 偏移量
+     * @param int $limit 返回的条数
      *
      * @return $this
      */
-    public function limit($limit = 0, $offset = 10)
+    public function limit($offset = 0, $limit = 10)
     {
-        $limit = intval($limit);
         $offset = intval($offset);
-        $limit < 0 && $limit = 0;
-        ($offset < 1 || $offset > 5000) && $offset = 100;
-        $this->sql['limit'] = "LIMIT {$limit}, {$offset}";
+        $limit = intval($limit);
+        $offset < 0 && $offset = 0;
+        ($limit < 1 || $limit > 5000) && $limit = 100;
+        $this->sql['limit'] = "LIMIT {$offset}, {$limit}";
         return $this;
     }
 
     /**
      * 排序
      *
-     * @param $column 要排序的字段
+     * @param string $column 要排序的字段
      * @param string $order 方向,默认为正序
      *
      * @return $this
@@ -637,7 +655,7 @@ abstract class Base
     /**
      * 分组
      *
-     * @param $column 要设置分组的字段名
+     * @param string $column 要设置分组的字段名
      *
      * @return $this
      */
@@ -793,6 +811,7 @@ abstract class Base
         $this->join = array(); //是否内联
         $this->leftJoin = array(); //是否左联结
         $this->rightJoin = array(); //是否右联
+        $this->whereNeedAddAndOrOr = 0;
     }
 
     /**
@@ -854,14 +873,14 @@ abstract class Base
     }
 
     /**
-     *SQL语句条件组装
+     * SQL语句条件组装
      *
-     *@param string $key eg: 'forum-fid-1-uid-2'
-     *@param bool $and 多个条件之间是否为and  true为and false为or
-     *@param bool $noCondition 是否为无条件操作  set/delete/update操作的时候 condition为空是正常的不报异常
-     *@param bool $noTable 是否可以没有数据表 当delete/update等操作的时候已经执行了table() table为空是正常的
+     * @param string $key eg: 'forum-fid-1-uid-2'
+     * @param bool $and 多个条件之间是否为and  true为and false为or
+     * @param bool $noCondition 是否为无条件操作  set/delete/update操作的时候 condition为空是正常的不报异常
+     * @param bool $noTable 是否可以没有数据表 当delete/update等操作的时候已经执行了table() table为空是正常的
      *
-     *@return array eg: array('forum', "`fid` = '1' AND `uid` = '2'")
+     * @return array eg: array('forum', "`fid` = '1' AND `uid` = '2'")
      */
     protected function parseKey($key, $and = true, $noCondition = false, $noTable = false)
     {
@@ -905,10 +924,11 @@ abstract class Base
      * 返回INSERT，UPDATE 或 DELETE 查询所影响的记录行数。
      *
      * @param resource $handle mysql link
+     * @param int $type 执行的类型1:insert、2:update、3:delete
      *
      * @return int
      */
-    abstract public function affectedRows($handle);
+    abstract public function affectedRows($handle, $type);
 
     /**
      *获取上一INSERT的主键值
@@ -963,7 +983,7 @@ abstract class Base
     abstract public function __destruct();
 
     /**
-     *获取mysql 版本
+     *获取数据库 版本
      *
      *@param resource $link
      *
@@ -997,7 +1017,7 @@ abstract class Base
     /**
      * 回滚事务
      *
-     * @param string $rollBackTo 是否为还原到某个保存点
+     * @param bool $rollBackTo 是否为还原到某个保存点
      *
      * @return bool
      */

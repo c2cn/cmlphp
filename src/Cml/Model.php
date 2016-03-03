@@ -34,7 +34,7 @@ class Model
      *
      * @param string $conf 使用的数据库配置;
      *
-     * @return \Cml\Db\MySql\Pdo
+     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB
      */
     public function db($conf = '')
     {

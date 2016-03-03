@@ -63,6 +63,10 @@ class Redis extends namespace\Base
                     $this->conf['server'][$success]['host'] . ':' . $this->conf['server'][$success]['port']
                 ));
             }
+
+            if (isset($this->conf['server'][$success]['password']) && !empty($this->conf['server'][$success]['password'])) {
+                $instance->auth($this->conf['server'][$success]['password']) || \Cml\throwException('redis password error!');
+            }
         }
         return $this->redis[$success];
     }
