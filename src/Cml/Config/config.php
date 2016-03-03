@@ -30,6 +30,22 @@ return array(
         'slaves'=>array(),
         'cache_expire' => 3600,//查询数据缓存时间
     ),
+
+    /**
+    使用MongoDB
+    'db_mongo' => array(
+        'driver' => 'MongoDB.MongoDB', //数据库驱动
+        'master' => array(
+            'host' => 'localhost:27017',
+            'username' => '',
+            'password' => '',
+            'dbname' => 'test',
+            //'replicaSet' => '' //replicaSet名称
+        ),
+        'slaves'=>array(),
+    ),
+     **/
+
     // 缓存服务器的配置
     'default_cache' => array(
         'on' => 0, //为1则启用，或者不启用
