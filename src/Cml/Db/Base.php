@@ -908,7 +908,7 @@ abstract class Base
      */
     public function count($field = '*', $isMulti = false)
     {
-        $count = $this->columns(array("Count({$field})" => 'count'))->select();
+        $count = $this->columns(array("COUNT({$field})" => 'count'))->select();
         if ($isMulti) {
             $return = array();
             foreach($count as $val) {

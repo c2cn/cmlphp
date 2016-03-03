@@ -225,10 +225,7 @@ class Model
     public function getTotalNums($pkField = null)
     {
         is_null($pkField) && $pkField = $this->db($this->getDbConf())->getPk($this->getTableName());
-        $res = $this->db($this->getDbConf())->table($this->getTableName())
-            ->columns(array('count('.$pkField.')' => 'total'))
-            ->select();
-        return $res[0]['total'];
+        return $this->db($this->getDbConf())->table($this->getTableName())->count($pkField);
     }
 
     /**
