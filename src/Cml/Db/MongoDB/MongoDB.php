@@ -707,7 +707,8 @@ class MongoDB extends Base
      */
     public function lBrackets()
     {
-        return $this->bracketsIsOpen = true;
+        $this->bracketsIsOpen = true;
+        return $this;
     }
 
     /**
@@ -717,7 +718,8 @@ class MongoDB extends Base
      */
     public function rBrackets()
     {
-        return $this->bracketsIsOpen = false;
+        $this->bracketsIsOpen = false;
+        return $this;
     }
 
     /**
