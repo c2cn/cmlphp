@@ -242,11 +242,16 @@ class Pdo extends Base
 
     /**
      * 获取多条数据
+     * 
+     * @param int $offset 偏移量
+     * @param int $limit 返回的条数
      *
      * @return array
      */
-    public function select()
+    public function select($offset = null, $limit = null)
     {
+        is_null($offset) || $this->limit($offset, $limit);
+
         $this->sql['columns'] == '' && ($this->sql['columns'] = '*');
 
         $columns = ($this->sql['columns'] == '*')  ? (
