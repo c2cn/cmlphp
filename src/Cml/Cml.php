@@ -291,6 +291,16 @@ class Cml
     }
 
     /**
+     * 某些场景(如：跟其它项目混合运行的时候)只希望使用CmlPHP中的组件而不希望运行控制器，用来替代runApp
+     *
+     *
+     */
+    public static function onlyInitEnvironmentNotRunController()
+    {
+        self::init();
+    }
+
+    /**
      * 启动框架
      *
      */
