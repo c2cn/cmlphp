@@ -822,10 +822,15 @@ class MongoDB extends Base
     /**
      * 获取多条数据
      *
+     * @param int $offset 偏移量
+     * @param int $limit 返回的条数
+     *
      * @return array
      */
-    public function select()
+    public function select($offset = null, $limit = null)
     {
+        is_null($offset) || $this->limit($offset, $limit);
+
         $filter = array();
         count($this->sql['orderBy']) > 0 && $filter['sort'] = $this->sql['orderBy'];
         count($this->sql['columns']) > 0 && $filter['projection'] = $this->sql['columns'];

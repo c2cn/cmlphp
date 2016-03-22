@@ -573,8 +573,18 @@ abstract class Base
      */
     public function lBrackets()
     {
-        if ($this->sql['where'] == '') $this->sql['where'] = 'WHERE ';
+        if ($this->sql['where'] == '') {
+            $this->sql['where'] = 'WHERE ';
+        } else {
+            if ($this->whereNeedAddAndOrOr === 1) {
+                $this->sql['where'] .= ' AND ';
+            } else if($this->whereNeedAddAndOrOr === 2) {
+                $this->sql['where'] .= ' OR ';
+            }
+        }
         $this->sql['where'] .= ' (';
+        //移除下一次where操作默认加上AND
+        $this->whereNeedAddAndOrOr = 0;
         return $this;
     }
 
