@@ -22,7 +22,7 @@ return array(
             'username' => 'root', //数据库用户名
             'password' => '', //数据库密码
             'dbname' => 'cmlphp', //数据库名
-            'charset' => 'utf8', //数据库编码
+            'charset' => 'utf8mb4', //数据库编码
             'tableprefix' => 'sun_', //数据表前缀
             'pconnect' => false, //是否开启数据库长连接
             'engine' => ''//数据库引擎
