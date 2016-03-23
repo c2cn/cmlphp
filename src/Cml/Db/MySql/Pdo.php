@@ -105,11 +105,11 @@ class Pdo extends Base
      *
      * @param string $key get('user-uid-123');
      * @param bool $and 多个条件之间是否为and  true为and false为or
-     * @return array array('uid'=>123, 'username'=>'abc')
+     * @param bool $useMaster 是否使用主库 默认读取从库
      *
      * @return array
      */
-    public function get($key, $and = true)
+    public function get($key, $and = true, $useMaster = false)
     {
         list($tableName, $condition) = $this->parseKey($key, $and);
         $tableName = $this->tablePrefix.$tableName;
@@ -120,7 +120,7 @@ class Pdo extends Base
 
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) { //cache中不存在这条记录
-            $stmt = $this->prepare($sql, $this->rlink);
+            $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
             $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
@@ -245,10 +245,11 @@ class Pdo extends Base
      * 
      * @param int $offset 偏移量
      * @param int $limit 返回的条数
+     * @param bool $useMaster 是否使用主库 默认读取从库
      *
      * @return array
      */
-    public function select($offset = null, $limit = null)
+    public function select($offset = null, $limit = null,  $useMaster = false)
     {
         is_null($offset) || $this->limit($offset, $limit);
 
@@ -293,7 +294,7 @@ class Pdo extends Base
         $cacheKey = md5($sql.json_encode($this->bindParams)).$cacheKey;
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) {
-            $stmt = $this->prepare($sql, $this->rlink);
+            $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
             $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
