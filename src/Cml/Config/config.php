@@ -142,7 +142,7 @@ return array(
     'log_warn_log' => false, //警告级别的日志默认不记录
     'log_driver' => 'File', //日志驱动,内置File/Redis两种
     'log_prefix' => 'cml_log', //会显示到日志内容中,同时当以redis为驱动的时候会做为队列的前缀
-    //上锁使用的缓存
+    //Log类使用的缓存
     'log_use_cache' => 'default_cache',//只有在该缓存的驱动为redis的时候才有效,否则会报错
     //队列使用的缓存
     'queue_use_cache' => 'default_cache',//只有在该缓存的驱动为redis的时候才有效,否则会报错
