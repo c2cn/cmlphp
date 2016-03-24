@@ -149,6 +149,22 @@ class Model
     }
 
     /**
+     * 通过某个字段获取多条数据-快捷方法
+     *
+     * @param mixed $val 值
+     * @param string $column 字段名 不传会自动分析表结构获取主键
+     *
+     * @return bool|array
+     */
+    public function getMultiByColumn($val, $column = null)
+    {
+        is_null($column) && $column = $this->db($this->getDbConf())->getPk($this->getTableName());
+        return $this->db($this->getDbConf())->table($this->getTableName())
+            ->where($column, $val)
+            ->select();
+    }
+
+    /**
      * 增加一条数据-快捷方法
      *
      * @param $data
@@ -160,7 +176,7 @@ class Model
     }
 
     /**
-     * 通过主键更新一条数据-快捷方法
+     * 通过主键更新数据-快捷方法
      *
      * @param int $val 主键id
      * @param array $data
@@ -173,7 +189,7 @@ class Model
     }
 
     /**
-     * 通过字段更新一条数据-快捷方法
+     * 通过字段更新数据-快捷方法
      *
      * @param int $val 主键id
      * @param array $data
@@ -188,7 +204,7 @@ class Model
     }
 
     /**
-     * 通过主键删除一条数据-快捷方法
+     * 通过主键删除数据-快捷方法
      *
      * @param mixed $val
      * @param string $column 字段名 不传会自动分析表结构获取主键
@@ -201,7 +217,7 @@ class Model
     }
 
     /**
-     * 通过主键删除一条数据-快捷方法
+     * 通过主键删除数据-快捷方法
      *
      * @param mixed $val
      * @param string $column 字段名 不传会自动分析表结构获取主键
