@@ -176,7 +176,7 @@ abstract class Base
      * @param string $key get('user-uid-123');
      * @param bool $and 多个条件之间是否为and  true为and false为or
      *
-     * @return array array('uid'=>123, 'username'=>'abc')
+     * @return
      */
     abstract public function get($key, $and = true);
 
@@ -223,9 +223,12 @@ abstract class Base
     /**
      * 获取多条数据
      *
+     * @param int $offset 偏移量
+     * @param int $limit 返回的条数
+     *
      * @return array
      */
-    abstract public function select();
+    abstract public function select($offset = null, $limit = null);
 
     /**
      * 获取表主键

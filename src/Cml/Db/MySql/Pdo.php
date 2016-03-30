@@ -22,6 +22,13 @@ use Cml\Model;
 class Pdo extends Base
 {
     /**
+     * 当前执行的sql 异常情况用来显示在错误页/日志
+     *
+     * @var string
+     */
+    private $currentSql = '';
+
+    /**
      * 数据库连接串
      *
      * @param $conf
@@ -105,11 +112,11 @@ class Pdo extends Base
      *
      * @param string $key get('user-uid-123');
      * @param bool $and 多个条件之间是否为and  true为and false为or
-     * @return array array('uid'=>123, 'username'=>'abc')
+     * @param bool $useMaster 是否使用主库 默认读取从库
      *
      * @return array
      */
-    public function get($key, $and = true)
+    public function get($key, $and = true, $useMaster = false)
     {
         list($tableName, $condition) = $this->parseKey($key, $and);
         $tableName = $this->tablePrefix.$tableName;
@@ -120,7 +127,7 @@ class Pdo extends Base
 
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) { //cache中不存在这条记录
-            $stmt = $this->prepare($sql, $this->rlink);
+            $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
             $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
@@ -245,10 +252,11 @@ class Pdo extends Base
      * 
      * @param int $offset 偏移量
      * @param int $limit 返回的条数
+     * @param bool $useMaster 是否使用主库 默认读取从库
      *
      * @return array
      */
-    public function select($offset = null, $limit = null)
+    public function select($offset = null, $limit = null,  $useMaster = false)
     {
         is_null($offset) || $this->limit($offset, $limit);
 
@@ -293,7 +301,7 @@ class Pdo extends Base
         $cacheKey = md5($sql.json_encode($this->bindParams)).$cacheKey;
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) {
-            $stmt = $this->prepare($sql, $this->rlink);
+            $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
             $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
@@ -461,6 +469,7 @@ class Pdo extends Base
                 'Pdo Prepare Sql error! ,【Sql : '.vsprintf(str_replace('%s', "'%s'", $tipSql), $bindParams).'】,【Code:'.$link->errorCode ().'】, 【ErrorInfo!:'.$error[2].'】 <br />'
             );
         } else {
+            $this->currentSql = $tipSql;
             foreach($this->bindParams as $key => $val) {
                 is_int($val) ? $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_INT) : $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_STR);
             }
@@ -480,11 +489,17 @@ class Pdo extends Base
     private function execute($stmt, $clearBindParams = true)
     {
         //empty($param) && $param = $this->bindParams;
-        $clearBindParams && $this->bindParams = array();
         if (!$stmt->execute()) {
+            $bindParams = $this->bindParams;
+            foreach ($bindParams as $key => $val) {
+                $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
+            }
+
             $error = $stmt->errorInfo();
-            \Cml\throwException($error[2]);
+            \Cml\throwException('Pdo execute Sql error!,【Sql : '.vsprintf(str_replace('%s', "'%s'", $this->currentSql), $bindParams).'】,【Error:'.$error[2].'】');
         }
+        $this->currentSql = '';
+        $clearBindParams && $this->bindParams = array();
         return true;
     }
 

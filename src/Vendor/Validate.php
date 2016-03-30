@@ -29,8 +29,13 @@ class Validate
     public static function isLength($value, $min = 0, $max = 0)
     {
         $value = trim($value);
-        if ($min != 0 && strlen($value) < $min) return false;
-        if ($max != 0 && strlen($value) > $max) return false;
+        if (!is_string($value)) {
+            return false;
+        }
+        $length = function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
+
+        if ($min != 0 && $length < $min) return false;
+        if ($max != 0 && $length > $max) return false;
         return true;
     }
 
@@ -81,7 +86,7 @@ class Validate
      */
     public static function isEmail($value)
     {
-        return preg_match('/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/', trim($value));
+        return filter_var($value, \FILTER_VALIDATE_EMAIL) !== false;
     }
 
     /**
@@ -93,7 +98,7 @@ class Validate
      */
     public static function isIp($value)
     {
-        return preg_match('/^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])$/', trim($value));
+        return filter_var($value, \FILTER_VALIDATE_IP) !== false;
     }
 
     /**
@@ -105,7 +110,7 @@ class Validate
      */
     public static function isNumber($value)
     {
-        return preg_match('/\d+$/', trim($value));
+        return is_numeric($value);
     }
 
     /**
@@ -152,7 +157,7 @@ class Validate
      */
     public static function isUrl($value)
     {
-        return preg_match('/^http:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/', trim($value));
+        return filter_var($value, \FILTER_VALIDATE_URL) !== false;
     }
 
     /**
