@@ -38,8 +38,8 @@
 > 从v2.6.0 正式引入MongoDB的支持
 
 ## 开发手册
-开发手册放在作业部落上。感谢作业部落提供了这么好用的markdown编辑器
-[CmlPHP v2.x开发手册](https://www.zybuluo.com/linhecheng/note/226146 "CmlPHP v2.x开发手册")
+开发手册使用gitbook编写
+[CmlPHP v2.x开发手册](http://cmlphp-doc.51beautylife.com/ "CmlPHP v2.x开发手册")
 
 ## 你们想要的Api文档
 > 部分看了开发手册的朋友给我发邮件希望我提供一份详细的Api文档,以便更深入的学习CmlPHP，现在它来啦!! [CmlPHP v2.x Api](http://cmlphp-api.51beautylife.com/)。
