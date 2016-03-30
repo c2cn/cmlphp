@@ -114,30 +114,19 @@ class Model
     }
 
     /**
-     * 通过主键获取单条数据-快捷方法
-     *
-     * @param mixed $val 值
-     * @param string $column 字段名 不传会自动分析表结构获取主键
-     *
-     * @return bool|array
-     */
-    public function getByPk($val, $column = null)
-    {
-        return $this->getByColumn($val, $column);
-    }
-
-    /**
      * 通过某个字段获取单条数据-快捷方法
      *
      * @param mixed $val 值
      * @param string $column 字段名 不传会自动分析表结构获取主键
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
      *
      * @return bool|array
      */
-    public function getByColumn($val, $column = null)
+    public function getByColumn($val, $column = null, $tableName = null)
     {
-        is_null($column) && $column = $this->db($this->getDbConf())->getPk($this->getTableName());
-        $data = $this->db($this->getDbConf())->table($this->getTableName())
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
+        $data = $this->db($this->getDbConf())->table($tableName)
             ->where($column, $val)
             ->limit(0, 1)
             ->select();
@@ -153,13 +142,15 @@ class Model
      *
      * @param mixed $val 值
      * @param string $column 字段名 不传会自动分析表结构获取主键
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
      *
      * @return bool|array
      */
-    public function getMultiByColumn($val, $column = null)
+    public function getMultiByColumn($val, $column = null, $tableName = null)
     {
-        is_null($column) && $column = $this->db($this->getDbConf())->getPk($this->getTableName());
-        return $this->db($this->getDbConf())->table($this->getTableName())
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
+        return $this->db($this->getDbConf())->table($tableName)
             ->where($column, $val)
             ->select();
     }
@@ -167,40 +158,32 @@ class Model
     /**
      * 增加一条数据-快捷方法
      *
-     * @param $data
+     * @param array $data 要新增的数据
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
      *
      * @return int
      */
-    public function set($data){
-        return $this->db($this->getDbConf())->set($this->getTableName(), $data);
-    }
-
-    /**
-     * 通过主键更新数据-快捷方法
-     *
-     * @param int $val 主键id
-     * @param array $data
-     * @param string $column 字段名 不传会自动分析表结构获取主键
-     *
-     * @return bool
-     */
-    public function updateByPk($val, $data, $column = null){
-        return $this->updateByColumn($val, $data, $column);
+    public function set($data, $tableName = null){
+        is_null($tableName) && $tableName = $this->getTableName();
+        return $this->db($this->getDbConf())->set($tableName, $data);
     }
 
     /**
      * 通过字段更新数据-快捷方法
      *
-     * @param int $val 主键id
-     * @param array $data
+     * @param int $val 字段值
+     * @param array $data 更新的数据
      * @param string $column 字段名 不传会自动分析表结构获取主键
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
      *
      * @return bool
      */
-    public function updateByColumn($val, $data, $column = null){
-        is_null($column) && $column = $this->db($this->getDbConf())->getPk($this->getTableName());
+    public function updateByColumn($val, $data, $column = null, $tableName = null)
+    {
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
         return $this->db($this->getDbConf())->where($column, $val)
-            ->update($this->getTableName(), $data);
+            ->update($tableName, $data);
     }
 
     /**
@@ -208,60 +191,53 @@ class Model
      *
      * @param mixed $val
      * @param string $column 字段名 不传会自动分析表结构获取主键
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
      *
      * @return bool
      */
-    public function delByPk($val, $column = null)
+    public function delByColumn($val, $column = null, $tableName = null)
     {
-        return $this->delByColumn($val, $column);
-    }
-
-    /**
-     * 通过主键删除数据-快捷方法
-     *
-     * @param mixed $val
-     * @param string $column 字段名 不传会自动分析表结构获取主键
-     *
-     * @return bool
-     */
-    public function delByColumn($val, $column = null)
-    {
-        is_null($column) && $column = $this->db($this->getDbConf())->getPk($this->getTableName());
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
         return $this->db($this->getDbConf())->where($column, $val)
-            ->delete($this->getTableName());
+            ->delete($tableName);
     }
 
     /**
      * 获取数据的总数
      *
      * @param null $pkField 主键的字段名
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
      *
      * @return mixed
      */
-    public function getTotalNums($pkField = null)
+    public function getTotalNums($pkField = null, $tableName = null)
     {
-        is_null($pkField) && $pkField = $this->db($this->getDbConf())->getPk($this->getTableName());
-        return $this->db($this->getDbConf())->table($this->getTableName())->count($pkField);
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($pkField) && $pkField = $this->db($this->getDbConf())->getPk($tableName);
+        return $this->db($this->getDbConf())->table($tableName)->count($pkField);
     }
 
     /**
      * 获取数据列表
      *
-     * @param int $start
-     * @param int $limit
-     * @param string|array $order
+     * @param int $offset 偏移量
+     * @param int $limit 返回的条数
+     * @param string|array $order 传asc 或 desc 自动取主键 或 ['id'=>'desc', 'status' => 'asc']
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
      *
      * @return array
      */
-    public function getList($start = 0, $limit = 20, $order = 'DESC')
+    public function getList($offset = 0, $limit = 20, $order = 'DESC', $tableName = null)
     {
-        is_array($order) || $order = array($this->db($this->getDbConf())->getPk($this->getTableName()) => $order);
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_array($order) || $order = array($this->db($this->getDbConf())->getPk($tableName) => $order);
 
-        $dbInstance = $this->db($this->getDbConf())->table($this->getTableName());
+        $dbInstance = $this->db($this->getDbConf())->table($tableName);
         foreach($order as $key => $val)  {
             $dbInstance->orderBy($key, $val);
         }
-        return $dbInstance->limit($start, $limit)
+        return $dbInstance->limit($offset, $limit)
             ->select();
     }
 
