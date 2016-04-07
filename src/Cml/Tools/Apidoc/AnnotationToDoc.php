@@ -22,13 +22,16 @@ class AnnotationToDoc
     public static function parse()
     {
         $result = array();
-        $config = Config::load('api', false);
+        $config = Config::load('api', Config::get('is_multi_modules') ? false : true);
         foreach($config['version'] as $version => $apiList) {
             isset($result[$version]) || $result[$version] = array();
             foreach($apiList as $model => $api) {
                 $pos = strrpos($api, '\\');
                 $controller = substr($api, 0, $pos);
                 $action = substr($api, $pos + 1);
+                if (class_exists($controller) === false) {
+                    continue;
+                }
                 $reflection = new \ReflectionClass($controller);
                 $res   = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
                 foreach($res as $method) {
