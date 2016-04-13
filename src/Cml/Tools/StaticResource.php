@@ -67,10 +67,14 @@ class StaticResource
         $isDir = strpos($resource, '.') === false ? true : false;
         if ($GLOBALS['debug'] && CML_IS_MULTI_MODULES) {
             $file = Response::url("cmlframeworkstaticparse/{$resource}", false);
-            $isDir || $file .= ( \Cml\Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Cml::$nowTime;
+            if (Config::get('url_model') == 2 ) {
+                rtimr($file, Config::get('url_html_suffix'));
+            }
+
+            $isDir || $file .= ( Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Cml::$nowTime;
         } else {
             $file = Config::get("static__path", \Cml\Route::$urlParams["root"]."public/").$resource;
-            $isDir || $file .= ( \Cml\Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Config::get('static_file_version');
+            $isDir || $file .= ( Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Config::get('static_file_version');
         }
         echo $file;
     }
