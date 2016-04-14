@@ -124,6 +124,7 @@ class Acl
             if (
                 empty(self::$authUser)
                 || self::$authUser['expire'] < Cml::$nowTime
+                ||  self::$authUser['ssosign'] < 10
                 ||  self::$authUser['ssosign'] != Model::getInstance()->cache()
                     ->get("SSOSingleSignOn".self::$authUser['uid'] )
             ) {
@@ -244,6 +245,8 @@ class Acl
      */
     public static function logout()
     {
+        $user = Acl::getLoginInfo();
+        $user && Model::getInstance()->cache()->delete("SSOSingleSignOn".$user['id']);
         Cookie::delete(Config::get('userauthid'));
     }
 }
