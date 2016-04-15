@@ -368,10 +368,10 @@ class Pdo extends Base
                 ));
             }
         } catch (\PDOException $e) {
-            \Cml\throwException('Pdo Connect Error! Code:'.$e->getCode().',ErrorInfo!:'.$e->getMessage().'<br />');
+            \Cml\throwException('Pdo Connect Error! ｛'.$host.$dbName.'} Code:'.$e->getCode().',ErrorInfo!:'.$e->getMessage().'<br />');
         }
         $link->exec("SET names $charset");
-        $link->exec('set sql_mode="";');
+        //$link->exec('set sql_mode="";'); 放数据库配 特殊情况才开
         if (!empty($engine) && $engine == 'InnoDB') {
             $link->exec('SET innodb_flush_log_at_trx_commit=2');
         }
