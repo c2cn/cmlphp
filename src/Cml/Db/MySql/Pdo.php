@@ -371,6 +371,7 @@ class Pdo extends Base
             \Cml\throwException('Pdo Connect Error! Code:'.$e->getCode().',ErrorInfo!:'.$e->getMessage().'<br />');
         }
         $link->exec("SET names $charset");
+        $link->exec('set sql_mode="";');
         if (!empty($engine) && $engine == 'InnoDB') {
             $link->exec('SET innodb_flush_log_at_trx_commit=2');
         }
