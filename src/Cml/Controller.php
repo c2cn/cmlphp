@@ -83,21 +83,7 @@ class Controller
      */
     public function locker($useCache = null)
     {
-        is_null($useCache) && $useCache = Config::get('locker_use_cache', 'default_cache');
-        static $_instance = array();
-        $config = Config::get($useCache);
-        if (isset($_instance[$useCache])) {
-            return $_instance[$useCache];
-        } else {
-            if ($config['on']) {
-                $lock = 'Cml\Lock\\'.$config['driver'];
-                $_instance[$useCache] = new $lock($useCache);
-                return $_instance[$useCache];
-            } else {
-                throwException(Lang::get('_NOT_OPEN_', $useCache));
-                return false;
-            }
-        }
+        return Lock::getLocker($useCache);
     }
 
     /**
