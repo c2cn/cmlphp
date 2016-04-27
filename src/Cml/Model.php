@@ -104,7 +104,7 @@ class Model
      *
      * @return null|string
      */
-    protected function getTableName()
+    public function getTableName()
     {
         if (is_null($this->table)) {
             $tmp = get_class($this);
