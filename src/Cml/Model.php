@@ -102,7 +102,7 @@ class Model
     /**
      * 获取表名
      *
-     * @return null|string
+     * @return string
      */
     public function getTableName()
     {
