@@ -144,6 +144,7 @@ class Page
         $params = array_merge($this->param, array($this->pageShowVarName => '__PAGE__'));
         $paramsString = '';
         foreach($params as $key => $val) {
+            $paramsString == '' || $paramsString .= '/';
             $paramsString .= $key . '/' . $val;
         }
 
