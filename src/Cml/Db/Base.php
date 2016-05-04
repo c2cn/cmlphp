@@ -8,6 +8,7 @@
  * *********************************************************** */
 namespace Cml\Db;
 
+use Cml\Config;
 use Cml\Lang;
 use Cml\Model;
 use Cml\Route;
@@ -1071,6 +1072,15 @@ abstract class Base
      */
     public function setCacheVer($table)
     {
+        $isOpenEmergencyMode = Config::get('emergency_mode_not_real_time_refresh_mysql_query_cache');
+        if ($isOpenEmergencyMode !== false && $isOpenEmergencyMode > 0) {//开启了紧急模式
+            $expireTime = Model::getInstance()->cache()->get("emergency_mode_not_real_time_refresh_mysql_query_cache_{$table}");
+            if ($expireTime && isOpenEmergencyMode + $expireTime > time()) {
+                return;
+            }
+            Model::getInstance()->cache()->set("emergency_mode_not_real_time_refresh_mysql_query_cache_{$table}", time(), 3600);
+        }
+
         Model::getInstance()->cache()->set('db_cache_version_'.$table, microtime(true), $this->conf['cache_expire']);
     }
 

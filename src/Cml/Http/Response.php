@@ -150,7 +150,6 @@ class Response
 
 	    $return .= (Config::get('url_model') == 2 ? Config::get('url_html_suffix') : '');
 
-
 	    $return = Secure::filterScript($return);
         if ($echo === 1) {echo $return;} else {return $return;}
         return '';

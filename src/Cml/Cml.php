@@ -418,4 +418,14 @@ class Cml
         return $tmp;
     }
 
+    /**
+     * 是否开启全局紧急模式
+     *
+     * @return bool
+     */
+    public static function isEmergencyMode()
+    {
+        return Config::get('emergency_mode_not_real_time_refresh_mysql_query_cache') !== false;
+    }
+
 }

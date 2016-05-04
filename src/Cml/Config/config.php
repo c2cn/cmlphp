@@ -161,4 +161,12 @@ return array(
     'dump_use_php_console' => false, //开启本功能需要先安装php-console composer require php-console/php-console ~3.0
     'php_console_password' => 'cmlphp_php_console_pw123456',
 
+    /**
+     * 是否开启全局紧急模式--慎用。主要用于在系统mysql负载过高(如遇到攻击)mysql压力过大。先将所有查询转移至缓存。消化压力高峰
+     *
+     * 开启时 mysql的查询缓存不会在数据变更时实时更新。
+     * 所以如果要开启请确定开启后不会对业务造成影响。如:扣积分前的查询积分数，这种对数据实时要求高的，在开启本模式时要做下判断并屏蔽。
+     */
+    'emergency_mode_not_real_time_refresh_mysql_query_cache' => false, //配置成int型则为缓存刷新周期。如配置成 300 则为数据变更时每五分钟更新一次mysql查询缓存
+
 );
