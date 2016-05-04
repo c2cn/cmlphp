@@ -39,7 +39,12 @@ class Model
     public function db($conf = '')
     {
         $conf == '' &&  $conf = $this->getDbConf();
-        $config = is_array($conf) ? $conf : Config::get($conf);
+        if (is_array($conf)) {
+            $config = $conf;
+            $conf = md5(json_encode($conf));
+        } else {
+            $config = Config::get($conf);
+        }
         $driver = '\Cml\Db\\'.str_replace('.', '\\', $config['driver']);
         if (isset(self::$dbInstance[$conf])) {
             return self::$dbInstance[$conf];
@@ -69,7 +74,13 @@ class Model
      */
     public function cache($conf = 'default_cache')
     {
-        $config = is_array($conf) ? $conf : Config::get($conf);
+        if (is_array($conf)) {
+            $config = $conf;
+            $conf = md5(json_encode($conf));
+        } else {
+            $config = Config::get($conf);
+        }
+
         $driver = '\Cml\Cache\\'.$config['driver'];
         if (isset(self::$cacheInstance[$conf])) {
             return self::$cacheInstance[$conf];
