@@ -152,7 +152,7 @@ class Page
             $url = rtrim(Response::Url($this->url . '/' . $paramsString, false), $delimiter);
         } else {
             $url = Route::$urlParams;
-            $url['path'] = trim($url['path'], '\\');
+            $url['path'] = trim($url['path'], '\\/');
             unset($url['root']);
             $url = rtrim(Response::Url(implode('/', $url)  . '/' .  $paramsString, false), $delimiter);
         }
