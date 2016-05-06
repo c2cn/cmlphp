@@ -15,6 +15,11 @@ namespace Cml;
 class Model
 {
     /**
+     * @var null 表前缀
+     */
+    protected $tablePrefix = null;
+
+    /**
      * @var null 表名
      */
     protected $table = null;
@@ -137,7 +142,7 @@ class Model
     {
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
-        $data = $this->db($this->getDbConf())->table($tableName)
+        $data = $this->db($this->getDbConf())->table($tableName, $this->tablePrefix)
             ->where($column, $val)
             ->limit(0, 1)
             ->select();
@@ -161,7 +166,7 @@ class Model
     {
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
-        return $this->db($this->getDbConf())->table($tableName)
+        return $this->db($this->getDbConf())->table($tableName, $this->tablePrefix)
             ->where($column, $val)
             ->select();
     }
@@ -226,7 +231,7 @@ class Model
     {
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($pkField) && $pkField = $this->db($this->getDbConf())->getPk($tableName);
-        return $this->db($this->getDbConf())->table($tableName)->count($pkField);
+        return $this->db($this->getDbConf())->table($tableName, $this->tablePrefix)->count($pkField);
     }
 
     /**
@@ -244,7 +249,7 @@ class Model
         is_null($tableName) && $tableName = $this->getTableName();
         is_array($order) || $order = array($this->db($this->getDbConf())->getPk($tableName) => $order);
 
-        $dbInstance = $this->db($this->getDbConf())->table($tableName);
+        $dbInstance = $this->db($this->getDbConf())->table($tableName, $this->tablePrefix);
         foreach($order as $key => $val)  {
             $dbInstance->orderBy($key, $val);
         }
