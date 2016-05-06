@@ -141,7 +141,7 @@ class Model
     public function getByColumn($val, $column = null, $tableName = null)
     {
         is_null($tableName) && $tableName = $this->getTableName();
-        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
+        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $this->tablePrefix);
         $data = $this->db($this->getDbConf())->table($tableName, $this->tablePrefix)
             ->where($column, $val)
             ->limit(0, 1)
@@ -165,7 +165,7 @@ class Model
     public function getMultiByColumn($val, $column = null, $tableName = null)
     {
         is_null($tableName) && $tableName = $this->getTableName();
-        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
+        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $this->tablePrefix);
         return $this->db($this->getDbConf())->table($tableName, $this->tablePrefix)
             ->where($column, $val)
             ->select();
@@ -197,7 +197,7 @@ class Model
     public function updateByColumn($val, $data, $column = null, $tableName = null)
     {
         is_null($tableName) && $tableName = $this->getTableName();
-        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
+        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $this->tablePrefix);
         return $this->db($this->getDbConf())->where($column, $val)
             ->update($tableName, $data);
     }
@@ -214,7 +214,7 @@ class Model
     public function delByColumn($val, $column = null, $tableName = null)
     {
         is_null($tableName) && $tableName = $this->getTableName();
-        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName);
+        is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $this->tablePrefix);
         return $this->db($this->getDbConf())->where($column, $val)
             ->delete($tableName);
     }
@@ -230,7 +230,7 @@ class Model
     public function getTotalNums($pkField = null, $tableName = null)
     {
         is_null($tableName) && $tableName = $this->getTableName();
-        is_null($pkField) && $pkField = $this->db($this->getDbConf())->getPk($tableName);
+        is_null($pkField) && $pkField = $this->db($this->getDbConf())->getPk($tableName, $this->tablePrefix);
         return $this->db($this->getDbConf())->table($tableName, $this->tablePrefix)->count($pkField);
     }
 
@@ -247,7 +247,7 @@ class Model
     public function getList($offset = 0, $limit = 20, $order = 'DESC', $tableName = null)
     {
         is_null($tableName) && $tableName = $this->getTableName();
-        is_array($order) || $order = array($this->db($this->getDbConf())->getPk($tableName) => $order);
+        is_array($order) || $order = array($this->db($this->getDbConf())->getPk($tableName, $this->tablePrefix) => $order);
 
         $dbInstance = $this->db($this->getDbConf())->table($tableName, $this->tablePrefix);
         foreach($order as $key => $val)  {
