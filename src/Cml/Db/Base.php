@@ -710,9 +710,11 @@ abstract class Base
      */
     public function join($table, $on, $tablePrefix = null)
     {
-        $this->table($table);
-        $hasAlias = is_array($table) ? true : false;
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+
+        $this->table($table, $tablePrefix);
+        $hasAlias = is_array($table) ? true : false;
+
         $tableName = $tablePrefix . ($hasAlias ? key($table) : $table);
         $this->join[count($this->table) - 1 . '_' . $tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
         return $this;
@@ -729,9 +731,11 @@ abstract class Base
      */
     public function leftJoin($table, $on, $tablePrefix = null)
     {
-        $this->table($table);
-        $hasAlias = is_array($table) ? true : false;
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+
+        $this->table($table, $tablePrefix);
+        $hasAlias = is_array($table) ? true : false;
+
         $tableName = $tablePrefix . ($hasAlias ? key($table) : $table);
         $this->leftJoin[count($this->table) - 1 . '_' . $tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
         return $this;
@@ -748,9 +752,11 @@ abstract class Base
      */
     public function rightJoin($table, $on, $tablePrefix = null)
     {
-        $this->table($table);
-        $hasAlias = is_array($table) ? true : false;
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+
+        $this->table($table, $tablePrefix);
+        $hasAlias = is_array($table) ? true : false;
+
         $tableName = $tablePrefix . ($hasAlias ? key($table) : $table);
         $this->rightJoin[count($this->table) - 1 . '_' . $tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
         return $this;
