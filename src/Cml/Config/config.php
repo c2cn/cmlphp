@@ -10,7 +10,7 @@
 return array(
     //调试模式  默认关闭
     'debug' => false,
-    'db_fields_cache' => true, //线上模式是否开启数据库字段缓存 在debug模式的时候还是使用*
+    'db_fields_cache' => true, //在debug模式实时获取字段列表，线上模式是否开启数据库字段缓存到文件。自v2.6.3起。开启本功能主要用于获取主键缓存
 
     'time_zone' => 'PRC', //时区
 

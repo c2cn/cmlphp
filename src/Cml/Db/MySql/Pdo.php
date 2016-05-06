@@ -70,12 +70,14 @@ class Pdo extends Base
         static $dbFieldCache = array();
 
         if ($filter == 1 && $GLOBALS['debug']) return '*'; //debug模式时直接返回*
-        $table = is_null($tablePrefix) ? strtolower($table) : $tablePrefix.strtolower($table);
+        $table = is_null($tablePrefix) ? strtolower($table) : strtolower($tablePrefix . $table);
+
+        $info = false;
 
         if (isset($dbFieldCache[$table])) {
             $info = $dbFieldCache[$table];
         } else {
-            $info = \Cml\simpleFileCache($this->conf['master']['dbname'].'.'.$table);
+            Config::get('db_fields_cache') && $info = \Cml\simpleFileCache($this->conf['master']['dbname'].'.'.$table);
             if (!$info || $GLOBALS['debug']) {
                 $stmt = $this->prepare("SHOW COLUMNS FROM $table", $this->rlink, false);
                 $this->execute($stmt, false);
@@ -113,18 +115,17 @@ class Pdo extends Base
      * @param string $key get('user-uid-123');
      * @param bool $and 多个条件之间是否为and  true为and false为or
      * @param bool $useMaster 是否使用主库 默认读取从库
+     * @param null|string $tablePrefix 表前缀
      *
      * @return array
      */
-    public function get($key, $and = true, $useMaster = false)
+    public function get($key, $and = true, $useMaster = false, $tablePrefix = null)
     {
         list($tableName, $condition) = $this->parseKey($key, $and);
         $tableName = $this->tablePrefix.$tableName;
-        $fields = Config::get('db_fields_cache') ? $this->getDbFields($tableName, null, 1) : '*';
+        $sql = "SELECT * FROM {$tableName} WHERE {$condition} LIMIT 0, 1000";
 
-        $sql = "SELECT {$fields} FROM {$tableName} WHERE {$condition} LIMIT 0, 1000";
         $cacheKey = md5($sql.json_encode($this->bindParams)).$this->getCacheVer($tableName);
-
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) { //cache中不存在这条记录
             $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
@@ -150,7 +151,7 @@ class Pdo extends Base
     {
         $tableName = $this->tablePrefix.$table;
         if (is_array($data)) {
-            $s = $this->arrToCondition($data, $table, $this->tablePrefix);
+            $s = $this->arrToCondition($data, $table);
             $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
             $this->execute($stmt);
 
@@ -183,7 +184,7 @@ class Pdo extends Base
 
         $tableName = empty($tableName) ? $this->getRealTableName(key($this->table)) : $tablePrefix.$tableName;
         empty($tableName) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'update'));
-        $s = $this->arrToCondition($data, substr($tableName, strlen($tablePrefix)), $tablePrefix);
+        $s = $this->arrToCondition($data, substr($tableName, strlen($tablePrefix)));
         $whereCondition = $this->sql['where'];
         $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;
         empty($whereCondition) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'update'));
@@ -262,9 +263,7 @@ class Pdo extends Base
 
         $this->sql['columns'] == '' && ($this->sql['columns'] = '*');
 
-        $columns = ($this->sql['columns'] == '*')  ? (
-        Config::get('db_fields_cache') ? $this->getDbFields($this->getRealTableName(key($this->table)), null, 1) : '*'
-        ) : $this->sql['columns'];
+        $columns = $this->sql['columns'];
 
         $table = $operator = $cacheKey = '';
         foreach ($this->table as $key => $val) {
