@@ -704,14 +704,16 @@ abstract class Base
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
      * @param string $on 联结的条件 如：'c.cid = a.cid'
+     * @param mixed $tablePrefix 表前缀
      *
      * @return $this
      */
-    public function join($table, $on)
+    public function join($table, $on, $tablePrefix = null)
     {
         $this->table($table);
         $hasAlias = is_array($table) ? true : false;
-        $tableName = $this->tablePrefix.($hasAlias  ? key($table) : $table);
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        $tableName = $tablePrefix . ($hasAlias ? key($table) : $table);
         $this->join[count($this->table) - 1 . '_' . $tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
         return $this;
     }
@@ -721,14 +723,16 @@ abstract class Base
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
      * @param string $on 联结的条件 如：'c.cid = a.cid'
+     * @param mixed $tablePrefix 表前缀
      *
      * @return $this
      */
-    public function leftJoin($table, $on)
+    public function leftJoin($table, $on, $tablePrefix = null)
     {
         $this->table($table);
         $hasAlias = is_array($table) ? true : false;
-        $tableName = $this->tablePrefix.($hasAlias  ? key($table) : $table);
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        $tableName = $tablePrefix . ($hasAlias ? key($table) : $table);
         $this->leftJoin[count($this->table) - 1 . '_' . $tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
         return $this;
     }
@@ -738,14 +742,16 @@ abstract class Base
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
      * @param string $on 联结的条件 如：'c.cid = a.cid'
+     * @param mixed $tablePrefix 表前缀
      *
      * @return $this
      */
-    public function rightJoin($table, $on)
+    public function rightJoin($table, $on, $tablePrefix = null)
     {
         $this->table($table);
         $hasAlias = is_array($table) ? true : false;
-        $tableName = $this->tablePrefix.($hasAlias  ? key($table) : $table);
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        $tableName = $tablePrefix . ($hasAlias ? key($table) : $table);
         $this->rightJoin[count($this->table) - 1 . '_' . $tableName] = is_array($on) ? $this->parseOn($table, $on) : addslashes($on);
         return $this;
     }
