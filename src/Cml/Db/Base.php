@@ -241,8 +241,7 @@ abstract class Base
      */
     public function getPk($table, $tablePrefix = null)
     {
-        $tablename = is_null($tablePrefix) ? $this->tablePrefix.$table : $tablePrefix.$table;
-        $rows = $this->getDbFields($tablename);
+        $rows = $this->getDbFields($table, is_null($tablePrefix) ? $this->tablePrefix : $tablePrefix);
         foreach ($rows as $val) {
             if ($val['primary']) {
                 return $val['name'];
@@ -833,17 +832,19 @@ abstract class Base
      *
      *@param array $arr; 要组装的数组
      *@param string $tableName 当前操作的数据表名
-     *@param string $tablePrefix 表前缀
      *
      *@return string
      */
-    protected function arrToCondition($arr, $tableName, $tablePrefix)
+    protected function arrToCondition($arr, $tableName)
     {
         empty($tableName) && $tableName = Route::$urlParams['controller'];
-        $dbFields = $this->getDbFields($tablePrefix.$tableName);
+       /*
+       //这个应该开发人员自己判断。框架不做额外开销
+       $dbFields = $this->getDbFields($tableName, $tablePrefix);
         foreach (array_keys($arr) as $key) {
             if (!isset($dbFields[$key]))  unset($arr[$key]); //过滤db表中不存在的字段
         }
+       */
         $s = $p = '';
         $params = array();
         foreach ($arr as $k => $v) {
@@ -1075,7 +1076,7 @@ abstract class Base
         $isOpenEmergencyMode = Config::get('emergency_mode_not_real_time_refresh_mysql_query_cache');
         if ($isOpenEmergencyMode !== false && $isOpenEmergencyMode > 0) {//开启了紧急模式
             $expireTime = Model::getInstance()->cache()->get("emergency_mode_not_real_time_refresh_mysql_query_cache_{$table}");
-            if ($expireTime && isOpenEmergencyMode + $expireTime > time()) {
+            if ($expireTime && $isOpenEmergencyMode + $expireTime > time()) {
                 return;
             }
             Model::getInstance()->cache()->set("emergency_mode_not_real_time_refresh_mysql_query_cache_{$table}", time(), 3600);
