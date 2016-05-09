@@ -367,7 +367,11 @@ class Pdo extends Base
                 ));
             }
         } catch (\PDOException $e) {
-            \Cml\throwException('Pdo Connect Error! ｛'.$host.$dbName.'} Code:'.$e->getCode().',ErrorInfo!:'.$e->getMessage().'<br />');
+            \Cml\throwException(
+                'Pdo Connect Error! ｛' .
+                $host[0] . (isset($host[1]) ? ':' . $host[1] : '') . ', ' . $dbName .
+                '} Code:' . $e->getCode() . ', ErrorInfo!:' . $e->getMessage() . '<br />'
+            );
         }
         $link->exec("SET names $charset");
         //$link->exec('set sql_mode="";'); 放数据库配 特殊情况才开
