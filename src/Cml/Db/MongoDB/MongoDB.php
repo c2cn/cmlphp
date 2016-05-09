@@ -776,7 +776,7 @@ class MongoDB extends Base
     }
 
     /**
-     * MongoDb的distinct封装
+     * MongoDb的aggregate封装
      *
      * @param array $pipeline List of pipeline operations
      * @param array $options  Command options
