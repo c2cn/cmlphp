@@ -66,6 +66,13 @@ class AnnotationToDoc
                 }
             }
         }
+
+        foreach($result as $key => $val) {
+            if (count($val) < 1) {
+                unset($result[$key]);
+            }
+        }
+        
         $systemCode = require __DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR .'code.php';
 
         require __DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR . 'doc.html';
