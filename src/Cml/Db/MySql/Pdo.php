@@ -144,12 +144,14 @@ class Pdo extends Base
      *
      * @param string $table
      * @param array $data eg: array('username'=>'admin', 'email'=>'linhechengbush@live.com')
+     * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      *
      * @return bool|int
      */
-    public function set($table, $data)
+    public function set($table, $data, $tablePrefix = null)
     {
-        $tableName = $this->tablePrefix.$table;
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        $tableName = $tablePrefix . $table;
         if (is_array($data)) {
             $s = $this->arrToCondition($data, $table);
             $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
@@ -168,12 +170,13 @@ class Pdo extends Base
      * @param string $key eg 'user-uid-$uid' 如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组
      * @param array | null $data eg: array('username'=>'admin', 'email'=>'linhechengbush@live.com')
      * @param bool $and 多个条件之间是否为and  true为and false为or
+     * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      *
      * @return boolean
      */
-    public function update($key, $data = null, $and = true)
+    public function update($key, $data = null, $and = true, $tablePrefix = null)
     {
-        $tablePrefix = $this->tablePrefix;
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         $tableName = $condition = '';
 
         if (is_array($data)) {
@@ -200,16 +203,18 @@ class Pdo extends Base
      *
      * @param string $key eg: 'user-uid-$uid'
      * @param bool $and 多个条件之间是否为and  true为and false为or
+     * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      *
      * @return boolean
      */
-    public function delete($key = '', $and = true)
+    public function delete($key = '', $and = true, $tablePrefix = null)
     {
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         $tableName = $condition = '';
 
         empty($key) || list($tableName, $condition) = $this->parseKey($key, $and, true, true);
 
-        $tableName = empty($tableName) ? $this->getRealTableName(key($this->table)) : $this->tablePrefix.$tableName;
+        $tableName = empty($tableName) ? $this->getRealTableName(key($this->table)) : $tablePrefix . $tableName;
         empty($tableName) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'delete'));
         $whereCondition = $this->sql['where'];
         $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;

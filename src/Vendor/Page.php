@@ -149,12 +149,12 @@ class Page
         }
 
         if ($this->url) {
-            $url = rtrim(Response::Url($this->url . '/' . $paramsString, false), $delimiter);
+            $url = rtrim(Response::url($this->url . '/' . $paramsString, false), $delimiter);
         } else {
             $url = Route::$urlParams;
             $url['path'] = trim($url['path'], '\\/');
             unset($url['root']);
-            $url = rtrim(Response::Url(implode('/', $url)  . '/' .  $paramsString, false), $delimiter);
+            $url = rtrim(Response::url(implode('/', $url)  . '/' .  $paramsString, false), $delimiter);
         }
         $upRow = $this->nowPage - 1;
         $downRow = $this->nowPage + 1;

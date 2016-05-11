@@ -93,7 +93,7 @@ abstract class Base
      * 定义操作的表
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
-     * @param mixed $tablePrefix 表前缀
+     * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      *
      * @return $this
      */
