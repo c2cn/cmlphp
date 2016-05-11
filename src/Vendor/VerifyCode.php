@@ -7,6 +7,8 @@
  * cml框架 验证码扩展类
  * *********************************************************** */
 namespace Cml\Vendor;
+use Cml\Http\Cookie;
+use Cml\Model;
 
 /**
  * 验证码扩展类 用于生成验证码
@@ -31,8 +33,8 @@ class VerifyCode
     {
         $randNum = substr(str_shuffle(str_repeat('0123456789', 5)), 0, $length);
         $authKey = md5(mt_rand().microtime());
-        \Cml\Http\Cookie::set($verifyName, $authKey);
-        \Cml\Model::getInstance()->cache()->set($authKey, $randNum);
+        Cookie::set($verifyName, $authKey);
+        Model::getInstance()->cache()->set($authKey, $randNum, 1800);
         $width = ($length * 33 + 20) > $width ? $length * 33 + 20 : $width;
         $height = $length < 35 ? 35 : $height;
         if ($type != 'gif' && function_exists('imagecreatetruecolor')) {
@@ -82,8 +84,8 @@ class VerifyCode
         $code = StringProcess::randString($length, 4);
         $width = ($length * 45) > $width ? $length * 45 : $width;
         $authKey = md5(mt_rand().microtime());
-        \Cml\Http\Cookie::set($verifyName, $authKey);
-        \Cml\Model::getInstance()->cache()->set($authKey, md5($code));
+        Cookie::set($verifyName, $authKey);
+        Model::getInstance()->cache()->set($authKey, md5($code), 1800);
         $im = imagecreatetruecolor($width, $height);
         $borderColor = imagecolorallocate($im, 100, 100, 100);  //边框色
         $bkcolor = imagecolorallocate($im, 250, 250, 250);
@@ -147,9 +149,9 @@ class VerifyCode
         );
         $randval = $randResult[$randnum];
         $authKey = md5(mt_rand().microtime());
-        \Cml\Http\Cookie::set($verifyName, $authKey);
+        Cookie::set($verifyName, $authKey);
 
-        \Cml\Model::getInstance()->cache()->set($authKey, $randstr);
+        Model::getInstance()->cache()->set($authKey, $randstr, 1800);
         //$width = ($length * 10 + 10) > $width ? $length * 10 + 10 : $width;
         if ($type != 'gif' && function_exists('imagecreatetruecolor')) {
             $im = imagecreatetruecolor($width, $height);
@@ -203,10 +205,10 @@ class VerifyCode
      */
     public static function checkCode($input, $isCn = false, $verifyName = 'verifyCode')
     {
-        $key = \Cml\Http\Cookie::get($verifyName);
+        $key = Cookie::get($verifyName);
         if (!$key) return false;
-        $code = \Cml\Model::getInstance()->cache()->get($key);
-        \Cml\Model::getInstance()->cache()->delete($key);
+        $code = Model::getInstance()->cache()->get($key);
+        Model::getInstance()->cache()->delete($key);
         $isCn && $input = md5(urldecode($input));
         if ($code === false || $code != $input) {
             return false;

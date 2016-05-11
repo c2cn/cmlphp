@@ -75,6 +75,8 @@ class Html
     /**
      * 静态页面-静态页面文件
      *
+     * @param  string  $key  静态页面标识符，可以用id代替
+     * 
      * @return string
      */
     private function getFilename($key)

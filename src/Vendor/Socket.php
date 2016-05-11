@@ -40,6 +40,8 @@ class Socket
 
     /**
      * 构造函数
+     *
+     * @param array $config 配置信息
      */
     public function __construct($config = array())
     {
@@ -82,7 +84,8 @@ class Socket
      *
      * @param string $errStr 错误文本
      * @param int $errNum 错误数字
-     * 抛出异常
+     *
+     * @throws \Exception
      */
     public function error($errStr, $errNum)
     {
