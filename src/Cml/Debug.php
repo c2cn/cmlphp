@@ -146,10 +146,11 @@ class Debug
      *
      * @param string $msg 调试消息字符串
      * @param int $type 消息的类型
+     * @param bool $sqlFromCache 是否直接读取缓存
      *
      * @return void
      */
-    public static function addTipInfo($msg, $type = 0)
+    public static function addTipInfo($msg, $type = 0, $sqlFromCache = false)
     {
         if ($GLOBALS['debug']) {
             switch ($type) {
@@ -160,6 +161,9 @@ class Debug
                     self::$includefile[] = $msg;
                     break;
                 case 2:
+                    if ($sqlFromCache) {
+                        $msg .= "<span style='color:red;'>[from cache]</span>";
+                    }
                     self::$sqls[] = $msg;
                     break;
             }

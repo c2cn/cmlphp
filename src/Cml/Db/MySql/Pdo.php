@@ -133,6 +133,14 @@ class Pdo extends Base
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
         } else {
+            if ($GLOBALS['debug']) {
+                $bindParams = $this->bindParams;
+                foreach ($bindParams as $key => $val) {
+                    $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
+                }
+                Debug::addTipInfo(vsprintf(str_replace('%s', "'%s'", $sql), $bindParams), 2, true);
+            }
+
             $this->bindParams = array();
         }
 
@@ -310,6 +318,14 @@ class Pdo extends Base
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
         } else {
+            if ($GLOBALS['debug']) {
+                $bindParams = $this->bindParams;
+                foreach ($bindParams as $key => $val) {
+                    $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
+                }
+                Debug::addTipInfo(vsprintf(str_replace('%s', "'%s'", $sql), $bindParams), 2, true);
+            }
+            
             $this->reset();
             $this->bindParams = array();
         }
