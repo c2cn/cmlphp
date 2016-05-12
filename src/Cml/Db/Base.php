@@ -1065,7 +1065,8 @@ abstract class Base
     /**
      * 根据表名获取cache版本号
      *
-     * @param $table
+     * @param string $table
+     *
      * @return mixed
      */
     public function getCacheVer($table)
@@ -1081,7 +1082,7 @@ abstract class Base
     /**
      * 设置cache版本号
      *
-     * @param $table
+     * @param string $table
      */
     public function setCacheVer($table)
     {

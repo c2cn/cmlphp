@@ -190,6 +190,7 @@ class Html extends Base
             '#(href\s*?=\s*?"\s*?"|href\s*?=\s*?\'\s*?\')#',
             '#(src\s*?=\s*?"\s*?"|src\s*?=\s*?\'\s*?\')#',
             '#'.$leftDeper.'assert\s+(.+?)\s*'.$rightDeper.'#i',//替换 assert
+            '#'.$leftDeper.'comment\s+(.+?)\s*'.$rightDeper.'#i',//替换 comment 模板注释
         );
 
         //替换后的内容
@@ -224,6 +225,7 @@ class Html extends Base
             'href="javascript:void(0);"',
             'src="javascript:void(0);"',
             '<?php echo \Cml\Tools\StaticResource::parseResourceUrl("${1}");?>',//静态资源
+            '',
         );
         //执行替换
         $template = preg_replace($exp, $replace, $template);
