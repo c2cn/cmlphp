@@ -546,6 +546,9 @@ class Pdo extends Base
         if (!empty($this->wlink)) {
             Config::get('session_user') || $this->wlink = null; //开启会话自定义保存时，不关闭防止会话保存失败
         }
+        $this->rlink = null;
+        unset($this->wlink);
+        unset($this->rlink);
     }
 
     /**
