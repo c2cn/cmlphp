@@ -15,22 +15,30 @@ namespace Cml;
 class Model
 {
     /**
-     * @var null 表前缀
+     * 表前缀
+     *
+     * @var null|string
      */
     protected $tablePrefix = null;
 
     /**
-     * @var null 表名
+     * 表名
+     *
+     * @var null|string
      */
     protected $table = null;
 
     /**
-     * @var array Db驱动实例
+     * Db驱动实例
+     *
+     * @var array
      */
     private static $dbInstance = array();
 
     /**
-     * @var array Cache驱动实例
+     * Cache驱动实例
+     *
+     * @var array
      */
     private static $cacheInstance = array();
 
@@ -265,5 +273,15 @@ class Model
     public function getDbConf()
     {
         return property_exists($this, 'db') ? $this->db : 'default_db';
+    }
+
+    /**
+     * 自动根据 db属性执行$this->db(xxx)方法; table/tablePrefix属性执行$this->db('xxx')->table('tablename', 'tablePrefix')方法
+     *
+     * @return $this
+     */
+    public function mapDbAndTable()
+    {
+        return $this->db($this->getDbConf())->table($this->getTableName(), $this->tablePrefix);
     }
 }

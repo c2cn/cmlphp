@@ -131,7 +131,9 @@ return array(
     /*Session设置*/
     'session_prefix' => 'cml_', //session前缀
     'session_user' => 0, //SESSION保存位置自定义 0不开启、1开启
-    'session_user_loc' => 'db', //自定义保存SESSION的位置时 定义保存的地方  db、cache两种
+    'session_user_loc' => 'db', //自定义保存SESSION的位置时 定义保存的位置  db、cache两种
+    'session_user_loc_table' => 'session', //自定义保存SESSION的保存位置设置为db时的表名
+    'session_user_loc_tableprefix' => 'cml_', //自定义保存SESSION的保存位置设置为db时的表前缀
 
     /**锁配置**/
     'lock_prefix' => 'cml_',

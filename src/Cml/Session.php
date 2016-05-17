@@ -12,7 +12,7 @@ namespace Cml;
     CREATE TABLE `cml_session` (
         `id` char(32) NOT NULL,
         `value` varchar(5000) NOT NULL,
-        `time` int(11) unsigned NOT NULL,
+        `ctime` int(11) unsigned NOT NULL,
         PRIMARY KEY(`id`)
     )ENGINE=MEMORY DEFAULT CHARSET=utf8;
  *
@@ -21,13 +21,16 @@ namespace Cml;
 class Session
 {
     /**
-     * @var $lifeTime session超时时间
+     * session超时时间
+     *
+     * @var int $lifeTime
      */
     private $lifeTime;
 
     /**
-     * @var $handler \Cml\Db\Mysql\Pdo || Cml\Cache\File
+     * \Cml\Db\Mysql\Pdo || Cml\Cache\File
      *
+     * @var \Cml\Db\MySql\Pdo || \Cml\Cache\File $handler
      */
     private $handler;
 
@@ -94,10 +97,12 @@ class Session
      */
     public  function read($sessionId)
     {
-        $result = $this->handler ->get('session-id-'.$sessionId);
+
         if (Config::get('session_user_LOC') == 'db') {
+            $result = $this->handler ->get(Config::get('session_user_loc_table').'-id-'.$sessionId, true, true, Config::get('session_user_loc_tableprefix'));
             return $result ? $result[0]['value'] : null;
         } else {
+            $result = $this->handler ->get(Config::get('session_user_loc_tableprefix').Config::get('session_user_loc_table').'-id-'.$sessionId);
             return $result ? $result : null;
         }
     }
@@ -113,13 +118,13 @@ class Session
     public function write($sessionId, $value)
     {
         if (Config::get('session_user_LOC') == 'db') {
-            $this->handler ->set('session', array(
+            $this->handler ->set(Config::get('session_user_loc_table'), array(
                 'id' => $sessionId,
                 'value' => $value,
-                'time' => Cml::$nowTime
-            ));
+                'ctime' => Cml::$nowTime
+            ), Config::get('session_user_loc_tableprefix'));
         } else {
-            $this->handler->set('session-id-'.$sessionId, $value, $this->lifeTime);
+            $this->handler->set(Config::get('session_user_loc_tableprefix').Config::get('session_user_loc_table').'-id-'.$sessionId, $value, $this->lifeTime);
         }
         return true;
     }
@@ -133,7 +138,11 @@ class Session
      */
     public function destroy($sessionId)
     {
-        $this->handler->delete('session-id-'.$sessionId);
+        if (Config::get('session_user_LOC') == 'db') {
+            $this->handler->delete(Config::get('session_user_loc_table').'-id-'.$sessionId, true, Config::get('session_user_loc_tableprefix'));
+        } else {
+            $this->handler->delete(Config::get('session_user_loc_tableprefix').Config::get('session_user_loc_table').'-id-'.$sessionId);
+        }
         return true;
     }
 
@@ -148,8 +157,8 @@ class Session
     {
         if (Config::get('session_user_LOC') == 'db') {
             $lifeTime || $lifeTime = $this->lifeTime;
-            $stmt = $this->handler->prepare('DELETE FROM `cml_session` where `time` < '.Cml::$nowTime - $lifeTime);
-            $stmt->execute();
+            $this->handler->whereLt('ctime', Cml::$nowTime - $lifeTime)
+                ->delete(Config::get('session_user_loc_table'), true, Config::get('session_user_loc_tableprefix'));
         } else {
             //cache 本身会回收
         }

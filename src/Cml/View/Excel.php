@@ -82,7 +82,7 @@ class Excel extends Base
     /**
      * 循环生成Excel行
      *
-     * @param array $cells
+     * @param array $data
      *
      * @return string
      */

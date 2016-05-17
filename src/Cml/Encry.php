@@ -16,7 +16,12 @@ namespace Cml;
 class Encry
 {
 
-    private static $auth_key; //加密key
+    /**
+     * 加密key
+     * 
+     * @var string
+     */
+    private static $auth_key;
 
     /**
      * 生成加密KEY

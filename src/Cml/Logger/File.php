@@ -24,7 +24,6 @@ class File extends Base
     /**
      * 构造方法
      *
-     * File constructor.
      */
     public function __construct()
     {
@@ -35,9 +34,9 @@ class File extends Base
     /**
      * 任意等级的日志记录
      *
-     * @param mixed $level
-     * @param string $message
-     * @param array $context
+     * @param mixed $level 日志等级
+     * @param string $message 要记录到log的信息
+     * @param array $context 上下文信息
      * @return null
      */
     public function log($level, $message, array $context = array())

@@ -543,11 +543,13 @@ class Pdo extends Base
      */
     public function close()
     {
-        if (!empty($this->wlink)) {
-            Config::get('session_user') || $this->wlink = null; //开启会话自定义保存时，不关闭防止会话保存失败
+        if (!Config::get('session_user')) {
+            //开启会话自定义保存时，不关闭防止会话保存失败
+            $this->wlink = null;
+            unset($this->wlink);
         }
+
         $this->rlink = null;
-        unset($this->wlink);
         unset($this->rlink);
     }
 

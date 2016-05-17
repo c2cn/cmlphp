@@ -174,7 +174,7 @@ abstract class Base
     /**
      * 格式化日志
      *
-     * @param $message 要记录到log的信息
+     * @param string $message 要记录到log的信息
      * @param array $context 上下文信息
      *
      * @return string

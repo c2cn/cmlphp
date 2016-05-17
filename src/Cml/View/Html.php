@@ -436,7 +436,7 @@ class Html extends Base
         $this->layout = CML_APP_FULL_PATH.DIRECTORY_SEPARATOR .
             (
             CML_IS_MULTI_MODULES
-                ? \Cml\Config::get('application_dir') .
+                ? Config::get('application_dir') .
                 (
                 $layoutInOtherApp
                     ? DIRECTORY_SEPARATOR.$layoutInOtherApp.DIRECTORY_SEPARATOR
