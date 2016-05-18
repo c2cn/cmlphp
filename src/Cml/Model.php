@@ -278,7 +278,7 @@ class Model
     /**
      * 自动根据 db属性执行$this->db(xxx)方法; table/tablePrefix属性执行$this->db('xxx')->table('tablename', 'tablePrefix')方法
      *
-     * @return $this
+     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB
      */
     public function mapDbAndTable()
     {
