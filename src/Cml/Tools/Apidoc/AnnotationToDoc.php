@@ -48,7 +48,7 @@ class AnnotationToDoc
                             foreach($params[1] as $key => $val) {
                                 $tmp = explode(' ', preg_replace('/\s(\s+)/', ' ', trim($val)));
                                 isset($tmp[3]) || $tmp[3] = 'N';
-                                $tmp[1] = substr($tmp[1], 1);
+                                substr($tmp[1], 0, 1) == '$' && $tmp[1] = substr($tmp[1], 1);
                                 $result[$version][$model]['params'][] = $tmp;
                             }
 
