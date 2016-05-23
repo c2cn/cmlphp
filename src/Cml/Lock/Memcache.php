@@ -36,8 +36,8 @@ class Memcache extends Base
         $key = $this->getKey($key);
 
         if (
-            isset(self::$lockCache[$key])
-            && self::$lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
+            isset($this->lockCache[$key])
+            && $this->lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
         ) {
             return true;
         }
@@ -49,7 +49,7 @@ class Memcache extends Base
             $isLock = Model::getInstance()->cache($this->userCache)->getInstance()->add($key, (string)Cml::$nowMicroTime, 0, $this->expire);
         }
         if ($isLock) {
-            self::$lockCache[$key] = (string)Cml::$nowMicroTime;
+            $this->lockCache[$key] = (string)Cml::$nowMicroTime;
             return true;
         }
 
@@ -69,7 +69,7 @@ class Memcache extends Base
             }
         } while (!$isLock);
 
-        self::$lockCache[$key] = (string)Cml::$nowMicroTime;
+        $this->lockCache[$key] = (string)Cml::$nowMicroTime;
         return true;
     }
 }

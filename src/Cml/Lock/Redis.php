@@ -35,8 +35,8 @@ class Redis extends Base
         $key = $this->getKey($key);
 
         if (
-            isset(self::$lockCache[$key])
-            && self::$lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
+            isset($this->lockCache[$key])
+            && $this->lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
         ) {
             return true;
         }
@@ -46,7 +46,7 @@ class Redis extends Base
             Cml::$nowMicroTime,
             array('nx', 'ex' => $this->expire)
         )) {
-            self::$lockCache[$key] = (string)Cml::$nowMicroTime;
+            $this->lockCache[$key] = (string)Cml::$nowMicroTime;
             return true;
         }
 
@@ -64,7 +64,7 @@ class Redis extends Base
             array('nx', 'ex' => $this->expire)
         ));
 
-        self::$lockCache[$key] = (string)Cml::$nowMicroTime;
+        $this->lockCache[$key] = (string)Cml::$nowMicroTime;
         return true;
     }
 }
