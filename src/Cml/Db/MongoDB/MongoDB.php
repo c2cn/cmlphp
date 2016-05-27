@@ -209,6 +209,11 @@ class MongoDB extends Base
      */
     protected  function reset()
     {
+        if (!$this->paramsAutoReset) {
+            $this->sql['columns'] = array();
+            return;
+        }
+
         $this->sql = array(
             'where' => array(),
             'columns' => array(),
@@ -223,6 +228,7 @@ class MongoDB extends Base
         $this->leftJoin = array(); //是否左联结
         $this->rightJoin = array(); //是否右联
         $this->whereNeedAddAndOrOr = 0;
+        $this->opIsAnd = true;
     }
 
     /**
@@ -471,8 +477,6 @@ class MongoDB extends Base
                 $this->sql['where']['$or'][][$column] = $operator == 'IN' ? array('$in' => $value) : array('$nin' => $value);
             }
         } elseif ($operator == 'BETWEEN' || $operator == 'NOT BETWEEN') {
-            $this->bindParams[] = $value[0];
-            $this->bindParams[] = $value[1];
             if ($this->opIsAnd) {
                 $this->sql['where'][$column] = $operator == 'BETWEEN' ? array('$gt' => $value[0], '$lt' => $value[1]) : array('$lt' => $value[0], '$gt' => $value[1]);
             } else if ($this->bracketsIsOpen) {
@@ -574,12 +578,15 @@ class MongoDB extends Base
     /**
      * 选择列
      *
-     * @param string|array $columns 选取所有 array('id, 'name') 选取id,name两列     *
+     * @param string|array $columns 默认选取所有 array('id, 'name') 选取id,name两列
      *
      * @return $this
      */
     public function columns($columns = '*')
     {
+        if (false === is_array($columns) && $columns != '*') {
+            $columns = func_get_args();
+        }
         foreach($columns as $column) {
             $this->sql['columns'][$column] = 1;
         }
@@ -960,7 +967,6 @@ class MongoDB extends Base
     {
         list($tableName, $condition) = $this->parseKey($key, true);
         if (is_null($field) || empty($tableName) || empty($condition)) {
-            $this->bindParams = array();
             return false;
         }
         $val = abs(intval($val));
@@ -988,7 +994,6 @@ class MongoDB extends Base
     {
         list($tableName, $condition) = $this->parseKey($key, true);
         if (is_null($field) || empty($tableName) || empty($condition)) {
-            $this->bindParams = array();
             return false;
         }
         $val = abs(intval($val));
