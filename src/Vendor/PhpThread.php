@@ -16,18 +16,25 @@ namespace Cml\Vendor;
 class PhpThread
 {
     /**
+     * 读取的字节数
+     *
+     * @var int
+     */
+    private $readDataLen = 1024;
+
+    /**
      * 最大线程数
      *
      * @var int
      */
-    public $max;
+    private $max;
 
     /**
      * 超时时间
      *
      * @var int
      */
-    public $timeout = 3;
+    private $timeout = 3;
 
     /**
      * 线程队列
@@ -62,11 +69,15 @@ class PhpThread
      *
      * @param int $max 最大线程数
      * @param bool $saveSuccess 是否保存成功的信息
+     * @param int $readDataLen 读取的字节数
+     * @param int $timeout 等待超时时间
      */
-    public function __construct($max = 10, $saveSuccess = false)
+    public function __construct($max = 10, $saveSuccess = false, $readDataLen = 1024, $timeout = 3)
     {
         $this->max = $max;
         $this->saveSuccess = $saveSuccess;
+        $this->readDataLen = $readDataLen;
+        $this->timeout = $timeout;
     }
 
     /**
@@ -77,18 +88,29 @@ class PhpThread
      */
     public function add($host, $path = '/')
     {
-        $this->queue[] = array('host'     => $host, 'path' => $path);
+        $this->queue[] = array('host' => $host, 'path' => $path);
+    }
+
+    /**
+     * 已完成的任务队列(查看处理结果)
+     *
+     * @return array
+     */
+    public function getSuccessInfo()
+    {
+        return $this->success;
     }
 
     /**
      * 执行线程队列里的所有任务
      *
+     * @return array
      */
     public function run()
     {
         // 初始化
         reset($this->queue);
-        for ($i=0; $i<$this->max; $i++) {
+        for ($i = 0; $i < $this->max; $i++) {
             if ($this->makeTask() == -1) {
                 break;
             }
@@ -111,7 +133,7 @@ class PhpThread
                 reset($this->tasks);
             }
         }
-
+        return $this->getSuccessInfo();
     }
 
     /**
@@ -156,9 +178,8 @@ class PhpThread
                     fwrite($task['socket'], "GET {$task['path']} HTTP/1.1\r\nHost: {$task['host']}\r\n\r\n");
                     $task['status'] = 1;
                     break;
-
                 case 1: // active
-                    $data = fread($task['socket'], 128);
+                    $data = fread($task['socket'], $this->readDataLen);
                     if (strlen($data) == 0) {
                         fclose($task['socket']);
                         echo "Failed to connect {$task['host']}.<br />\n";
@@ -169,7 +190,6 @@ class PhpThread
                     }
                     break;
             }
-        } else {
         }
     }
 }
