@@ -638,10 +638,11 @@ class MongoDB extends Base
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
      * @param string $on 联结的条件 如：'c.cid = a.cid'
+     * @param mixed $tablePrefix 表前缀
      *
      * @return $this
      */
-    public function join($table, $on)
+    public function join($table, $on, $tablePrefix = null)
     {
         return false;
     }
@@ -651,10 +652,11 @@ class MongoDB extends Base
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
      * @param string $on 联结的条件 如：'c.cid = a.cid'
+     * @param mixed $tablePrefix 表前缀
      *
      * @return $this
      */
-    public function leftJoin($table, $on)
+    public function leftJoin($table, $on, $tablePrefix = null)
     {
         return false;
     }
@@ -664,10 +666,11 @@ class MongoDB extends Base
      *
      * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
      * @param string $on 联结的条件 如：'c.cid = a.cid'
+     * @param mixed $tablePrefix 表前缀
      *
      * @return $this
      */
-    public function rightJoin($table, $on)
+    public function rightJoin($table, $on, $tablePrefix = null)
     {
         return false;
     }
