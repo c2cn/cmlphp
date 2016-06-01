@@ -510,11 +510,11 @@ class MongoDB extends Base
             }
         } else if ($operator == 'LIKE' || $operator == 'NOT LIKE' || $operator == 'REGEXP') {
             if ($this->opIsAnd) {
-                $this->sql['where'][$column] = '/'.$value.'/i';
+                $this->sql['where'][$column] = ['$regex' => $value, '$options' => '$i'];
             } else if ($this->bracketsIsOpen) {
-                $this->sql['where']['$or'][$currentOrIndex][$column] = '/'.$value.'/i';
+                $this->sql['where']['$or'][$currentOrIndex][$column] = ['$regex' => $value, '$options' => '$i'];
             } else {
-                $this->sql['where']['$or'][][$column] = '/'.$value.'/i';
+                $this->sql['where']['$or'][][$column] = ['$regex' => $value, '$options' => '$i'];
             }
         } else if ($operator == '!=') {
             if ($this->opIsAnd) {
@@ -796,16 +796,16 @@ class MongoDB extends Base
     public function mongoDbAggregate($pipeline = array(), $options = array())
     {
         $cmd = $options + array(
-            'aggregate' => $this->getRealTableName(key($this->table)),
-            'pipeline' => $pipeline
-        );
+                'aggregate' => $this->getRealTableName(key($this->table)),
+                'pipeline' => $pipeline
+            );
 
         $data = $this->runMongoCommand($cmd);
         return $data[0]['result'];
     }
 
     /**
-     * 获取自增id-需要先初始化数据 如: 
+     * 获取自增id-需要先初始化数据 如:
      * db.mongoinckeycol.insert({id:0, 'table' : 'post'}) 即初始化帖子表(post)自增初始值为0
      *
      * @param string $collection 存储自增的collection名
