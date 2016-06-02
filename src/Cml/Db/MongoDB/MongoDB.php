@@ -42,7 +42,7 @@ class MongoDB extends Base
     protected  $sql = array(
         'where' => array(),
         'columns' => array(),
-        'limit' => array(),
+        'limit' => array(0, 5000),
         'orderBy' => array(),
         'groupBy' => '',
         'having' => '',
@@ -177,7 +177,11 @@ class MongoDB extends Base
         list($tableName, $condition) = $this->parseKey($key, $and);
         $tableName = $this->tablePrefix.$tableName;
 
-        return $this->runMongoQuery($tableName, $condition);
+        $filter = array();
+        isset($this->sql['limit'][0]) && $filter['skip'] = $this->sql['limit'][0];
+        isset($this->sql['limit'][1]) && $filter['limit'] = $this->sql['limit'][1];
+
+        return $this->runMongoQuery($tableName, $condition, $filter);
     }
 
 
@@ -742,6 +746,7 @@ class MongoDB extends Base
      */
     public function limit($offset = 0, $limit = 10)
     {
+        ($limit < 1 || $limit > 5000) && $limit = 100;
         $this->sql['limit'] = array($offset, $limit);
         return $this;
     }
