@@ -843,10 +843,12 @@ abstract class Base
      *
      * @param bool $autoReset 是否自动重置
      *
+     * @return $this
      */
     public function paramsAutoReset($autoReset = true)
     {
         $this->paramsAutoReset = $autoReset;
+        return $this;
     }
 
     /**
