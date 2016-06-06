@@ -765,8 +765,7 @@ class MongoDB extends Base
             'count' => $this->getRealTableName(key($this->table)),
             'query' => $this->sql['where']
         );
-        isset($this->sql['limit'][0]) && $cmd['skip'] = $this->sql['limit'][0];
-        isset($this->sql['limit'][1]) && $cmd['limit'] = $this->sql['limit'][1];
+        
         $count = $this->runMongoCommand($cmd);
         return intval($count[0]['n']);
     }
