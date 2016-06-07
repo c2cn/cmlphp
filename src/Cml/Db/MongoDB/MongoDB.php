@@ -12,6 +12,7 @@ use Cml\Config;
 use Cml\Db\Base;
 use Cml\Debug;
 use Cml\Lang;
+use MongoDB\BSON\Regex;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Command;
 use MongoDB\Driver\Cursor;
@@ -465,77 +466,131 @@ class MongoDB extends Base
         $currentOrIndex = isset($this->sql['where']['$or']) ? count($this->sql['where']['$or']) - 1 : 0;
 
         if ($this->opIsAnd) {
-            isset($this->sql['where'][$column]) && \Cml\throwException('Mongodb Where Op key Is Exists['.$column.$operator.']');
+            isset($this->sql['where'][$column][$operator]) && \Cml\throwException('Mongodb Where Op key Is Exists['.$column.$operator.']');
         } else if ($this->bracketsIsOpen) {
-            isset($this->sql['where']['$or'][$currentOrIndex][$column]) && \Cml\throwException('Mongodb Where Op key Is Exists['.$column.$operator.']');
+            isset($this->sql['where']['$or'][$currentOrIndex][$column][$operator]) && \Cml\throwException('Mongodb Where Op key Is Exists['.$column.$operator.']');
         }
 
-        if ($operator == 'IN' || $operator == 'NOT IN') {
-            empty($value) && $value = array(0);
-            //这边可直接跳过不组装sql，但是为了给用户提示无条件 便于调试还是加上where field in(0)
-            if ($this->opIsAnd) {
-                $this->sql['where'][$column] = $operator == 'IN' ? array('$in' => $value) : array('$nin' => $value);
-            } else if ($this->bracketsIsOpen) {
-                $this->sql['where']['$or'][$currentOrIndex][$column] = $operator == 'IN' ? array('$in' => $value) : array('$nin' => $value);
-            } else {
-                $this->sql['where']['$or'][][$column] = $operator == 'IN' ? array('$in' => $value) : array('$nin' => $value);
-            }
-        } elseif ($operator == 'BETWEEN' || $operator == 'NOT BETWEEN') {
-            if ($this->opIsAnd) {
-                $this->sql['where'][$column] = $operator == 'BETWEEN' ? array('$gt' => $value[0], '$lt' => $value[1]) : array('$lt' => $value[0], '$gt' => $value[1]);
-            } else if ($this->bracketsIsOpen) {
-                $this->sql['where']['$or'][$currentOrIndex][$column] = $operator == 'BETWEEN' ? array('$gt' => $value[0], '$lt' => $value[1]) : array('$lt' => $value[0], '$gt' => $value[1]);
-            } else {
-                $this->sql['where']['$or'][][$column] = $operator == 'BETWEEN' ? array('$gt' => $value[0], '$lt' => $value[1]) : array('$lt' => $value[0], '$gt' => $value[1]);
-            }
-        } else if ($operator == 'IS NULL' || $operator == 'IS NOT NULL') {
-            if ($this->opIsAnd) {
-                $this->sql['where'][$column] = $operator == 'IS NULL' ? array('$in' => array(null), '$exists' => true) : array('$ne' => null, '$exists' => true);
-            } else if ($this->bracketsIsOpen) {
-                $this->sql['where']['$or'][$currentOrIndex][$column] = $operator == 'IS NULL' ? array('$in' => array(null), '$exists' => true) : array('$ne' => null, '$exists' => true);
-            } else {
-                $this->sql['where']['$or'][][$column] = $operator == 'IS NULL' ? array('$in' => array(null), '$exists' => true) : array('$ne' => null, '$exists' => true);
-            }
-        } else if ($operator == '>' || $operator == '<') {
-            if ($this->opIsAnd) {
-                $this->sql['where'][$column] = $operator == '>' ? array('$gt' => $value) : array('$lt' => $value);
-            } else if ($this->bracketsIsOpen) {
-                $this->sql['where']['$or'][$currentOrIndex][$column] = $operator == '>' ? array('$gt' => $value) : array('$lt' => $value);
-            } else {
-                $this->sql['where']['$or'][][$column] = $operator == '>' ? array('$gt' => $value) : array('$lt' => $value);
-            }
-        } else if ($operator == '>=' || $operator == '<=') {
-            if ($this->opIsAnd) {
-                $this->sql['where'][$column] = $operator == '>=' ? array('$gte' => $value) : array('$lte' => $value);
-            } else if ($this->bracketsIsOpen) {
-                $this->sql['where']['$or'][$currentOrIndex][$column] = $operator == '>=' ? array('$gte' => $value) : array('$lte' => $value);
-            } else {
-                $this->sql['where']['$or'][][$column] = $operator == '>=' ? array('$gte' => $value) : array('$lte' => $value);
-            }
-        } else if ($operator == 'LIKE' || $operator == 'NOT LIKE' || $operator == 'REGEXP') {
-            if ($this->opIsAnd) {
-                $this->sql['where'][$column] = ['$regex' => $value, '$options' => '$i'];
-            } else if ($this->bracketsIsOpen) {
-                $this->sql['where']['$or'][$currentOrIndex][$column] = ['$regex' => $value, '$options' => '$i'];
-            } else {
-                $this->sql['where']['$or'][][$column] = ['$regex' => $value, '$options' => '$i'];
-            }
-        } else if ($operator == '!=') {
-            if ($this->opIsAnd) {
-                $this->sql['where'][$column] = array('$ne' => $value);
-            } else if ($this->bracketsIsOpen) {
-                $this->sql['where']['$or'][$currentOrIndex][$column] = array('$ne' => $value);
-            } else {
-                $this->sql['where']['$or'][][$column] = array('$ne' => $value);
-            }
-        } else {
-            if ($this->opIsAnd) {
-                $this->sql['where'][$column] = $value;
-            } else if ($this->bracketsIsOpen) {
-                $this->sql['where']['$or'][$currentOrIndex][$column] = $value;
-            } else {
-                $this->sql['where']['$or'][][$column] = $value;
-            }
+        switch ($operator) {
+            case 'IN':
+                // no break
+            case 'NOT IN':
+                empty($value) && $value = array(0);
+                //这边可直接跳过不组装sql，但是为了给用户提示无条件 便于调试还是加上where field in(0)
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column][$operator == 'IN' ? '$in' : '$nin'] = $value;
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column][$operator == 'IN' ? '$in' : '$nin'] = $value ;
+                } else {
+                    $this->sql['where']['$or'][][$column] = $operator == 'IN' ? array('$in' => $value) : array('$nin' => $value);
+                }
+                break;
+            case 'BETWEEN':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column]['$gt'] = $value[0];
+                    $this->sql['where'][$column]['$lt'] = $value[1];
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$gt'] = $value[0];
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$lt'] = $value[1];
+                } else {
+                    $this->sql['where']['$or'][][$column] = array('$gt' => $value[0], '$lt' => $value[1]);
+                }
+                break;
+            case 'NOT BETWEEN':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column]['$lt'] = $value[0];
+                    $this->sql['where'][$column]['$gt'] = $value[1];
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$lt'] = $value[0];
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$gt'] = $value[1];
+                } else {
+                    $this->sql['where']['$or'][][$column] = array('$lt' => $value[0], '$gt' => $value[1]);
+                }
+                break;
+            case 'IS NULL':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column]['$in'] = array(null);
+                    $this->sql['where'][$column]['$exists'] = true;
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$in'] = array(null);
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$exists'] = true;
+                } else {
+                    $this->sql['where']['$or'][][$column] = array('$in' => array(null), '$exists' => true);
+                }
+                break;
+            case 'IS NOT NULL':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column]['$ne'] = null;
+                    $this->sql['where'][$column]['$exists'] = true;
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$ne'] = null;
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$exists'] = true;
+                } else {
+                    $this->sql['where']['$or'][][$column] = array('$ne' => null, '$exists' => true);
+                }
+                break;
+            case '>':
+                //no break;
+            case '<':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column][$operator == '>' ? '$gt' : '$lt'] = $value;
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column][$operator == '>' ? '$gt' : '$lt'] = $value;
+                } else {
+                    $this->sql['where']['$or'][][$column] = $operator == '>' ? array('$gt' => $value) : array('$lt' => $value);
+                }
+                break;
+            case '>=':
+                //no break;
+            case '<=':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column][$operator == '>=' ? '$gte' : '$lte'] = $value;
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column][$operator == '>=' ? '$gte' : '$lte'] = $value;
+                } else {
+                    $this->sql['where']['$or'][][$column] = $operator == '>=' ? array('$gte' => $value) : array('$lte' => $value);
+                }
+                break;
+            case 'NOT LIKE':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column]['$not'] = new Regex($value, 'i');
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$not'] = new Regex($value, 'i');
+                } else {
+                    $this->sql['where']['$or'][][$column] = ['$not' => new Regex($value, 'i')];
+                }
+                break;
+            case 'LIKE':
+                //no break;
+            case 'REGEXP':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column]['$regex'] = $value;
+                    $this->sql['where'][$column]['$options'] = '$i';
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$regex'] = $value;
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$options'] = '$i';
+                } else {
+                    $this->sql['where']['$or'][][$column] = ['$regex' => $value, '$options' => '$i'];
+                }
+                break;
+            case '!=':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column]['$ne'] = $value;
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$ne'] = $value;
+                } else {
+                    $this->sql['where']['$or'][][$column] = array('$ne' => $value);
+                }
+                break;
+            case '=':
+                if ($this->opIsAnd) {
+                    $this->sql['where'][$column] = $value;
+                } else if ($this->bracketsIsOpen) {
+                    $this->sql['where']['$or'][$currentOrIndex][$column] = $value;
+                } else {
+                    $this->sql['where']['$or'][][$column] = $value;
+                }
+                break;
         }
     }
 
@@ -765,7 +820,7 @@ class MongoDB extends Base
             'count' => $this->getRealTableName(key($this->table)),
             'query' => $this->sql['where']
         );
-        
+
         $count = $this->runMongoCommand($cmd);
         return intval($count[0]['n']);
     }
