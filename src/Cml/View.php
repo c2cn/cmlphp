@@ -19,6 +19,8 @@ class View
     /**
      * 获取渲染引擎-单例
      *
+     * @param string $engine 视图引擎 Html/Json/Xml/Excel
+     *
      * @return \Cml\View\Html
      */
     public static function getEngine($engine = null) {

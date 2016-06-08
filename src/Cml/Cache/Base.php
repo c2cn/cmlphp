@@ -15,6 +15,10 @@ namespace Cml\Cache;
  */
 abstract class Base
 {
+    /**
+     * @var bool|array
+     */
+    protected $conf;
 
     public function __get($var)
     {

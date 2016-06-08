@@ -10,7 +10,6 @@ namespace Cml\View;
 
 use Cml\Config;
 use Cml\Debug;
-use Cml\Plugin;
 
 /**
  * 视图 Json渲染引擎

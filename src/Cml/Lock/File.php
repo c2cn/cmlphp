@@ -30,7 +30,7 @@ class File extends Base
             return false;
         }
 
-        if (isset(self::$lockCache[$key])) {//FileLock不支持设置过期时间
+        if (isset($this->lockCache[$key])) {//FileLock不支持设置过期时间
             return true;
         }
 
@@ -40,7 +40,7 @@ class File extends Base
         }
 
         if (flock($fp, LOCK_EX | LOCK_NB)) {
-            self::$lockCache[$fileName] = $fp;
+            $this->lockCache[$fileName] = $fp;
             return true;
         }
 
@@ -54,7 +54,7 @@ class File extends Base
             usleep(200);
         } while (!flock($fp, LOCK_EX | LOCK_NB));
 
-        self::$lockCache[$fileName] = $fp;
+        $this->lockCache[$fileName] = $fp;
         return true;
     }
 
@@ -66,12 +66,12 @@ class File extends Base
     public function unlock($key) {
         $fileName = $this->getFileName($key);
 
-        if (isset(self::$lockCache[$fileName])) {
-            flock(self::$lockCache[$fileName], LOCK_UN);//5.3.2 在文件资源句柄关闭时不再自动解锁。现在要解锁必须手动进行。
-            fclose(self::$lockCache[$fileName]);
+        if (isset($this->lockCache[$fileName])) {
+            flock($this->lockCache[$fileName], LOCK_UN);//5.3.2 在文件资源句柄关闭时不再自动解锁。现在要解锁必须手动进行。
+            fclose($this->lockCache[$fileName]);
             is_file($fileName) && unlink($fileName);
-            self::$lockCache[$fileName] = null;
-            unset(self::$lockCache[$fileName]);
+            $this->lockCache[$fileName] = null;
+            unset($this->lockCache[$fileName]);
         }
     }
 
@@ -79,12 +79,12 @@ class File extends Base
      * 定义析构函数 自动释放获得的锁
      */
     public function __destruct() {
-        foreach (self::$lockCache as $key => $fp) {
+        foreach ($this->lockCache as $key => $fp) {
             flock($fp, LOCK_UN);//5.3.2 在文件资源句柄关闭时不再自动解锁。现在要解锁必须手动进行。
             fclose($fp);
             is_file($key) && unlink($key);
-            self::$lockCache[$key] = null;//防止gc延迟,判断有误
-            unset(self::$lockCache[$key]);
+            $this->lockCache[$key] = null;//防止gc延迟,判断有误
+            unset($this->lockCache[$key]);
         }
     }
 

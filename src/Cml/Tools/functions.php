@@ -179,6 +179,6 @@ function  friendlyDate($from){
  */
 function createUnique()
 {
-    $data = $_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR'].\Cml\Cml::$nowMicroTime.rand();
+    $data = $_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR'].Cml::$nowMicroTime.rand();
     return sha1($data);
 }

@@ -25,7 +25,7 @@ abstract class Base
      * 0 : 初始化两个都不加
      * 1 : 要加and
      * 2： 要加 or
-     * 
+     *
      * @var int
      */
     protected $whereNeedAddAndOrOr = 0;
@@ -35,12 +35,14 @@ abstract class Base
      *
      * @var array
      */
-    protected  $bindParams = array();
+    protected $bindParams = array();
 
     /**
+     * 配置信息
+     *
      * @var array
      */
-    protected  $conf; //配置
+    protected $conf;
 
     /**
      * 表前缀方便外部读取
@@ -50,9 +52,11 @@ abstract class Base
     public $tablePrefix;
 
     /**
-     * @var array sql组装
+     * sql组装
+     *
+     * @var array
      */
-    protected  $sql = array(
+    protected $sql = array(
         'where' => '',
         'columns' => '',
         'limit' => '',
@@ -62,29 +66,46 @@ abstract class Base
     );
 
     /**
-     * @var array 操作的表
+     * 操作的表
+     *
+     * @var array
      */
-    protected  $table = array();
+    protected $table = array();
 
     /**
-     * @var array 是否内联 array(表名 => 条件)
+     * 是否内联 array(表名 => 条件)
+     *
+     * @var array
      */
-    protected  $join = array();
+    protected $join = array();
 
     /**
-     * @var array 是否左联结 写法同内联
+     * 是否左联结 写法同内联
+     *
+     * @var array
      */
-    protected  $leftJoin = array();
+    protected $leftJoin = array();
 
     /**
-     * @var array 是否右联 写法同内联
+     * 是否右联 写法同内联
+     *
+     * @var array
      */
-    protected  $rightJoin = array();
+    protected $rightJoin = array();
 
     /**
-     * @var string UNION 写法同内联
+     * UNION 写法同内联
+     *
+     * @var string
      */
-    protected  $union = '';
+    protected $union = '';
+
+    /**
+     * orm参数是否自动重置
+     *
+     * @var bool
+     */
+    protected $paramsAutoReset = true;
 
 
     abstract public function __construct($conf);
@@ -101,7 +122,7 @@ abstract class Base
     {
         $hasAlias = is_array($table) ? true : false;
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        $tableName = $tablePrefix.($hasAlias  ? key($table) : $table);
+        $tableName = $tablePrefix . ($hasAlias ? key($table) : $table);
 
         $this->table[count($this->table) . '_' . $tableName] = $hasAlias ? current($table) : null;
         return $this;
@@ -253,7 +274,7 @@ abstract class Base
     /**
      * where条件组装 相等
      *
-     * @param string|array $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名) 当$column为数组时 批量设置
+     * @param string|array $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名) 当$column为数组时 批量设置
      * @param string |int $value 当$column为数组时  此时$value为false时条件为or 否则为and
      *
      * @return $this
@@ -274,7 +295,7 @@ abstract class Base
     /**
      * where条件组装 不等
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param string |int $value
      *
      * @return $this
@@ -288,7 +309,7 @@ abstract class Base
     /**
      * where条件组装 大于
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param string |int $value
      *
      * @return $this
@@ -302,7 +323,7 @@ abstract class Base
     /**
      * where条件组装 小于
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param string |int $value
      *
      * @return $this
@@ -316,7 +337,7 @@ abstract class Base
     /**
      * where条件组装 大于等于
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param string |int $value
      *
      * @return $this
@@ -330,7 +351,7 @@ abstract class Base
     /**
      * where条件组装 小于等于
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param string |int $value
      *
      * @return $this
@@ -344,7 +365,7 @@ abstract class Base
     /**
      * where条件组装 in
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param array $value
      *
      * @return $this
@@ -358,7 +379,7 @@ abstract class Base
     /**
      * where条件组装 not in
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param array $value array(1,2,3)
      *
      * @return $this
@@ -372,7 +393,7 @@ abstract class Base
     /**
      * where条件组装 REGEXP
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param string |int $value
      *
      * @return $this
@@ -386,7 +407,7 @@ abstract class Base
     /**
      * where条件组装 LIKE
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param bool $leftBlur 是否开始左模糊匹配
      * @param string |int $value
      * @param bool $rightBlur 是否开始右模糊匹配
@@ -397,7 +418,7 @@ abstract class Base
     {
         $this->conditionFactory(
             $column,
-            ($leftBlur ? '%' : '').$this->filterLike($value).($rightBlur ? '%' : ''),
+            ($leftBlur ? '%' : '') . $this->filterLike($value) . ($rightBlur ? '%' : ''),
             'LIKE'
         );
         return $this;
@@ -406,7 +427,7 @@ abstract class Base
     /**
      * where条件组装 LIKE
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param bool $leftBlur 是否开始左模糊匹配
      * @param string |int $value
      * @param bool $rightBlur 是否开始右模糊匹配
@@ -417,7 +438,7 @@ abstract class Base
     {
         $this->conditionFactory(
             $column,
-            ($leftBlur ? '%' : '').$this->filterLike($value).($rightBlur ? '%' : ''),
+            ($leftBlur ? '%' : '') . $this->filterLike($value) . ($rightBlur ? '%' : ''),
             'NOT LIKE'
         );
         return $this;
@@ -438,7 +459,7 @@ abstract class Base
     /**
      * where条件组装 BETWEEN
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param string |int | array $value
      * @param string |int | null $value2
      *
@@ -459,7 +480,7 @@ abstract class Base
     /**
      * where条件组装 NOT BETWEEN
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param string |int | array $value
      * @param string |int | null $value2
      *
@@ -480,7 +501,7 @@ abstract class Base
     /**
      * where条件组装 IS NULL
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      *
      * @return $this
      */
@@ -493,7 +514,7 @@ abstract class Base
     /**
      * where条件组装 IS NOT NULL
      *
-     * @param string $column  如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
+     * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      *
      * @return $this
      */
@@ -517,7 +538,7 @@ abstract class Base
 
         if ($this->whereNeedAddAndOrOr === 1) {
             $this->sql['where'] .= ' AND ';
-        } else if($this->whereNeedAddAndOrOr === 2) {
+        } else if ($this->whereNeedAddAndOrOr === 2) {
             $this->sql['where'] .= ' OR ';
         }
 
@@ -532,7 +553,7 @@ abstract class Base
                 $inValue .= '%s ,';
                 $this->bindParams[] = $val;
             }
-            $this->sql['where'] .= "{$column} {$operator} ".rtrim($inValue, ',').') ';
+            $this->sql['where'] .= "{$column} {$operator} " . rtrim($inValue, ',') . ') ';
         } elseif ($operator == 'BETWEEN' || $operator == 'NOT BETWEEN') {
             $betweenValue = '%s AND %s ';
             $this->bindParams[] = $value[0];
@@ -581,7 +602,7 @@ abstract class Base
         } else {
             if ($this->whereNeedAddAndOrOr === 1) {
                 $this->sql['where'] .= ' AND ';
-            } else if($this->whereNeedAddAndOrOr === 2) {
+            } else if ($this->whereNeedAddAndOrOr === 2) {
                 $this->sql['where'] .= ' OR ';
             }
         }
@@ -605,7 +626,7 @@ abstract class Base
     /**
      * 选择列
      *
-     * @param string|array $columns 选取所有 array('id, 'name')
+     * @param string|array $columns 默认选取所有 array('id, 'name')
      * 选取id,name两列，array('article.id' => 'aid', 'article.title' =>　'article_title') 别名
      *
      * @return $this
@@ -615,12 +636,12 @@ abstract class Base
         $result = '';
         if (is_array($columns)) {
             foreach ($columns as $key => $val) {
-                $result .= ($result == '' ? '' : ', '). ( is_int($key) ? $val : ($key ." AS `{$val}`") );
+                $result .= ($result == '' ? '' : ', ') . (is_int($key) ? $val : ($key . " AS `{$val}`"));
             }
         } else {
             $args = func_get_args();
             while ($arg = current($args)) {
-                $result .= ($result == '' ? '' : ', '). $arg;
+                $result .= ($result == '' ? '' : ', ') . $arg;
                 next($args);
             }
         }
@@ -773,7 +794,7 @@ abstract class Base
     public function union($sql, $all = false)
     {
         if (is_array($sql)) {
-            foreach($sql as $s) {
+            foreach ($sql as $s) {
                 $this->union .= $all ? ' UNION ALL ' : ' UNION ';
                 $this->union .= $this->filterUnionSql($s);
             }
@@ -789,7 +810,7 @@ abstract class Base
         return str_ireplace(array(
             'insert', "update", "delete", "\/\*", "\.\.\/", "\.\/", "union", "into", "load_file", "outfile"
         ),
-            array("","","","","","","","","",""),
+            array("", "", "", "", "", "", "", "", "", ""),
             $sql);
     }
 
@@ -818,11 +839,29 @@ abstract class Base
     }
 
     /**
+     * orm参数是否自动重置, 默认在执行语句后会重置orm参数
+     *
+     * @param bool $autoReset 是否自动重置
+     *
+     * @return $this
+     */
+    public function paramsAutoReset($autoReset = true)
+    {
+        $this->paramsAutoReset = $autoReset;
+        return $this;
+    }
+
+    /**
      * orm参数重置
      *
      */
-    protected  function reset()
+    protected function reset()
     {
+        if (!$this->paramsAutoReset) {
+            $this->sql['columns'] = '';
+            return;
+        }
+
         $this->sql = array(  //sql组装
             'where' => '',
             'columns' => '',
@@ -837,6 +876,17 @@ abstract class Base
         $this->leftJoin = array(); //是否左联结
         $this->rightJoin = array(); //是否右联
         $this->whereNeedAddAndOrOr = 0;
+    }
+
+    /**
+     * 清空绑定的参数
+     *
+     */
+    protected function clearBindParams()
+    {
+        if ($this->paramsAutoReset) {
+            $this->bindParams = array();
+        }
     }
 
     /**

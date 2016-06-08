@@ -16,7 +16,9 @@ namespace Cml;
 class Lang extends Config
 {
     /**
-     * @var array 存放了所有语言信息
+     * 存放了所有语言信息
+     * 
+     * @var array
      */
     protected  static $_content= array(
         'normal' => array()
@@ -34,7 +36,9 @@ class Lang extends Config
      */
     public static function get($key = null, $default = '')
     {
-        if(empty($key)) return '';
+        if(empty($key)) {
+            return '';
+        }
 
         $replace = func_get_args();
         $key = strtolower($key);

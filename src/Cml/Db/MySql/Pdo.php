@@ -141,7 +141,7 @@ class Pdo extends Base
                 Debug::addTipInfo(vsprintf(str_replace('%s', "'%s'", $sql), $bindParams), 2, true);
             }
 
-            $this->bindParams = array();
+            $this->clearBindParams();
         }
 
         return $return;
@@ -327,7 +327,7 @@ class Pdo extends Base
             }
             
             $this->reset();
-            $this->bindParams = array();
+            $this->clearBindParams();
         }
         return $return;
     }
@@ -415,7 +415,7 @@ class Pdo extends Base
     {
         list($tableName, $condition) = $this->parseKey($key, true);
         if (is_null($field) || empty($tableName) || empty($condition)) {
-            $this->bindParams = array();
+            $this->clearBindParams();
             return false;
         }
         $val = abs(intval($val));
@@ -441,7 +441,7 @@ class Pdo extends Base
     {
         list($tableName, $condition) = $this->parseKey($key, true);
         if (is_null($field) || empty($tableName) || empty($condition)) {
-            $this->bindParams = array();
+            $this->clearBindParams();
             return false;
         }
         $val = abs(intval($val));
@@ -524,7 +524,7 @@ class Pdo extends Base
             \Cml\throwException('Pdo execute Sql error!,【Sql : '.vsprintf(str_replace('%s', "'%s'", $this->currentSql), $bindParams).'】,【Error:'.$error[2].'】');
         }
         $this->currentSql = '';
-        $clearBindParams && $this->bindParams = array();
+        $clearBindParams && $this->clearBindParams();
         return true;
     }
 
@@ -543,9 +543,14 @@ class Pdo extends Base
      */
     public function close()
     {
-        if (!empty($this->wlink)) {
-            Config::get('session_user') || $this->wlink = null; //开启会话自定义保存时，不关闭防止会话保存失败
+        if (!Config::get('session_user')) {
+            //开启会话自定义保存时，不关闭防止会话保存失败
+            $this->wlink = null;
+            unset($this->wlink);
         }
+
+        $this->rlink = null;
+        unset($this->rlink);
     }
 
     /**

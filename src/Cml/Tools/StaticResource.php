@@ -37,7 +37,7 @@ class StaticResource
 
         foreach ($dirIterator as $file) {
             if (!$file->isDot() && $file->isDir()) {
-                $resourceDir = $file->getPathName() . DIRECTORY_SEPARATOR . Config::get('modules_static_path_name');
+                $resourceDir = $file->getPathname() . DIRECTORY_SEPARATOR . Config::get('modules_static_path_name');
                 if (is_dir($resourceDir)) {
                     $distDir = CML_PROJECT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $file->getFilename();
                     $cmd = Request::operatingSystem() ? "mklink /d {$distDir} {$resourceDir}" : "ln -s {$resourceDir} {$distDir}";
@@ -73,7 +73,7 @@ class StaticResource
 
             $isDir || $file .= ( Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Cml::$nowTime;
         } else {
-            $file = Config::get("static__path", \Cml\Route::$urlParams["root"]."public/").$resource;
+            $file = Config::get("static__path", Route::$urlParams["root"]."public/").$resource;
             $isDir || $file .= ( Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Config::get('static_file_version');
         }
         echo $file;

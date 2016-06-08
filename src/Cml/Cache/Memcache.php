@@ -19,11 +19,6 @@ use Cml\Lang;
 class Memcache extends namespace\Base
 {
     /**
-     * @var bool|array
-     */
-    private $conf;
-
-    /**
      * @var \Memcache | \Memcached
      */
     private $memcache;

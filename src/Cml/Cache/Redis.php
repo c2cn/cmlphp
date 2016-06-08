@@ -19,11 +19,6 @@ use Cml\Lang;
 class Redis extends namespace\Base
 {
     /**
-     * @var bool|array
-     */
-    private $conf;
-
-    /**
      * @var array(\Redis)
      */
     private $redis = array();

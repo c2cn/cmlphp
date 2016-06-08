@@ -19,11 +19,6 @@ use Cml\Config;
 class File extends namespace\Base
 {
     /**
-     * @var bool|array
-     */
-    private $conf;
-
-    /**
      * @var bool | resource
      */
     private $lock = false;//是否对文件锁操作 值为bool或打开的文件指针

@@ -21,17 +21,22 @@ class Cml
 {
     /**
      * 当前时间
+     *
      * @var int
      */
     public static $nowTime = 0;
 
     /**
      * 当前时间含微秒
+     *
      * @var int
      */
     public static $nowMicroTime = 0;
 
-    // 致命错误捕获
+    /**
+     * 致命错误捕获
+     *
+     */
     public static function fatalError()
     {
         if ($error = error_get_last()) {//获取最后一个发生的错误的信息。 包括提醒、警告、致命错误
@@ -65,7 +70,6 @@ class Cml
     /**
      * 自定义异常处理
      *
-     * @access public
      * @param mixed $e 异常对象
      */
     public static function appException($e)
@@ -102,11 +106,11 @@ class Cml
      * 而 new Class 时自动加载不存在文件时，手动抛出的异常可以正常捕获
      * 这边即使文件不存在时没有抛出自定义异常也没关系，因为自定义的致命错误捕获机制会捕获到错误
      *
-     * @params string $className
+     * @param string $className
      */
     public static function autoloadComposerAdditional($className)
     {
-        $GLOBALS['debug'] && \Cml\Debug::addTipInfo(\Cml\Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', $className), 1);//在debug中显示包含的类
+        $GLOBALS['debug'] && Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', $className), 1);//在debug中显示包含的类
     }
 
     /**

@@ -43,7 +43,7 @@ abstract class Base
      *
      * @var array
      */
-    protected static $lockCache = array();
+    protected $lockCache = array();
 
     /**
      * 设置锁的过期时间
@@ -92,12 +92,12 @@ abstract class Base
         $key = $this->getKey($key);
 
         if (
-            isset(self::$lockCache[$key])
-            && self::$lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
+            isset($this->lockCache[$key])
+            && $this->lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
         ) {
             Model::getInstance()->cache($this->userCache)->getInstance()->delete($key);
-            self::$lockCache[$key] = null;//防止gc延迟,判断有误
-            unset(self::$lockCache[$key]);
+            $this->lockCache[$key] = null;//防止gc延迟,判断有误
+            unset($this->lockCache[$key]);
         }
     }
 
@@ -107,12 +107,12 @@ abstract class Base
      */
     public function __destruct()
     {
-        foreach (self::$lockCache as $key => $isMyLock) {
+        foreach ($this->lockCache as $key => $isMyLock) {
             if ($isMyLock == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)) {
                 Model::getInstance()->cache($this->userCache)->getInstance()->delete($key);
             }
-            self::$lockCache[$key] = null;//防止gc延迟,判断有误
-            unset(self::$lockCache[$key]);
+            $this->lockCache[$key] = null;//防止gc延迟,判断有误
+            unset($this->lockCache[$key]);
         }
     }
 }

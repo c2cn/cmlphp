@@ -25,7 +25,9 @@ class Config
     public static $isLocal = 'product';
 
     /**
-     * @var array 存放了所有配置信息
+     * 存放了所有配置信息
+     * 
+     * @var array
      */
     private static $_content = array(
         'normal' => array()
