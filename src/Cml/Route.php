@@ -126,9 +126,15 @@ class Route
                 $isRoute = null;
                 self::$urlParams['action']= array_pop($routeArr);
                 self::$urlParams['controller'] = ucfirst(array_pop($routeArr));
-                while ($tmp = array_shift($routeArr)) {
-                    $path .= $tmp.DIRECTORY_SEPARATOR;
+                $controllerPath = '';
+                while ($dir = array_shift($routeArr)) {
+                    if (!CML_IS_MULTI_MODULES || $path == DIRECTORY_SEPARATOR) {
+                        $path .= $dir.DIRECTORY_SEPARATOR;
+                    } else {
+                        $controllerPath .= $dir . DIRECTORY_SEPARATOR;
+                    }
                 }
+                self::$urlParams['controller'] = $controllerPath . self::$urlParams['controller'];
                 unset($routeArr);
             } else {
                 self::findAction($pathinfo, $path); //未匹配到路由 按文件名映射查找
@@ -145,9 +151,9 @@ class Route
 
         if (self::$urlParams['controller'] == '') {
             //控制器没取到,这时程序会 中止/404，取$path最后1位当做控制器用于异常提醒
-            $tmp  = explode(DIRECTORY_SEPARATOR, trim($path, DIRECTORY_SEPARATOR));
-            self::$urlParams['controller'] = ucfirst(array_pop($tmp));
-            $path = empty($tmp) ? '' : DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $tmp).DIRECTORY_SEPARATOR;
+            $dir  = explode(DIRECTORY_SEPARATOR, trim($path, DIRECTORY_SEPARATOR));
+            self::$urlParams['controller'] = ucfirst(array_pop($dir));
+            $path = empty($dir) ? '' : DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $dir).DIRECTORY_SEPARATOR;
         }
         self::$urlParams['path'] = $path ? $path : DIRECTORY_SEPARATOR;
         unset($path);
