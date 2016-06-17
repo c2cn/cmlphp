@@ -189,7 +189,7 @@ class Model
      */
     public function set($data, $tableName = null){
         is_null($tableName) && $tableName = $this->getTableName();
-        return $this->db($this->getDbConf())->set($tableName, $data);
+        return $this->db($this->getDbConf())->set($tableName, $data, $this->tablePrefix);
     }
 
     /**
@@ -207,7 +207,7 @@ class Model
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $this->tablePrefix);
         return $this->db($this->getDbConf())->where($column, $val)
-            ->update($tableName, $data);
+            ->update($tableName, $data, true, $this->tablePrefix);
     }
 
     /**
@@ -224,7 +224,7 @@ class Model
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $this->tablePrefix);
         return $this->db($this->getDbConf())->where($column, $val)
-            ->delete($tableName);
+            ->delete($tableName, true, $this->tablePrefix);
     }
 
     /**
