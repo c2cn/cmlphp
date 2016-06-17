@@ -41,13 +41,13 @@
 
 ## 开发手册
 开发手册使用gitbook编写
-[CmlPHP v2.x开发手册](http://cmlphp-doc.51beautylife.com/ "CmlPHP v2.x开发手册")
+[CmlPHP v2.x开发手册](http://doc.cmlphp.com "CmlPHP v2.x开发手册")
 
 ## 你们想要的Api文档
-> 部分看了开发手册的朋友给我发邮件希望我提供一份详细的Api文档,以便更深入的学习CmlPHP，现在它来啦!! [CmlPHP v2.x Api](http://cmlphp-api.51beautylife.com/)。
+> 部分看了开发手册的朋友给我发邮件希望我提供一份详细的Api文档,以便更深入的学习CmlPHP，现在它来啦!! [CmlPHP v2.x Api](http://api.cmlphp.com)。
 
 ## 项目推荐目录骨架
-> 提供了基础目录结构及示例，[点击这里查看](http://git.oschina.net/linhecheng/cmlphp2.5-demo-proj)。
+> 提供了基础目录结构及示例，[点击这里查看](https://github.com/linhecheng/cmlphp-demo)。
 
 ## Api项目示例
 > web开发中很大一部分是接口开发，本示例包含了api开发的两个接口示例以及根据代码注释自动生成文档的示例。 [点击这里查看](http://git.oschina.net/linhecheng/cmlphp2.5-demo-api)
