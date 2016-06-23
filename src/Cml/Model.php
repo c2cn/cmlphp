@@ -320,7 +320,7 @@ class Model
      *
      * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB
      */
-    public function __callStatic($dbMethod, $arguments)
+    public static function __callStatic($dbMethod, $arguments)
     {
         return call_user_func_array([static::getInstance()->db(static::getInstance()->getDbConf()), $dbMethod], $arguments);
     }
