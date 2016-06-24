@@ -172,10 +172,11 @@ class Acl
     /**
      * 检查对应的权限
      *
+     * @param object $controller 传入控制器用来判断当前方法是不是要跳过权限检查
      *
      * @return int 返回1是通过检查，0是不能通过检查
      */
-    public static function checkAcl()
+    public static function checkAcl(&$controller)
     {
         $authInfo = self::getLoginInfo();
         if (!$authInfo) return false; //登录超时
@@ -183,6 +184,18 @@ class Acl
         //当前登录用户是否为超级管理员
         if (self::isSuperUser()) {
             return true;
+        }
+
+        //判断是否有标识 @noacl 不检查权限
+        $reflection = new \ReflectionClass($controller);
+        $methods   = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+        foreach ($methods as $method) {
+            if ($method->name == Route::$urlParams['action']) {
+                $annotation = $method->getDocComment();
+                if (strpos($annotation, '@noacl') !== false) {
+                    return true;
+                }
+            }
         }
 
         $acl = Model::getInstance()->db()
@@ -234,7 +247,7 @@ class Acl
         $result =  Model::getInstance()->db()->where('m.isshow', 1)
             ->orderBy('m.sort', 'DESC')
             ->orderBy('m.id','ASC')
-            ->limit(0, 2000)
+            ->limit(0, 5000)
             ->select();
 
         $res = Tree::getTreeNoFormat($result, 0);
