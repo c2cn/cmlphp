@@ -186,6 +186,8 @@ class Acl
             return true;
         }
 
+        $checkUrl = Route::$urlParams['path'].Route::$urlParams['controller'].'\\'.Route::$urlParams['action'];
+
         //判断是否有标识 @noacl 不检查权限
         $reflection = new \ReflectionClass($controller);
         $methods   = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
@@ -194,6 +196,10 @@ class Acl
                 $annotation = $method->getDocComment();
                 if (strpos($annotation, '@noacl') !== false) {
                     return true;
+                }
+
+                if (preg_match('/@acljump([^\n]+)/i', $annotation, $aclJump)) {
+                    $aclJump[1] && $checkUrl = $aclJump[1];
                 }
             }
         }
@@ -208,10 +214,7 @@ class Acl
             ->where('a.userid', $authInfo['id'])
             ->rBrackets()
             ->_and()
-            ->where('m.url', ltrim(str_replace('\\', '/',
-                    Route::$urlParams['path'].Route::$urlParams['controller'].'\\'.Route::$urlParams['action']
-                ), '/')
-            )
+            ->where('m.url', ltrim(str_replace('\\', '/', $checkUrl), '/'))
             ->select();
         return (count($acl) > 0);
     }
