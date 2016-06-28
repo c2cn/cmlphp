@@ -35,7 +35,8 @@ class Pdo extends Base
      */
     public function __construct($conf)
     {
-        $this->conf = $conf;
+        isset($conf['mark']) || $conf['mark'] = md5(json_encode($conf));
+        $this->conf = $conf;        
         $this->tablePrefix = $this->conf['master']['tableprefix'];
     }
 

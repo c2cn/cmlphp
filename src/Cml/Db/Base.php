@@ -1128,10 +1128,10 @@ abstract class Base
      */
     public function getCacheVer($table)
     {
-        $version = Model::getInstance()->cache()->get('db_cache_version_'.$table);
+        $version = Model::getInstance()->cache()->get($this->conf['mark'] . '_db_cache_version_' . $table);
         if (!$version) {
             $version = microtime(true);
-            Model::getInstance()->cache()->set('db_cache_version_'.$table, $version, $this->conf['cache_expire']);
+            Model::getInstance()->cache()->set($this->conf['mark'] . '_db_cache_version_' . $table, $version, $this->conf['cache_expire']);
         }
         return $version;
     }
@@ -1152,7 +1152,7 @@ abstract class Base
             Model::getInstance()->cache()->set("emergency_mode_not_real_time_refresh_mysql_query_cache_{$table}", time(), 3600);
         }
 
-        Model::getInstance()->cache()->set('db_cache_version_'.$table, microtime(true), $this->conf['cache_expire']);
+        Model::getInstance()->cache()->set($this->conf['mark'] . '_db_cache_version_' . $table, microtime(true), $this->conf['cache_expire']);
     }
 
 }

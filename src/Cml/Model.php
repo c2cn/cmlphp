@@ -58,6 +58,7 @@ class Model
         } else {
             $config = Config::get($conf);
         }
+        $config['mark'] = $conf;
         $driver = '\Cml\Db\\'.str_replace('.', '\\', $config['driver']);
         if (isset(self::$dbInstance[$conf])) {
             return self::$dbInstance[$conf];
