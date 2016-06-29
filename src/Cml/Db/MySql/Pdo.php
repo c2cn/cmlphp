@@ -315,7 +315,7 @@ class Pdo extends Base
         empty($this->sql['limit']) && ($this->sql['limit'] = "LIMIT 0, 100");
 
         $sql = "SELECT $columns FROM {$table} ".$this->sql['where'].$this->sql['groupBy'].$this->sql['having']
-            .$this->sql['orderBy'].$this->sql['limit'].$this->union;
+            .$this->sql['orderBy'].$this->union.$this->sql['limit'];
 
         $cacheKey = md5($sql.json_encode($this->bindParams)).$cacheKey;
         $return = Model::getInstance()->cache()->get($cacheKey);
