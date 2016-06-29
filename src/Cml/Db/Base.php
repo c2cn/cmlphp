@@ -805,7 +805,7 @@ abstract class Base
             }
         } else {
             $this->union .= $all ? ' UNION ALL ' : ' UNION ';
-            $this->union .= $this->filterUnionSql($sql);
+            $this->union .= $this->filterUnionSql($sql) . ' ';
         }
         return $this;
     }
