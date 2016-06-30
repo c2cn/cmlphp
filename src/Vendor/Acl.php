@@ -199,7 +199,7 @@ class Acl
                 }
 
                 if (preg_match('/@acljump([^\n]+)/i', $annotation, $aclJump)) {
-                    $aclJump[1] && $checkUrl = $aclJump[1];
+                    $aclJump[1] && $checkUrl = trim($aclJump[1]);
                 }
             }
         }
