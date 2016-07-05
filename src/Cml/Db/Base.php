@@ -988,19 +988,7 @@ abstract class Base
      *
      * @return mixed
      */
-    public function count($field = '*', $isMulti = false)
-    {
-        $count = $this->columns(array("COUNT({$field})" => 'count'))->select();
-        if ($isMulti) {
-            $return = array();
-            foreach($count as $val) {
-                $return[] = intval($val['count']);
-            }
-            return $return;
-        } else {
-            return intval($count[0]['count']);
-        }
-    }
+    abstract public function count($field = '*', $isMulti = false);
 
     /**
      * 返回INSERT，UPDATE 或 DELETE 查询所影响的记录行数。

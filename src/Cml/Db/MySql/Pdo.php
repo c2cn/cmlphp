@@ -269,6 +269,29 @@ class Pdo extends Base
     }
 
     /**
+     * 获取count(字段名或*)的结果
+     *
+     * @param string $field 要统计的字段名
+     * @param bool $isMulti 结果集是否为多条 默认只有一条
+     * @param bool|string $useMaster 是否使用主库 默认读取从库 此选项为字符串时为表前缀$tablePrefix
+     *
+     * @return mixed
+     */
+    public function count($field = '*', $isMulti = false, $useMaster = false)
+    {
+        $count = $this->columns(array("COUNT({$field})" => 'count'))->select(null, null, $useMaster);
+        if ($isMulti) {
+            $return = array();
+            foreach($count as $val) {
+                $return[] = intval($val['count']);
+            }
+            return $return;
+        } else {
+            return intval($count[0]['count']);
+        }
+    }
+
+    /**
      * 获取多条数据
      * 
      * @param int $offset 偏移量
