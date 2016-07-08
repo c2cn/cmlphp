@@ -8,10 +8,12 @@
  * *********************************************************** */
 namespace Cml\Db\MySql;
 
+use Cml\Cml;
 use Cml\Config;
 use Cml\Db\Base;
 use Cml\Debug;
 use Cml\Lang;
+use Cml\Log;
 use Cml\Model;
 
 /**
@@ -36,7 +38,8 @@ class Pdo extends Base
     public function __construct($conf)
     {
         isset($conf['mark']) || $conf['mark'] = md5(json_encode($conf));
-        $this->conf = $conf;        
+        $this->conf = $conf;
+        isset($this->conf['log_slow_sql']) || $this->conf['log_slow_sql'] = false;
         $this->tablePrefix = $this->conf['master']['tableprefix'];
     }
 
@@ -70,7 +73,7 @@ class Pdo extends Base
     {
         static $dbFieldCache = array();
 
-        if ($filter == 1 && $GLOBALS['debug']) return '*'; //debug模式时直接返回*
+        if ($filter == 1 && Cml::$debug) return '*'; //debug模式时直接返回*
         $table = is_null($tablePrefix) ? strtolower($table) : strtolower($tablePrefix . $table);
 
         $info = false;
@@ -79,7 +82,7 @@ class Pdo extends Base
             $info = $dbFieldCache[$table];
         } else {
             Config::get('db_fields_cache') && $info = \Cml\simpleFileCache($this->conf['master']['dbname'].'.'.$table);
-            if (!$info || $GLOBALS['debug']) {
+            if (!$info || Cml::$debug) {
                 $stmt = $this->prepare("SHOW COLUMNS FROM $table", $this->rlink, false);
                 $this->execute($stmt, false);
                 $info = array();
@@ -140,12 +143,10 @@ class Pdo extends Base
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
         } else {
-            if ($GLOBALS['debug']) {
-                $bindParams = $this->bindParams;
-                foreach ($bindParams as $key => $val) {
-                    $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
-                }
-                Debug::addTipInfo(vsprintf(str_replace('%s', "'%s'", $sql), $bindParams), 2, true);
+            if (Cml::$debug) {
+                $this->currentSql = $sql;
+                $this->debugLogSql(Debug::SQL_TYPE_FROM_CACHE);
+                $this->currentSql = '';
             }
 
             $this->clearBindParams();
@@ -348,12 +349,10 @@ class Pdo extends Base
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
         } else {
-            if ($GLOBALS['debug']) {
-                $bindParams = $this->bindParams;
-                foreach ($bindParams as $key => $val) {
-                    $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
-                }
-                Debug::addTipInfo(vsprintf(str_replace('%s', "'%s'", $sql), $bindParams), 2, true);
+            if (Cml::$debug) {
+                $this->currentSql = $sql;
+                $this->debugLogSql(Debug::SQL_TYPE_FROM_CACHE);
+                $this->currentSql = '';
             }
             
             $this->reset();
@@ -502,33 +501,22 @@ class Pdo extends Base
     {
         $resetParams && $this->reset();
         is_null($link) && $link = $this->wlink;
-        if ($GLOBALS['debug']) {
-            $bindParams = $this->bindParams;
-            foreach ($bindParams as $key => $val) {
-                $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
-            }
-            Debug::addTipInfo(vsprintf(str_replace('%s', "'%s'", $sql), $bindParams), 2);
-        }
 
         $sqlParams = array();
         foreach ($this->bindParams as $key => $val) {
             $sqlParams[] = ':param'.$key;
         }
-        $tipSql = $sql;
+
+        $this->currentSql = $sql;
         $sql = vsprintf($sql, $sqlParams);
 
         $stmt = $link->prepare($sql);//pdo默认情况prepare出错不抛出异常只返回Pdo::errorInfo
         if ($stmt === false) {
             $error = $link->errorInfo();
-            $bindParams = $this->bindParams;
-            foreach ($bindParams as $key => $val) {
-                $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
-            }
             \Cml\throwException(
-                'Pdo Prepare Sql error! ,【Sql : '.vsprintf(str_replace('%s', "'%s'", $tipSql), $bindParams).'】,【Code:'.$link->errorCode ().'】, 【ErrorInfo!:'.$error[2].'】 <br />'
+                'Pdo Prepare Sql error! ,【Sql : '.$this->buildDebugSql().'】,【Code:'.$link->errorCode ().'】, 【ErrorInfo!:'.$error[2].'】 <br />'
             );
         } else {
-            $this->currentSql = $tipSql;
             foreach($this->bindParams as $key => $val) {
                 is_int($val) ? $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_INT) : $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_STR);
             }
@@ -548,18 +536,53 @@ class Pdo extends Base
     private function execute($stmt, $clearBindParams = true)
     {
         //empty($param) && $param = $this->bindParams;
+        $this->conf['log_slow_sql'] && $startQueryTimeStamp = microtime(true);
         if (!$stmt->execute()) {
-            $bindParams = $this->bindParams;
-            foreach ($bindParams as $key => $val) {
-                $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
-            }
-
             $error = $stmt->errorInfo();
-            \Cml\throwException('Pdo execute Sql error!,【Sql : '.vsprintf(str_replace('%s', "'%s'", $this->currentSql), $bindParams).'】,【Error:'.$error[2].'】');
+            \Cml\throwException('Pdo execute Sql error!,【Sql : '.$this->buildDebugSql().'】,【Error:'.$error[2].'】');
         }
+
+        $slow = 0;
+        if ($this->conf['log_slow_sql']) {
+            $queryTime = microtime(true) - $startQueryTimeStamp;
+            if ($queryTime > $this->conf['log_slow_sql']) {
+                Log::notice('slow_sql', array('sql' => $this->currentSql, 'query_time' => $queryTime));
+                $slow = $queryTime;
+            }
+        }
+
+        if (Cml::$debug) {
+            $this->debugLogSql($slow > 0 ? Debug::SQL_TYPE_SLOW : Debug::SQL_TYPE_NORMAL, $slow);
+        }
+
         $this->currentSql = '';
         $clearBindParams && $this->clearBindParams();
         return true;
+    }
+
+    /**
+     * Debug模式记录查询语句显示到控制台
+     *
+     * @param int $type
+     * @param int $other $other type = SQL_TYPE_SLOW时带上执行时间
+     */
+    private function debugLogSql($type = Debug::SQL_TYPE_NORMAL, $other = 0)
+    {
+        Debug::addSqlInfo($this->buildDebugSql(), $type, $other);
+    }
+
+    /**
+     * 组装sql用于DEBUG
+     *
+     * @return string
+     */
+    private function buildDebugSql()
+    {
+        $bindParams = $this->bindParams;
+        foreach ($bindParams as $key => $val) {
+            $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
+        }
+        return vsprintf(str_replace('%s', "'%s'", $this->currentSql), $bindParams);
     }
 
     /**
