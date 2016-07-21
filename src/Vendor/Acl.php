@@ -1,9 +1,9 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.51beautylife.com
+ * [cml] (C)2012 - 3000 cml http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-11 下午2:23
- * @version  2.5
+ * @version  2.6
  * cml框架 权限控制类
  * *********************************************************** */
 namespace Cml\Vendor;
@@ -69,7 +69,7 @@ use Cml\Route;
         UNIQUE KEY `username` (`username`)
     ) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 
-    @package Cml\Vendor
+@package Cml\Vendor
  */
 class Acl
 {
@@ -185,7 +185,9 @@ class Acl
     /**
      * 检查对应的权限
      *
-     * @param object $controller 传入控制器方法用来判断当前方法是不是要跳过权限检查。如 web/User/list
+     * @param object|string $controller 传入控制器实例对象，用来判断当前访问的方法是不是要跳过权限检查。
+     * 如当前访问的方法为web/User/list则传入new \web\Controller\User()获得的实例。最常用的是在基础控制器的init方法或构造方法里传入$this。
+     * 传入字符串如web/User/list时会自动 new \web\Controller\User()获取实例用于判断
      *
      * @return int 返回1是通过检查，0是不能通过检查
      */
@@ -200,19 +202,34 @@ class Acl
         }
 
         $checkUrl = Route::$urlParams['path'].Route::$urlParams['controller'].'\\'.Route::$urlParams['action'];
+        $checkAction = Route::$urlParams['action'];
 
-        //判断是否有标识 @noacl 不检查权限
-        $reflection = new \ReflectionClass($controller);
-        $methods   = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
-        foreach ($methods as $method) {
-            if ($method->name == Route::$urlParams['action']) {
-                $annotation = $method->getDocComment();
-                if (strpos($annotation, '@noacl') !== false) {
-                    return true;
-                }
+        if (is_string($controller)) {
+            $checkUrl = trim($controller, '/\\');
+            $controller = str_replace('/', '\\', $checkUrl);
+            $checkAction = substr($controller, strrpos($controller, '\\'));
+            $controller = '\\' . substr($controller, 0, strrpos($controller, '\\'));
+            if (class_exists($controller)) {
+                $controller = new $controller;
+            } else {
+                return false;
+            }
+        }
 
-                if (preg_match('/@acljump([^\n]+)/i', $annotation, $aclJump)) {
-                    $aclJump[1] && $checkUrl = trim($aclJump[1]);
+        if (is_object($controller)) {
+            //判断是否有标识 @noacl 不检查权限
+            $reflection = new \ReflectionClass($controller);
+            $methods   = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+            foreach ($methods as $method) {
+                if ($method->name == $checkAction) {
+                    $annotation = $method->getDocComment();
+                    if (strpos($annotation, '@noacl') !== false) {
+                        return true;
+                    }
+
+                    if (preg_match('/@acljump([^\n]+)/i', $annotation, $aclJump)) {
+                        $aclJump[1] && $checkUrl = trim($aclJump[1]);
+                    }
                 }
             }
         }

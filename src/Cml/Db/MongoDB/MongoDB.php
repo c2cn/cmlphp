@@ -1,9 +1,9 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.51beautylife.com
+ * [cml] (C)2012 - 3000 cml http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 16-3-1 下午18:07
- * @version  2.5
+ * @version  2.6
  * cml框架 MongoDB数据库MongoDB驱动类 http://php.net/manual/zh/set.mongodb.php
  * *********************************************************** */
 namespace Cml\Db\MongoDB;
