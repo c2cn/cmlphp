@@ -191,7 +191,7 @@ class Acl
      *
      * @return int 返回1是通过检查，0是不能通过检查
      */
-    public static function checkAcl(&$controller)
+    public static function checkAcl($controller)
     {
         $authInfo = self::getLoginInfo();
         if (!$authInfo) return false; //登录超时
@@ -207,8 +207,12 @@ class Acl
         if (is_string($controller)) {
             $checkUrl = trim($controller, '/\\');
             $controller = str_replace('/', '\\', $checkUrl);
-            $checkAction = substr($controller, strrpos($controller, '\\'));
-            $controller = '\\' . substr($controller, 0, strrpos($controller, '\\'));
+            $actionPosition = strrpos($controller, '\\');
+            $checkAction = substr($controller, $actionPosition + 1);
+            $appPosition = strpos($controller, '\\');
+            $subString = substr($controller, 0, $appPosition).'\\Controller'. substr($controller, $appPosition, $actionPosition - $appPosition);
+            $controller = "\\{$subString}Controller";
+
             if (class_exists($controller)) {
                 $controller = new $controller;
             } else {
