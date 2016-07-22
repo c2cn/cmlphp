@@ -40,7 +40,7 @@ class Redis extends Base
     public function lPop($name)
     {
         $data = $this->getDriver()->lPop($name);
-        $data && $this->decodeDate($data);
+        $data && $data = $this->decodeDate($data);
         return $data;
     }
 
@@ -67,7 +67,7 @@ class Redis extends Base
     public function rPop($name)
     {
         $data = $this->getDriver()->rPop($name);
-        $data && $this->decodeDate($data);
+        $data && $data = $this->decodeDate($data);
         return $data;
     }
 
