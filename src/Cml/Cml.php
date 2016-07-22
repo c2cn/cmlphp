@@ -57,6 +57,7 @@ class Cml
                     $error = array();
                     $error['message'] = Lang::get('_CML_ERROR_');
                 } else {
+                    $error['exception'] = 'Fatal Error';
                     $error['files'][0] = array(
                         'file' => $error['file'],
                         'line' => $error['line']
@@ -88,7 +89,7 @@ class Cml
 
         $error = array();
         $exceptionClass = new \ReflectionClass($e);
-        $error['exception'] = $exceptionClass->name;
+        $error['exception'] = '\\' . $exceptionClass->name;
         $error['message'] = $e->getMessage();
         $trace = $e->getTrace();
         foreach ($trace as $key => $val) {
