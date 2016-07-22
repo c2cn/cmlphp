@@ -56,7 +56,7 @@ class Controller
             $this->$method();
         } elseif (Cml::$debug) {
             Cml::montFor404Page();
-            throwException(Lang::get('_ACTION_NOT_FOUND_', Route::$urlParams['action']));
+            throw new \BadMethodCallException(Lang::get('_ACTION_NOT_FOUND_', Route::$urlParams['action']));
         } else {
             Cml::montFor404Page();
             Response::show404Page();

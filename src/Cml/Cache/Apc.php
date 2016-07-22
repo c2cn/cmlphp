@@ -9,6 +9,7 @@
 namespace Cml\Cache;
 
 use Cml\Config;
+use Cml\Exception\PhpExtendNotInstall;
 use Cml\Lang;
 
 /**
@@ -22,11 +23,13 @@ class Apc extends namespace\Base
      * 使用的缓存配置 默认为使用default_cache配置的参数
      *
      * @param bool｜array $conf
+     *
+     * @throws PhpExtendNotInstall
      */
     public function __construct($conf = false)
     {
         if (!function_exists('apc_cache_info')) {
-            \Cml\throwException(Lang::get('_CACHE_EXTENT_NOT_INSTALL_', 'Apc'));
+            throw new PhpExtendNotInstall(Lang::get('_CACHE_EXTENT_NOT_INSTALL_', 'Apc'));
         }
         $this->conf = $conf ? $conf : Config::get('default_cache');
     }

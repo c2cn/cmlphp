@@ -36,8 +36,7 @@ class Lock
                 $_instance[$useCache] = new $lock($useCache);
                 return $_instance[$useCache];
             } else {
-                throwException(Lang::get('_NOT_OPEN_', $useCache));
-                return false;
+                throw new \InvalidArgumentException(Lang::get('_NOT_OPEN_', $useCache));
             }
         }
     }

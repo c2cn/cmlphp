@@ -103,8 +103,7 @@ class Model
                 self::$cacheInstance[$conf] = new $driver($config);
                 return self::$cacheInstance[$conf];
             } else {
-                throwException(Lang::get('_NOT_OPEN_', $conf));
-                return false;
+                throw new \InvalidArgumentException(Lang::get('_NOT_OPEN_', $conf));
             }
         }
     }

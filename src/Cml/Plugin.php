@@ -28,7 +28,7 @@ class Plugin
      * @param string $hook 插件钩子名称
      * @param array $params 参数
      *
-     * @return void
+     * @return mixed
      */
     public static function hook($hook, $params = array())
     {
@@ -36,14 +36,18 @@ class Plugin
         if (!is_null($hookRun)) {
             foreach ($hookRun as $key => $val) {
                 if (is_int($key)) {
-                    call_user_func($val, $params);
+                    if ($return = call_user_func($val, $params)) {
+                        return $return;
+                    }
                 } else {
                     $plugin = new $key();
-                    call_user_func_array(array($plugin, $val), $params);
+                    if ($return = call_user_func_array(array($plugin, $val), $params)) {
+                        return $return;
+                    }
                 }
             }
         }
-        return;
+        return null;
     }
 
     /**
@@ -60,6 +64,7 @@ class Plugin
      */
     public static function mount($hook, $params = array())
     {
+        is_array($params) || $params = array($params);
         if (isset(self::$mountInfo[$hook])) {
             self::$mountInfo[$hook] += $params;
         } else {

@@ -90,7 +90,7 @@ class Socket
     public function error($errStr, $errNum)
     {
         $error = 'fsockopen error errorStr:'.$errStr.';errorNum:'.$errNum;
-        \Cml\throwException($error);
+        throw new \UnexpectedValueException($error);
     }
 
     /**

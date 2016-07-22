@@ -193,11 +193,11 @@ class Secure
             if ($type == 1) {
                 if (!empty($_POST)) {
                     Response::sendHttpStatus(403);
-                    throwException(Lang::get('_ILLEGAL_REQUEST_'));
+                    throw new \UnexpectedValueException(Lang::get('_ILLEGAL_REQUEST_'));
                 }
             } else {
                 Response::sendHttpStatus(403);
-                throwException(Lang::get('_ILLEGAL_REQUEST_'));
+                throw new \UnexpectedValueException(Lang::get('_ILLEGAL_REQUEST_'));
             }
         }
     }

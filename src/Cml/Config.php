@@ -8,6 +8,7 @@
  * *********************************************************** */
 namespace Cml;
 
+use Cml\Exception\ConfigNotFoundException;
 use Cml\Http\Request;
 
 /**
@@ -154,7 +155,9 @@ class Config
                 'Config'.DIRECTORY_SEPARATOR
                 .
                 ( $global ? self::$isLocal.DIRECTORY_SEPARATOR : '' ).$file.'.php';
-            is_file($file) || throwException(Lang::get('_FILE_NOT_FOUND_', $file));
+            if (!is_file($file)) {
+                throw new ConfigNotFoundException(Lang::get('_NOT_FOUND_', $file));
+            }
             static::$_content[$file] = require $file;
             return static::$_content[$file];
         }

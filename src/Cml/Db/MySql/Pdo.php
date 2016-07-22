@@ -12,6 +12,7 @@ use Cml\Cml;
 use Cml\Config;
 use Cml\Db\Base;
 use Cml\Debug;
+use Cml\Exception\PdoConnectException;
 use Cml\Lang;
 use Cml\Log;
 use Cml\Model;
@@ -202,11 +203,15 @@ class Pdo extends Base
         }
 
         $tableName = empty($tableName) ? $this->getRealTableName(key($this->table)) : $tablePrefix.$tableName;
-        empty($tableName) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'update'));
+        if (empty($tableName)) {
+            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'update'));
+        }
         $s = $this->arrToCondition($data, substr($tableName, strlen($tablePrefix)));
         $whereCondition = $this->sql['where'];
         $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;
-        empty($whereCondition) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'update'));
+        if (empty($whereCondition)) {
+            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'update'));
+        }
         $stmt = $this->prepare("UPDATE {$tableName} SET {$s} {$whereCondition}", $this->wlink);
         $this->execute($stmt);
 
@@ -231,10 +236,14 @@ class Pdo extends Base
         empty($key) || list($tableName, $condition) = $this->parseKey($key, $and, true, true);
 
         $tableName = empty($tableName) ? $this->getRealTableName(key($this->table)) : $tablePrefix . $tableName;
-        empty($tableName) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'delete'));
+        if (empty($tableName)) {
+            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'delete'));
+        }
         $whereCondition = $this->sql['where'];
         $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;
-        empty($whereCondition) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'delete'));
+        if (empty($whereCondition)) {
+            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'delete'));
+        }
         $stmt = $this->prepare("DELETE FROM {$tableName} {$whereCondition}", $this->wlink);
         $this->execute($stmt);
 
@@ -407,7 +416,9 @@ class Pdo extends Base
             is_null($on) || $table .= " ON {$on}";
         }
 
-        empty($table) && \Cml\throwException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'select'));
+        if (empty($table)) {
+            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'select'));
+        }
         empty($this->sql['limit']) && ($this->sql['limit'] = "LIMIT 0, 100");
 
         $sql = "SELECT $columns FROM {$table} ".$this->sql['where'].$this->sql['groupBy'].$this->sql['having']
@@ -489,10 +500,12 @@ class Pdo extends Base
                 ));
             }
         } catch (\PDOException $e) {
-            \Cml\throwException(
+            throw new PdoConnectException(
                 'Pdo Connect Error! ｛' .
                 $host[0] . (isset($host[1]) ? ':' . $host[1] : '') . ', ' . $dbName .
-                '} Code:' . $e->getCode() . ', ErrorInfo!:' . $e->getMessage() . '<br />'
+                '} Code:' . $e->getCode() . ', ErrorInfo!:' . $e->getMessage() . '<br />',
+                0,
+                $e
             );
         }
         $link->exec("SET names $charset");
@@ -585,7 +598,7 @@ class Pdo extends Base
         $stmt = $link->prepare($sql);//pdo默认情况prepare出错不抛出异常只返回Pdo::errorInfo
         if ($stmt === false) {
             $error = $link->errorInfo();
-            \Cml\throwException(
+            throw new \InvalidArgumentException(
                 'Pdo Prepare Sql error! ,【Sql : '.$this->buildDebugSql().'】,【Code:'.$link->errorCode ().'】, 【ErrorInfo!:'.$error[2].'】 <br />'
             );
         } else {
@@ -611,7 +624,7 @@ class Pdo extends Base
         $this->conf['log_slow_sql'] && $startQueryTimeStamp = microtime(true);
         if (!$stmt->execute()) {
             $error = $stmt->errorInfo();
-            \Cml\throwException('Pdo execute Sql error!,【Sql : '.$this->buildDebugSql().'】,【Error:'.$error[2].'】');
+            throw new \InvalidArgumentException('Pdo execute Sql error!,【Sql : '.$this->buildDebugSql().'】,【Error:'.$error[2].'】');
         }
 
         $slow = 0;

@@ -42,7 +42,7 @@ function dump($var, $getArgs = 0)
 function dumpUsePHPConsole($var, $tag = 'debug')
 {
     if (!Config::get('dump_use_php_console')) {
-        throwException(Lang::get('_NOT_OPEN_', 'dump_use_php_console'));
+        throw new \BadFunctionCallException(Lang::get('_NOT_OPEN_', 'dump_use_php_console'));
     }
     static $connector = false;
     if ($connector === false) {

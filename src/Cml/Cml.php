@@ -8,6 +8,7 @@
  * *********************************************************** */
 namespace Cml;
 
+use Cml\Exception\ControllerNotFoundException;
 use Cml\Http\Request;
 use Cml\Http\Response;
 use Cml\Tools\RunCliCommand;
@@ -81,13 +82,21 @@ class Cml
      */
     public static function appException($e)
     {
-        Plugin::hook('cml.before_throw_exception', $e);
+        if (Plugin::hook('cml.before_throw_exception', $e) === 'resume') {
+            return;
+        }
 
         $error = array();
+        $exceptionClass = new \ReflectionClass($e);
+        $error['exception'] = $exceptionClass->name;
         $error['message'] = $e->getMessage();
-        $trace  =   $e->getTrace();
+        $trace = $e->getTrace();
         foreach ($trace as $key => $val) {
             $error['files'][$key] = $val;
+        }
+
+        if (substr($e->getFile(), -20) !== '\Tools\functions.php' || $e->getLine() !== 90) {
+            array_unshift($error['files'], array('file' => $e->getFile(), 'line' => $e->getLine(), 'type' => 'throw'));
         }
 
         if (!self::$debug) {
@@ -326,7 +335,7 @@ class Cml
         } else {
             self::montFor404Page();
             if (self::$debug) {
-                throwException(Lang::get(
+                throw new ControllerNotFoundException(Lang::get(
                     '_CONTROLLER_NOT_FOUND_',
                     CML_APP_CONTROLLER_PATH,
                     Route::$urlParams['controller'],

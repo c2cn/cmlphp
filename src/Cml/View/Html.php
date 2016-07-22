@@ -11,6 +11,8 @@ namespace Cml\View;
 
 use Cml\Cml;
 use Cml\Config;
+use Cml\Exception\FileNotReadableException;
+use Cml\Exception\MkdirErrorException;
 use Cml\Lang;
 use Cml\Route;
 use Cml\Secure;
@@ -196,10 +198,14 @@ class Html extends Base
         $cacheFile = $this->getCacheFile($file);
         if ($this->options['autoUpdate']) {
             $tplFile = $this->getTplFile($file);
-            is_readable($tplFile) || \Cml\throwException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $tplFile));
+            if (!is_readable($tplFile)) {
+                throw new FileNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $tplFile));
+            }
             if (!is_file($cacheFile)) {
                 if ($type !==1 && !is_null($this->layout)) {
-                    is_readable($this->layout) || \Cml\throwException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
+                    if (!is_readable($this->layout)) {
+                        throw new FileNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
+                    }
                 }
                 $this->compile($tplFile, $cacheFile, $type);
                 return $cacheFile;
@@ -215,12 +221,16 @@ class Html extends Base
             }
 
             if ($compile && $type !==1 && !is_null($this->layout)) {
-                is_readable($this->layout) || \Cml\throwException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
+                if (!is_readable($this->layout)) {
+                    throw new FileNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
+                }
             }
 
             //当子模板未修改时判断布局模板是否修改
             if (!$compile && $type !==1 && !is_null($this->layout)) {
-                is_readable($this->layout) || \Cml\throwException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
+                if (!is_readable($this->layout)) {
+                    throw new FileNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
+                }
                 $layoutMTime = filemtime($this->layout);
                 if ($layoutMTime) {
                     $cacheMtime < $layoutMTime && $compile = true;
@@ -360,7 +370,9 @@ class Html extends Base
     private function makePath($path)
     {
         $path = dirname($path);
-        if (!is_dir($path) && !mkdir($path, 0700, true)) \Cml\throwException(Lang::get('_CREATE_DIR_ERROR_')."[{$path}]");
+        if (!is_dir($path) && !mkdir($path, 0700, true)) {
+            throw new MkdirErrorException(Lang::get('_CREATE_DIR_ERROR_')."[{$path}]");
+        }
         return true;
     }
 

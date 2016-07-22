@@ -9,6 +9,8 @@
 namespace Cml\Cache;
 
 use Cml\Config;
+use Cml\Exception\CacheConnectFailException;
+use Cml\Exception\PhpExtendNotInstall;
 use Cml\Lang;
 
 /**
@@ -42,6 +44,8 @@ class Memcache extends namespace\Base
      * 使用的缓存配置 默认为使用default_cache配置的参数
      *
      * @param bool｜array $conf
+     *
+     * @throws CacheConnectFailException | PhpExtendNotInstall
      */
     public function __construct($conf = false)
     {
@@ -54,17 +58,17 @@ class Memcache extends namespace\Base
             $this->memcache = new \Memcache;
             $this->type = 2;
         } else {
-            \Cml\throwException(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Memcached/Memcache'));
+            throw new PhpExtendNotInstall(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Memcached/Memcache'));
         }
 
         if (!$this->memcache) {
-            \Cml\throwException(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Memcache'));
+            throw new PhpExtendNotInstall(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Memcache'));
         }
 
         if ($this->type == 2) {//memcache
             foreach ($this->conf['server'] as $val) {
                 if (!$this->memcache->addServer($val['host'], $val['port'])) {
-                    \Cml\throwException(Lang::get('_CACHE_CONNECT_FAIL_', 'Memcache',
+                    throw new CacheConnectFailException(Lang::get('_CACHE_CONNECT_FAIL_', 'Memcache',
                         $this->conf['host'] . ':' . $this->conf['port']
                     ));
                 }
@@ -78,7 +82,7 @@ class Memcache extends namespace\Base
             $this->memcache->setOption(\Memcached::OPT_PREFIX_KEY, $this->conf['prefix']);
             \Memcached::HAVE_JSON  && $this->memcache->setOption(\Memcached::OPT_SERIALIZER, \Memcached::SERIALIZER_JSON_ARRAY);
             if (!$this->memcache->addServers(array_values($this->conf['server']))) {
-                \Cml\throwException(
+                throw new CacheConnectFailException(
                     Lang::get('_CACHE_CONNECT_FAIL_', 'Memcache',
                         json_encode($this->conf['server'])
                     ));

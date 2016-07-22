@@ -391,7 +391,9 @@ class Route
             $route[$issuccess[0]] = trim($route[$issuccess[0]], '/');
 
             //判断路由的正确性
-            count(explode('/', $route[$issuccess[0]])) >= 2 || throwException(Lang::get('_ROUTE_PARAM_ERROR_',  substr($issuccess[0], 1)));
+            if (count(explode('/', $route[$issuccess[0]])) < 2) {
+                throw new \InvalidArgumentException(Lang::get('_ROUTE_PARAM_ERROR_',  substr($issuccess[0], 1)));
+            }
 
             $returnArr[0] = true;
             $successRoute = explode('/', $issuccess[0]);

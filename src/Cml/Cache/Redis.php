@@ -9,6 +9,8 @@
 namespace Cml\Cache;
 
 use Cml\Config;
+use Cml\Exception\CacheConnectFailException;
+use Cml\Exception\PhpExtendNotInstall;
 use Cml\Lang;
 
 /**
@@ -33,7 +35,7 @@ class Redis extends namespace\Base
         $this->conf = $conf ? $conf : Config::get('default_cache');
 
         if (!extension_loaded('redis') ) {
-            \Cml\throwException(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Redis'));
+            throw new PhpExtendNotInstall(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Redis'));
         }
     }
 
@@ -54,13 +56,15 @@ class Redis extends namespace\Base
             if($instance->pconnect($this->conf['server'][$success]['host'], $this->conf['server'][$success]['port'], 1.5)) {
                 $this->redis[$success] = $instance;
             } else {
-                \Cml\throwException(Lang::get('_CACHE_CONNECT_FAIL_', 'Redis',
+                throw new CacheConnectFailException(Lang::get('_CACHE_CONNECT_FAIL_', 'Redis',
                     $this->conf['server'][$success]['host'] . ':' . $this->conf['server'][$success]['port']
                 ));
             }
 
             if (isset($this->conf['server'][$success]['password']) && !empty($this->conf['server'][$success]['password'])) {
-                $instance->auth($this->conf['server'][$success]['password']) || \Cml\throwException('redis password error!');
+                if (!$instance->auth($this->conf['server'][$success]['password'])) {
+                    throw new \RuntimeException('redis password error!');
+                }
             }
         }
         return $this->redis[$success];
@@ -141,7 +145,7 @@ class Redis extends namespace\Base
                 if($instance->pconnect($val['host'], $val['port'], 1.5)) {
                     $this->redis[$key] = $instance;
                 } else {
-                    \Cml\throwException(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Redis'));
+                    throw new \RuntimeException(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Redis'));
                 }
             }
             $this->redis[$key]->flushDB();

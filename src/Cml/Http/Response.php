@@ -134,7 +134,9 @@ class Response
     {
         $return = '';
         // 解析URL
-        empty($url) && \Cml\throwException(Lang::get('_CML_ERROR_')); //'U方法参数出错'
+        if (empty($url)) {
+            throw new \InvalidArgumentException(Lang::get('_NOT_ALLOW_EMPTY_', 'url')); //'U方法参数出错'
+        }
         // URL组装
         $delimiter = Config::get('url_pathinfo_depr');
 	    $url = ltrim($url, '/');
