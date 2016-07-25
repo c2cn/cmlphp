@@ -618,7 +618,7 @@ class Pdo extends Base
      *
      * @return bool
      */
-    private function execute($stmt, $clearBindParams = true)
+    public function execute($stmt, $clearBindParams = true)
     {
         //empty($param) && $param = $this->bindParams;
         $this->conf['log_slow_sql'] && $startQueryTimeStamp = microtime(true);
