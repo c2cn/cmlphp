@@ -155,7 +155,7 @@ class Cml
         define('CML_IS_MULTI_MODULES', Config::get('is_multi_modules'));
         define(
             'CML_APP_MODULES_PATH',
-            CML_APP_FULL_PATH . (CML_IS_MULTI_MODULES ? DIRECTORY_SEPARATOR . \Cml\Config::get('application_dir') : '')
+            CML_APP_FULL_PATH . (CML_IS_MULTI_MODULES ? DIRECTORY_SEPARATOR . Config::get('application_dir') : '')
         );
 
         //引入系统语言包
@@ -206,6 +206,10 @@ class Cml
 
         self::$nowTime = time();
         self::$nowMicroTime = microtime(true);
+
+        //全局的自定义语言包
+        $globalLang = CML_APP_FULL_PATH.DIRECTORY_SEPARATOR.'Lang'.DIRECTORY_SEPARATOR.Config::get('lang').'.php';
+        is_file($globalLang) && Lang::set(require $globalLang);
 
         //程序运行必须的类
         $runTimeClassList = array(
@@ -382,7 +386,7 @@ class Cml
         } else {
             $deBugLogData = dump('', 1);
             if (!empty($deBugLogData)) {
-                Config::get('dump_use_php_console') ? \Cml\dumpUsePHPConsole($deBugLogData) : require CML_PATH.DIRECTORY_SEPARATOR.'Cml'.DIRECTORY_SEPARATOR.'ConsoleLog.php';
+                Config::get('dump_use_php_console') ? dumpUsePHPConsole($deBugLogData) : require CML_PATH.DIRECTORY_SEPARATOR.'Cml'.DIRECTORY_SEPARATOR.'ConsoleLog.php';
             };
             CML_OB_START && ob_end_flush();
             exit();

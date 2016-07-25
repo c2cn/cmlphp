@@ -426,4 +426,24 @@ class Route
     {
         return self::$pathinfo;
     }
+
+    /**
+     * 载入应用单独的路由
+     *
+     * @param string $app
+     */
+    public static function loadAppRoute($app = 'web')
+    {
+        static $loaded = array();
+        if (isset($loaded[$app]) ) {
+            return;
+        }
+        $appRoute = CML_APP_MODULES_PATH.DIRECTORY_SEPARATOR.$app.DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'route.php';
+        if (!is_file($appRoute)) {
+            throw new \InvalidArgumentException(Lang::get('_NOT_FOUND_', $app.DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'route.php'));
+        }
+
+        $loaded[$app] = 1;
+        require $appRoute;
+    }
 }
