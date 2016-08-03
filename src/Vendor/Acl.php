@@ -220,6 +220,8 @@ class Acl
             }
         }
 
+        $checkUrl = ltrim(str_replace('\\', '/', $checkUrl), '/');
+
         if (is_object($controller)) {
             //判断是否有标识 @noacl 不检查权限
             $reflection = new \ReflectionClass($controller);
@@ -231,8 +233,16 @@ class Acl
                         return true;
                     }
 
+                    $checkUrlArray = array();
+
                     if (preg_match('/@acljump([^\n]+)/i', $annotation, $aclJump)) {
-                        $aclJump[1] && $checkUrl = trim($aclJump[1]);
+                        if (isset($aclJump[1]) && $aclJump[1]) {
+                            $aclJump[1] = explode('|', $aclJump[1]);
+                            foreach($aclJump[1] as $val) {
+                                trim($val) && $checkUrlArray[] = ltrim(str_replace('\\', '/', trim($val)), '/') ;
+                            }
+                        }
+                        empty($checkUrlArray) || $checkUrl = $checkUrlArray;
                     }
                 }
             }
@@ -246,10 +256,10 @@ class Acl
             ->whereIn('a.groupid', $authInfo['groupid'])
             ->_or()
             ->where('a.userid', $authInfo['id'])
-            ->rBrackets()
-            ->_and()
-            ->where('m.url', ltrim(str_replace('\\', '/', $checkUrl), '/'))
-            ->select();
+            ->rBrackets();
+
+        $acl = is_array($checkUrl) ? $acl->whereIn('m.url', $checkUrl) : $acl->where('m.url', $checkUrl);
+        $acl = $acl->select();
         return (count($acl) > 0);
     }
 
