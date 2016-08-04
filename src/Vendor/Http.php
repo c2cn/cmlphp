@@ -9,7 +9,7 @@
 namespace Cml\Vendor;
 
 use Cml\Cml;
-use Cml\Exception\FileNotReadableException;
+use Cml\Exception\FileCanNotReadableException;
 
 /**
  * Http扩展类,用于采集、文件下载等
@@ -162,7 +162,7 @@ class Http
         }elseif ($content != '') {
             $length = strlen($content);
         }else {
-            throw new FileNotReadableException($filename.'下载文件不存在！');
+            throw new FileCanNotReadableException($filename.'下载文件不存在！');
         }
         if (empty($showname)) {
             $showname = $filename;

@@ -4,8 +4,8 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 16-8-21 下午19:25
  * @version  2.6
- * cml框架 FileNotReadableException
+ * cml框架 FileCanNotReadableException
  * *********************************************************** */
-class FileNotReadableException extends \RuntimeException
+class FileCanNotReadableException extends \RuntimeException
 {
 }

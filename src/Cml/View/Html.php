@@ -11,7 +11,7 @@ namespace Cml\View;
 
 use Cml\Cml;
 use Cml\Config;
-use Cml\Exception\FileNotReadableException;
+use Cml\Exception\FileCanNotReadableException;
 use Cml\Exception\MkdirErrorException;
 use Cml\Lang;
 use Cml\Route;
@@ -199,12 +199,12 @@ class Html extends Base
         if ($this->options['autoUpdate']) {
             $tplFile = $this->getTplFile($file);
             if (!is_readable($tplFile)) {
-                throw new FileNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $tplFile));
+                throw new FileCanNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $tplFile));
             }
             if (!is_file($cacheFile)) {
                 if ($type !==1 && !is_null($this->layout)) {
                     if (!is_readable($this->layout)) {
-                        throw new FileNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
+                        throw new FileCanNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
                     }
                 }
                 $this->compile($tplFile, $cacheFile, $type);
@@ -222,14 +222,14 @@ class Html extends Base
 
             if ($compile && $type !==1 && !is_null($this->layout)) {
                 if (!is_readable($this->layout)) {
-                    throw new FileNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
+                    throw new FileCanNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
                 }
             }
 
             //当子模板未修改时判断布局模板是否修改
             if (!$compile && $type !==1 && !is_null($this->layout)) {
                 if (!is_readable($this->layout)) {
-                    throw new FileNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
+                    throw new FileCanNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $this->layout));
                 }
                 $layoutMTime = filemtime($this->layout);
                 if ($layoutMTime) {
