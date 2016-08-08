@@ -166,7 +166,7 @@ class Validate
     }
 
     /**
-     * Run validations and return boolean result
+     * 执行校验并返回布尔值
      *
      * @return boolean
      */
