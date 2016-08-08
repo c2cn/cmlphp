@@ -183,14 +183,14 @@ class Validate
                 if (isset(static::$rules[$field])) {
                     $callback = static::$rules[$field];
                 } else {
-                    $callback = array(__CLASS__, 'is' . ucfirst($bind['rule']));
+                    $callback = array($this, 'is' . ucfirst($bind['rule']));
                 }
 
                 is_array($values) || $values = array($values);
 
                 $result = true;
                 foreach ($values as $value) {
-                    $result = $result && call_user_func($callback, $value, $bind['params']);
+                    $result = $result && call_user_func($callback, $value, $bind['params'], $field);
                 }
 
                 if (!$result) {
@@ -407,11 +407,12 @@ class Validate
     /**
      * 验证两个字段相等
      *
-     * @param string $field
      * @param string $compareField
+     * @param string $field
+     *
      * @return bool
      */
-    protected function isEquals($field, $compareField)
+    protected function isEquals($value, $compareField, $field)
     {
         is_array($compareField) && $compareField = $compareField[0];
         return isset($this->data[$field]) && isset($this->data[$compareField]) && $this->data[$field] == $this->data[$compareField];
@@ -420,11 +421,12 @@ class Validate
     /**
      * 验证两个字段不等
      *
-     * @param string $field
      * @param string $compareField
+     * @param string $field
+     *
      * @return bool
      */
-    protected function isDifferent($field, $compareField)
+    protected function isDifferent($value, $compareField, $field)
     {
         is_array($compareField) && $compareField = $compareField[0];
         return isset($this->data[$field]) && isset($this->data[$compareField]) && $this->data[$field] != $this->data[$compareField];
