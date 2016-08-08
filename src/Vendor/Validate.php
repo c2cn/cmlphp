@@ -183,7 +183,7 @@ class Validate
                 if (isset(static::$rules[$field])) {
                     $callback = static::$rules[$field];
                 } else {
-                    $callback = array($this, 'is' . ucfirst($bind['rule']));
+                    $callback = array(__CLASS__, 'is' . ucfirst($bind['rule']));
                 }
 
                 is_array($values) || $values = array($values);
@@ -276,7 +276,7 @@ class Validate
      *
      * @return bool
      */
-    public function isGt($value, $max)
+    public static function isGt($value, $max)
     {
         is_array($max) && $max = $max[0];
         if (!is_numeric($value)) {
@@ -296,7 +296,7 @@ class Validate
      *
      * @return bool
      */
-    public function isLt($value, $min)
+    public static function isLt($value, $min)
     {
         is_array($min) && $min = $min[0];
         if (!is_numeric($value)) {
