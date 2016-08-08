@@ -314,7 +314,7 @@ class Validate
     public static function isLengthGt($value, $max)
     {
         is_array($max) && $max = $max[0];
-        return self::isLength($value, 0, $max);
+        return self::isLength($value, $max);
     }
 
 
@@ -329,7 +329,7 @@ class Validate
     public static function isLengthLt($value, $min)
     {
         is_array($min) && $min = $min[0];
-        return self::isLength($value, $min);
+        return self::isLength($value, 0, $min);
     }
 
     /**
@@ -381,7 +381,6 @@ class Validate
             $min = $min[0];
             $max = $min[1];
         }
-
         if ($min != 0 && $length < $min) return false;
         if ($max != 0 && $length > $max) return false;
         return true;
