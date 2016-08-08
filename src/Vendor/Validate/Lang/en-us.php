@@ -8,7 +8,7 @@
  * *********************************************************** */
 return array(
     'require'      => "is required",
-    'gt'           => "must be no more than %s",
+    'gt'           => "must be greater than %s",
     'lt'           => "must be less than  %s",
     'lengthGt'        => "must contain greater than %d characters",
     'lengthLt'        => "must contain less than %d characters",
