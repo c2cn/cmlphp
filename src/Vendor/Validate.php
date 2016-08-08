@@ -46,7 +46,7 @@ class Validate
      *
      * @var array
      */
-    private $errorTip = array();
+    private static $errorTip = array();
 
     /**
      * 验证后的错误信息
@@ -78,7 +78,12 @@ class Validate
         if (!is_file($langDir)) {
             throw new FileCanNotReadableException(Lang::get('_NOT_FOUND_', 'lang dir ['.$langDir.']'));
         }
-        $this->errorTip = require $langDir;
+
+        $errorTip = require $langDir;
+        foreach($errorTip as $key => $val) {
+            $key = strtolower($key);
+            isset(self::$errorTip[$key]) || self::$errorTip[$key] = $val;
+        }
 
         $this->data = $data;
     }
@@ -96,8 +101,8 @@ class Validate
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException('param $callback must can callable');
         }
-        $errorTip[$name] = $message;
-        static::$rules[$name] = $callback;
+        self::$errorTip[strtolower($name)] = $message;
+        static::$rules[strtolower($name)] = $callback;
     }
 
     /**
@@ -206,7 +211,7 @@ class Validate
     private function error($field, &$bind)
     {
         $label = (isset($this->label[$field]) && !empty($this->label[$field])) ? $this->label[$field] : $field;
-        $this->errorMsg[$field][] = vsprintf(str_replace('{field}', $label, (isset($bind['message']) ? $bind['message'] : '{field} ' . $this->errorTip[$bind['rule']])), $bind['params']);
+        $this->errorMsg[$field][] = vsprintf(str_replace('{field}', $label, (isset($bind['message']) ? $bind['message'] : '{field} ' . self::$errorTip[strtolower($bind['rule'])])), $bind['params']);
     }
 
     /**
