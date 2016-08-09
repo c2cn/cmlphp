@@ -482,6 +482,30 @@ class Validate
     }
 
     /**
+     * 数据基础验证-是否是整型
+     *
+     * @param  int $value 需要验证的值
+     *
+     * @return bool
+     */
+    public static function isInt($value)
+    {
+        return is_int($value);
+    }
+
+    /**
+     * 数据基础验证-是否是布尔类型
+     *
+     * @param  int $value 需要验证的值
+     *
+     * @return bool
+     */
+    public static function isBool($value)
+    {
+        return is_bool($value);
+    }
+
+    /**
      * 数据基础验证-是否是身份证
      *
      * @param  string $value 需要验证的值

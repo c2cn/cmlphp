@@ -22,6 +22,8 @@ return array(
     'email'         => "is not a valid email address",
     'ip'            => "is not a valid IP address",
     'number'       => "must be numeric",
+    'int'       => "must be integer",
+    'bool'       => "must be boolean",
     'card'       => "must be Id Card",
     'mobile'       => "must be mobile number",
     'phone'       => "must be phone number",
