@@ -490,7 +490,7 @@ class Validate
      */
     public static function isInt($value)
     {
-        return is_int($value);
+        return filter_var($value, \FILTER_VALIDATE_INT) !== false;
     }
 
     /**
@@ -502,7 +502,7 @@ class Validate
      */
     public static function isBool($value)
     {
-        return is_bool($value);
+        return (is_bool($value)) ? true : false;
     }
 
     /**
