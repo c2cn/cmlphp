@@ -36,14 +36,14 @@ class Plugin
         if (!is_null($hookRun)) {
             foreach ($hookRun as $key => $val) {
                 if (is_int($key)) {
-                    if ($return = call_user_func($val, $params)) {
-                        return $return;
-                    }
+                    $callBack = $val;
                 } else {
                     $plugin = new $key();
-                    if ($return = call_user_func_array(array($plugin, $val), $params)) {
-                        return $return;
-                    }
+                    $callBack = array($plugin, $val);
+                }
+
+                if ($return = call_user_func_array($callBack, array_slice(func_get_args(), 1))) {
+                    return $return;
                 }
             }
         }
@@ -52,12 +52,12 @@ class Plugin
 
     /**
      * 挂载插件到钩子
-      \Cml\Plugin::mount('hookName', array(
-            function() {//匿名函数
-            },
-            '\App\Test\Plugins' => 'run' //对象,
-            '\App\Test\Plugins::run'////静态方法
-        );
+    \Cml\Plugin::mount('hookName', array(
+    function() {//匿名函数
+    },
+    '\App\Test\Plugins' => 'run' //对象,
+    '\App\Test\Plugins::run'////静态方法
+    );
      *
      * @param string $hook 要挂载的目标钩子
      * @param array $params 相应参数
