@@ -631,7 +631,7 @@ class Pdo extends Base
         if ($this->conf['log_slow_sql']) {
             $queryTime = microtime(true) - $startQueryTimeStamp;
             if ($queryTime > $this->conf['log_slow_sql']) {
-                Log::notice('slow_sql', array('sql' => $this->currentSql, 'query_time' => $queryTime));
+                Log::notice('slow_sql', array('sql' => $this->buildDebugSql(), 'query_time' => $queryTime));
                 $slow = $queryTime;
             }
         }
