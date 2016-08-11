@@ -53,10 +53,10 @@ class Plugin
     /**
      * 挂载插件到钩子
     \Cml\Plugin::mount('hookName', array(
-    function() {//匿名函数
-    },
-    '\App\Test\Plugins' => 'run' //对象,
-    '\App\Test\Plugins::run'////静态方法
+        function() {//匿名函数
+        },
+        '\App\Test\Plugins' => 'run' //对象,
+        '\App\Test\Plugins::run'////静态方法
     );
      *
      * @param string $hook 要挂载的目标钩子

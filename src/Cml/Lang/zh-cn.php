@@ -21,7 +21,7 @@ return array(
 	'_DB_PARAM_ERROR_PARSE_ON_' => '解析SQL语句失败联结表[%s]时on条件不能为空',
 	'_PARSE_SQL_ERROR_NO_TABLE_' => 'SQL语句出错:%s操作没选择数据表',
 	'_PARSE_SQL_ERROR_NO_CONDITION_' => 'SQL语句出错:%s操作不能没条件',
-		'_PARSE_UPDATE_SQL_PARAMS_ERROR_' => 'SQL语句出错:字段自身操作只有inc和dec及数学运算',
+    '_PARSE_UPDATE_SQL_PARAMS_ERROR_' => 'SQL语句出错:字段自身操作只有inc和dec及数学运算',
 	'_DB_QUERY_ERROR_' => '数据库Query操作失败',
 	'_DB_CONNECT_FAIL_' => '数据库连接失败',
 	'_DB_SELECT_DB_ERROR_' => '选择数据库(%s)失败',
