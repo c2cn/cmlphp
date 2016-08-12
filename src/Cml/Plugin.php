@@ -41,8 +41,9 @@ class Plugin
                     $plugin = new $key();
                     $callBack = array($plugin, $val);
                 }
+                $return = call_user_func_array($callBack, array_slice(func_get_args(), 1));
 
-                if ($return = call_user_func_array($callBack, array_slice(func_get_args(), 1))) {
+                if (!is_null($return)) {
                     return $return;
                 }
             }

@@ -16,6 +16,7 @@ use Cml\Exception\PdoConnectException;
 use Cml\Lang;
 use Cml\Log;
 use Cml\Model;
+use Cml\Plugin;
 
 /**
  * Orm MySql数据库Pdo实现类
@@ -631,7 +632,9 @@ class Pdo extends Base
         if ($this->conf['log_slow_sql']) {
             $queryTime = microtime(true) - $startQueryTimeStamp;
             if ($queryTime > $this->conf['log_slow_sql']) {
-                Log::notice('slow_sql', array('sql' => $this->buildDebugSql(), 'query_time' => $queryTime));
+                if (Plugin::hook('cml.mysql_query_slow', array('sql' => $this->buildDebugSql(), 'query_time' => $queryTime)) !== false) {
+                    Log::notice('slow_sql', array('sql' => $this->buildDebugSql(), 'query_time' => $queryTime));
+                }
                 $slow = $queryTime;
             }
         }
