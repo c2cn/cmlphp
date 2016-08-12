@@ -139,21 +139,25 @@ class Response
         }
         // URL组装
         $delimiter = Config::get('url_pathinfo_depr');
-	    $url = ltrim($url, '/');
+        $url = ltrim($url, '/');
         $url = implode($delimiter, explode('/', $url));
 
-	    if (Config::get('url_model') == 1) {
-		    $return = $_SERVER['SCRIPT_NAME'].'/'.$url;
-	    } elseif (Config::get('url_model') == 2) {
-		    $return = Route::$urlParams['root'].$url;
-	    } elseif (Config::get('url_model') == 3){
-		    $return = $_SERVER['SCRIPT_NAME'].'?'.Config::get('var_pathinfo').'=/'.$url;
-	    }
+        if (Config::get('url_model') == 1) {
+            $return = $_SERVER['SCRIPT_NAME'].'/'.$url;
+        } elseif (Config::get('url_model') == 2) {
+            $return = Route::$urlParams['root'].$url;
+        } elseif (Config::get('url_model') == 3){
+            $return = $_SERVER['SCRIPT_NAME'].'?'.Config::get('var_pathinfo').'=/'.$url;
+        }
 
-	    $return .= (Config::get('url_model') == 2 ? Config::get('url_html_suffix') : '');
+        $return .= (Config::get('url_model') == 2 ? Config::get('url_html_suffix') : '');
 
-	    $return = Secure::filterScript($return);
-        if ($echo === 1) {echo $return;} else {return $return;}
+        $return = Secure::filterScript($return);
+        if ($echo === 1) {
+            echo $return;
+        } else {
+            return $return;
+        }
         return '';
     }
 
