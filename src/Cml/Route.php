@@ -32,15 +32,59 @@ class Route
     private static $pathinfo = array();
 
     /**
-     * 定义路由类型常量
+     * 路由类型为GET请求
+     *
+     * @var int
      */
     const REQUEST_METHOD_GET = 1;
+
+    /**
+     * 路由类型为POST请求
+     *
+     * @var int
+     */
     const REQUEST_METHOD_POST = 2;
+
+    /**
+     * 路由类型为PUT请求
+     *
+     * @var int
+     */
     const REQUEST_METHOD_PUT = 3;
+
+    /**
+     * 路由类型为PATCH请求
+     *
+     * @var int
+     */
     const REQUEST_METHOD_PATCH = 4;
+
+    /**
+     * 路由类型为DELETE请求
+     *
+     * @var int
+     */
     const REQUEST_METHOD_DELETE = 5;
+
+    /**
+     * 路由类型为OPTIONS请求
+     *
+     * @var int
+     */
     const REQUEST_METHOD_OPTIONS = 6;
+
+    /**
+     * 路由类型为任意请求类型
+     *
+     * @var int
+     */
     const REQUEST_METHOD_ANY = 7;
+
+    /**
+     * 路由类型 reset 路由
+     *
+     * @var int
+     */
     const RESTROUTE = 8;
 
     /**
@@ -473,7 +517,7 @@ class Route
     /**
      * 载入应用单独的路由
      *
-     * @param string $app
+     * @param string $app 应用名称
      */
     public static function loadAppRoute($app = 'web')
     {
