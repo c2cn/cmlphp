@@ -49,7 +49,9 @@ class Cml
     {
         if ($error = error_get_last()) {//获取最后一个发生的错误的信息。 包括提醒、警告、致命错误
             if (in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING))) { //当捕获到的错误为致命错误时 报告
-                Plugin::hook('cml.before_fatal_error', $error);
+                if (Plugin::hook('cml.before_fatal_error', $error) == 'jump') {
+                    return;
+                }
 
                 if (!self::$debug) {
                     //正式环境 只显示‘系统错误’并将错误信息记录到日志
@@ -70,6 +72,8 @@ class Cml
                     header('HTTP/1.1 500 Internal Server Error');
                     require Config::get('html_exception');
                 }
+
+                Plugin::hook('cml.after_fatal_error', $error);
             }
         }
 
