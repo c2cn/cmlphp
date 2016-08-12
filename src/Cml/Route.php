@@ -18,6 +18,13 @@ use Cml\Http\Request;
 class Route
 {
     /**
+     * 是否启用分组
+     *
+     * @var false
+     */
+    private static $group = false;
+
+    /**
      * pathinfo数据用来提供给插件做一些其它事情
      *
      * @var array
@@ -209,7 +216,7 @@ class Route
      */
     public static function get($pattern, $action)
     {
-        self::$rules[self::REQUEST_METHOD_GET.$pattern] = $action;
+        self::$rules[self::REQUEST_METHOD_GET.self::patternFactory($pattern)] = $action;
     }
 
     /**
@@ -222,7 +229,7 @@ class Route
      */
     public static function post($pattern, $action)
     {
-        self::$rules[self::REQUEST_METHOD_POST.$pattern] = $action;
+        self::$rules[self::REQUEST_METHOD_POST.self::patternFactory($pattern)] = $action;
     }
 
     /**
@@ -235,7 +242,7 @@ class Route
      */
     public static function put($pattern, $action)
     {
-        self::$rules[self::REQUEST_METHOD_PUT.$pattern] = $action;
+        self::$rules[self::REQUEST_METHOD_PUT.self::patternFactory($pattern)] = $action;
     }
 
     /**
@@ -248,7 +255,7 @@ class Route
      */
     public static function patch($pattern, $action)
     {
-        self::$rules[self::REQUEST_METHOD_PATCH.$pattern] = $action;
+        self::$rules[self::REQUEST_METHOD_PATCH.self::patternFactory($pattern)] = $action;
     }
 
     /**
@@ -261,7 +268,7 @@ class Route
      */
     public static function delete($pattern, $action)
     {
-        self::$rules[self::REQUEST_METHOD_DELETE.$pattern] = $action;
+        self::$rules[self::REQUEST_METHOD_DELETE.self::patternFactory($pattern)] = $action;
     }
 
     /**
@@ -274,7 +281,7 @@ class Route
      */
     public static function options($pattern, $action)
     {
-        self::$rules[self::REQUEST_METHOD_OPTIONS.$pattern] = $action;
+        self::$rules[self::REQUEST_METHOD_OPTIONS.self::patternFactory($pattern)] = $action;
     }
 
     /**
@@ -287,7 +294,7 @@ class Route
      */
     public static function any($pattern, $action)
     {
-        self::$rules[self::REQUEST_METHOD_ANY.$pattern] = $action;
+        self::$rules[self::REQUEST_METHOD_ANY.self::patternFactory($pattern)] = $action;
     }
 
     /**
@@ -300,8 +307,44 @@ class Route
      */
     public static function rest($pattern, $action)
     {
-        self::$rules[self::RESTROUTE.$pattern] = $action;
+        self::$rules[self::RESTROUTE.self::patternFactory($pattern)] = $action;
     }
+
+    /**
+     * 分组路由
+     *
+     * @param string $namespace 分组名
+     * @param callable $func 闭包
+     */
+    public static function group($namespace, callable $func)
+    {
+        if (empty($namespace)) {
+            throw new \InvalidArgumentException(Lang::get('_NOT_ALLOW_EMPTY_', '$namespace'));
+        }
+
+        self::$group = trim($namespace, '/');
+
+        $func();
+
+        self::$group = false;
+    }
+
+    /**
+     * 组装路由规则
+     *
+     * @param $pattern
+     *
+     * @return string
+     */
+    private static function patternFactory($pattern)
+    {
+        if (self::$group) {
+            return self::$group . '/' . ltrim($pattern);
+        } else {
+            return $pattern;
+        }
+    }
+
 
     /**
      * 匹配路由
