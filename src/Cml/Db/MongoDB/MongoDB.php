@@ -21,6 +21,7 @@ use MongoDB\Driver\Manager;
 use MongoDB\Driver\Query;
 use MongoDB\Driver\Exception\BulkWriteException;
 use MongoDB\Driver\Exception\Exception as MongoDBDriverException;
+use MongoDB\Driver\ReadPreference;
 
 /**
  * Orm MongoDB数据库MongoDB实现类
@@ -83,12 +84,20 @@ class MongoDB extends Base
     public function getTables()
     {
         $tables = array();
-        $result = $this->runMongoQuery('system.namespaces');
-        foreach ($result as $val) {
-            if (strpos($val['name'], '$') === false) {
-                $tables[] = substr($val['name'], strpos($val['name'], '.') + 1);
+        if ($this->serverSupportFeature(3)) {
+            $result = $this->runMongoCommand(['listCollections' => 1]);
+            foreach ($result as $val) {
+                $tables[] = $val['name'];
+            }
+        } else {
+            $result = $this->runMongoQuery('system.namespaces');
+            foreach ($result as $val) {
+                if (strpos($val['name'], '$') === false) {
+                    $tables[] = substr($val['name'], strpos($val['name'], '.') + 1);
+                }
             }
         }
+
         return $tables;
     }
 
@@ -1280,5 +1289,21 @@ class MongoDB extends Base
     public function callProcedure($procedureName = '', $bindParams = array(), $isSelect = true)
     {
         return $this;
+    }
+
+    /**
+     * 判断当前mongod服务是否支持某个版本的特性
+     *
+     * @param int $version 要判断的版本
+     *
+     * @return bool
+     */
+    public function serverSupportFeature($version = 3)
+    {
+        $info = $this->getSlave()->selectServer(new ReadPreference(ReadPreference::RP_PRIMARY))->getInfo();
+        $maxWireVersion = isset($info['maxWireVersion']) ? (integer) $info['maxWireVersion'] : 0;
+        $minWireVersion = isset($info['minWireVersion']) ? (integer) $info['minWireVersion'] : 0;
+
+        return ($minWireVersion <= $version && $maxWireVersion >= $version);
     }
 }

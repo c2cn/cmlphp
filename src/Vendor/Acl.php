@@ -19,7 +19,7 @@ use Cml\Route;
    权限控制类
 
     对方法注释 @noacl 则不检查该方法的权限
-    对方法注释 @@acljump web/User/add 则将当前方法的权限检查跳转为检查 web/User/add方法的权限
+    对方法注释 @acljump web/User/add 则将当前方法的权限检查跳转为检查 web/User/add方法的权限
     加到normal.php配置中
     //权限控制配置
     'administratorid'=>'1', //超管理员id
