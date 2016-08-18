@@ -102,6 +102,22 @@ class MongoDB extends Base
     }
 
     /**
+     * 获取当前数据库中所有表的信息
+     *
+     * @return array
+     */
+    public function getAllTableStatus()
+    {
+        $return = array();
+        $collections = $this->getTables();
+        foreach($collections as $collection) {
+            $res = $this->runMongoCommand(['collStats' => $collection]);
+            $return[substr($res[0]['ns'], strrpos($res[0]['ns'], '.') + 1)] = $res[0];
+        }
+        return $return;
+    }
+
+    /**
      * 获取数据库名
      *
      * @return string

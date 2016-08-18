@@ -136,6 +136,13 @@ abstract class Base
     abstract public function getTables();
 
     /**
+     * 获取当前数据库中所有表的信息
+     *
+     * @return array
+     */
+    abstract public function getAllTableStatus();
+
+    /**
      * 获取表字段
      *
      * @param string $table 表名

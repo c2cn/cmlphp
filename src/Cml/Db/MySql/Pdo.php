@@ -63,6 +63,23 @@ class Pdo extends Base
     }
 
     /**
+     * 获取当前数据库中所有表的信息
+     *
+     * @return array
+     */
+    public function getAllTableStatus()
+    {
+        $stmt = $this->prepare('SHOW TABLE STATUS FROM '.$this->conf['master']['dbname'], $this->rlink);
+        $this->execute($stmt);
+        $res = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $return = array();
+        foreach ($res as $val) {
+            $return[$val['Name']] = $val;
+        }
+        return $return;
+    }
+
+    /**
      * 获取表字段
      *
      * @param string $table 表名
