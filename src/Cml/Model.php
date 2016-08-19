@@ -280,6 +280,29 @@ class Model
     }
 
     /**
+     * 以分页的方式获取数据列表
+     *
+     * @param int $limit 每页返回的条数
+     * @param string|array $order 传asc 或 desc 自动取主键 或 ['id'=>'desc', 'status' => 'asc']
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
+     * @param mixed $tablePrefix 表前缀 不传会自动从当前Model中$tablePrefix属性获取再没有则获取配置中配置的前缀
+     *
+     * @return array
+     */
+    public function getListByPaginate($limit = 20, $order = 'DESC', $tableName = null, $tablePrefix = null)
+    {
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        is_array($order) || $order = array($this->db($this->getDbConf())->getPk($tableName, $tablePrefix) => $order);
+
+        $dbInstance = $this->db($this->getDbConf())->table($tableName, $tablePrefix);
+        foreach($order as $key => $val)  {
+            $dbInstance->orderBy($key, $val);
+        }
+        return $dbInstance->paginate($limit);
+    }
+
+    /**
      * 获取当前Model的数据库配置串
      *
      * @return string

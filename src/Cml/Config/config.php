@@ -179,4 +179,5 @@ return array(
      */
     'emergency_mode_not_real_time_refresh_mysql_query_cache' => false, //配置成int型则为缓存刷新周期。如配置成 300 则为数据变更时每五分钟更新一次mysql查询缓存
 
+    'var_page' => 'page', //分页时传递当前页数的变量名
 );

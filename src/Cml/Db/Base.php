@@ -9,6 +9,7 @@
 namespace Cml\Db;
 
 use Cml\Config;
+use Cml\Http\Input;
 use Cml\Lang;
 use Cml\Model;
 use Cml\Route;
@@ -263,6 +264,21 @@ abstract class Base
      * @return array
      */
     abstract public function select($offset = null, $limit = null);
+
+    /**
+     * 分页获取数据
+     *
+     * @param int $limit 每页返回的条数
+     * @param bool $useMaster 是否使用主库 默认读取从库
+     *
+     * @return array
+     */
+    public function paginate($limit, $useMaster = false)
+    {
+        $page = Input::requestInt(Config::get('var_page'), 1);
+        $page < 1 && $page = 1;
+        return call_user_func_array(array($this, 'select'), array(($page - 1) * $limit, $limit, $useMaster));
+    }
 
     /**
      * 获取表主键

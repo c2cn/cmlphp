@@ -107,7 +107,7 @@ class Page
     {
         $this->totalRows = $totalRows;
         $this->numPerPage = $numPerPage ? intval($numPerPage) : 10;
-        $this->pageShowVarName = Config::get('VAR_PAGE') ? Config::get('VAR_PAGE') : 'p';
+        $this->pageShowVarName = Config::get('var_page') ? Config::get('var_page') : 'p';
         $this->param = $param;
         $this->totalPages = ceil($this->totalRows/$this->numPerPage);
         $this->coolPages = ceil($this->totalPages/$this->barShowPage);
