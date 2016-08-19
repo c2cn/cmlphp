@@ -235,7 +235,8 @@ class MongoDB extends Base
         Cml::$debug && $this->debugLogSql('Query', $tableName, $condition, $queryOptions);
 
         $this->reset();
-        $cursor = $this->getSlave()->executeQuery($this->getDbName() . ".{$tableName}", new Query($condition, $queryOptions));
+        $cursor = $this->getSlave()->selectServer(new ReadPreference(ReadPreference::RP_SECONDARY_PREFERRED))
+            ->executeQuery($this->getDbName() . ".{$tableName}", new Query($condition, $queryOptions));
         $cursor->setTypeMap(['root' => 'array', 'document' => 'array']);
         $result = array();
         foreach ($cursor as $collection) {
@@ -286,7 +287,8 @@ class MongoDB extends Base
         $return = false;
 
         try {
-            $return = $this->getMaster()->executeBulkWrite($this->getDbName() . ".{$tableName}", $bulk);
+            $return = $this->getMaster()->selectServer(new ReadPreference(ReadPreference::RP_PRIMARY_PREFERRED))
+                ->executeBulkWrite($this->getDbName() . ".{$tableName}", $bulk);
         } catch (BulkWriteException $e) {
             $result = $e->getWriteResult();
 
@@ -350,7 +352,9 @@ class MongoDB extends Base
         Cml::$debug && $this->debugLogSql('Command', '', $cmd);
 
         $this->reset();
-        $db = $runOnMaster ? $this->getMaster() : $this->getSlave();
+        $db = $runOnMaster ?
+            $this->getMaster()->selectServer(new ReadPreference(ReadPreference::RP_PRIMARY_PREFERRED))
+            : $this->getSlave()->selectServer(new ReadPreference(ReadPreference::RP_SECONDARY_PREFERRED));
         $cursor = $db->executeCommand($this->getDbName(), new Command($cmd));
 
         if ($returnCursor) {
@@ -875,7 +879,7 @@ class MongoDB extends Base
             'query' => $this->sql['where']
         );
 
-        $count = $this->runMongoCommand($cmd);
+        $count = $this->runMongoCommand($cmd, false);
         return intval($count[0]['n']);
     }
 
@@ -975,7 +979,7 @@ class MongoDB extends Base
             'query' => $this->sql['where']
         );
 
-        $data = $this->runMongoCommand($cmd);
+        $data = $this->runMongoCommand($cmd, false);
         return $data[0]['values'];
     }
 
