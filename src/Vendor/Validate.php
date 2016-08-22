@@ -243,7 +243,7 @@ class Validate
     {
         switch ($format) {
             case 1:
-                return json_encode($this->errorMsg);
+                return json_encode($this->errorMsg, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0);
             case 2:
                 return implode($delimiter, $this->errorMsg);
         }
