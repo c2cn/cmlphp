@@ -104,21 +104,30 @@ class Acl
         self::$encryptKey = $key;
     }
 
+    /**
+     * 单点登录标识
+     *
+     * @var string
+     */
+    private static $ssoSign = '';
+
 
     /**
      * 保存当前登录用户的信息
      *
      * @param int $uid 用户id
+     * @param bool $sso 是否为单点登录，即踢除其它登录用户
      */
-    public static function setLoginStatus($uid)
+    public static function setLoginStatus($uid, $sso = true)
     {
         $user = array(
             'uid' => $uid,
             'expire' => Cml::$nowTime + 3600,
-            'ssosign' => (string)Cml::$nowMicroTime
+            'ssosign' => $sso ? (string)Cml::$nowMicroTime : self::$ssoSign
         );
+
         //Cookie::set本身有一重加密 这里再加一重
-        Model::getInstance()->cache()->set("SSOSingleSignOn{$uid}", (string)Cml::$nowMicroTime);
+        $sso && Model::getInstance()->cache()->set("SSOSingleSignOn{$uid}", (string)Cml::$nowMicroTime);
         Cookie::set(Config::get('userauthid'), Encry::encrypt(json_encode($user, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0), self::$encryptKey), 0);
     }
 
@@ -137,12 +146,14 @@ class Acl
             if (
                 empty(self::$authUser)
                 || self::$authUser['expire'] < Cml::$nowTime
-                ||  self::$authUser['ssosign'] < 10
                 ||  self::$authUser['ssosign'] != Model::getInstance()->cache()
                     ->get("SSOSingleSignOn".self::$authUser['uid'] )
             ) {
                 self::$authUser = false;
+                self::$ssoSign = '';
             } else {
+                self::$ssoSign = self::$authUser['ssosign'];
+
                 $user = Model::getInstance()->db()->get('users-id-'.self::$authUser['uid'].'-status-1');
                 if (empty($user)) {
                     self::$authUser = false;
@@ -169,12 +180,11 @@ class Acl
                     $tmp['groupname'] = implode(',', $tmp['groupname']);
                     //有操作登录超时时间重新设置为1个小时
                     if (self::$authUser['expire'] - Cml::$nowTime < 1800) {
-                        self::setLoginStatus($user['id']);
+                        self::setLoginStatus($user['id'], false);
                     }
 
                     unset($user, $group);
                     self::$authUser = $tmp;
-
                 }
             }
         }
