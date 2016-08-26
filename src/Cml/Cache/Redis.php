@@ -107,7 +107,7 @@ class Redis extends namespace\Base
             if ($password && !$instance->auth($password)) {
                 throw new \RuntimeException('redis password error!');
             }
-
+            $instance->setOption(\Redis::OPT_PREFIX, $this->conf['prefix']);
             $this->redis[$success] = $instance;
         }
         return $this->redis[$success];
@@ -122,7 +122,7 @@ class Redis extends namespace\Base
      */
     public function get($key)
     {
-        $return = json_decode($this->hash($key)->get($this->conf['prefix'] . $key), true);
+        $return = json_decode($this->hash($key)->get($key), true);
         is_null($return) && $return = false;
         return $return; //orm层做判断用
     }
@@ -140,9 +140,9 @@ class Redis extends namespace\Base
     {
         $value = json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0);
         if ($expire > 0) {
-            return $this->hash($key)->setex($this->conf['prefix'] . $key, $expire, $value);
+            return $this->hash($key)->setex($key, $expire, $value);
         } else {
-            return $this->hash($key)->set($this->conf['prefix'] . $key, $value);
+            return $this->hash($key)->set($key, $value);
         }
     }
 
@@ -157,11 +157,12 @@ class Redis extends namespace\Base
      */
     public function update($key, $value, $expire = 0)
     {
-        $array = $this->get($key);
-        if (!empty($array)) {
-            return $this->set($key, array_merge($array, $value), $expire);
+        $value = json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0);
+        if ($expire > 0) {
+            return $this->hash($key)->set($key, $value, array('xx', 'ex' => $expire));
+        } else {
+            return $this->hash($key)->set($key, $value, array('xx'));
         }
-        return 0;
     }
 
     /**
@@ -173,7 +174,7 @@ class Redis extends namespace\Base
      */
     public function delete($key)
     {
-        return $this->hash($key)->del($this->conf['prefix'] . $key);
+        return $this->hash($key)->del($key);
     }
 
     /**
@@ -206,18 +207,7 @@ class Redis extends namespace\Base
      */
     public function increment($key, $val = 1)
     {
-        $val = abs(intval($val));
-        if ($val === 1) {
-            return $this->hash($key)->incr($this->conf['prefix'] . $key);
-        } else {
-            $return = true;
-            for($i = 0; $i < $val; $i++) {
-                if (!$this->hash($key)->incr($this->conf['prefix'] . $key)) {
-                    $return = false;
-                }
-            }
-            return $return;
-        }
+        return $this->hash($key)->incrBy($key, abs(intval($val)));
     }
 
     /**
@@ -230,19 +220,7 @@ class Redis extends namespace\Base
      */
     public function decrement($key, $val = 1)
     {
-        $val = abs(intval($val));
-        if ($val === 1) {
-            return $this->hash($key)->decr($this->conf['prefix'] . $key);
-        } else {
-            $return = true;
-            for($i = 0; $i < $val; $i++) {
-                if (!$this->hash($key)->decr($this->conf['prefix'] . $key)) {
-                    $return = false;
-                }
-            }
-            return $return;
-        }
-
+        return $this->hash($key)->decrBy($key, abs(intval($val)));
     }
 
     /**
@@ -254,7 +232,7 @@ class Redis extends namespace\Base
      */
     public function exists($key)
     {
-        return $this->hash($key)->exists($this->conf['prefix'] . $key);
+        return $this->hash($key)->exists($key);
     }
 
     /**

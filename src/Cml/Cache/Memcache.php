@@ -225,7 +225,7 @@ class Memcache extends namespace\Base
     public function increment($key, $val = 1)
     {
         $this->type === 2 && $key = $this->conf['prefix'] . $key;
-        $this->memcache->increment($key, abs(intval($val)));
+        return $this->memcache->increment($key, abs(intval($val)));
     }
 
     /**
@@ -239,7 +239,7 @@ class Memcache extends namespace\Base
     public function decrement($key, $val = 1)
     {
         $this->type === 2 && $key = $this->conf['prefix'] . $key;
-        $this->memcache->decrement($key, abs(intval($val)));
+        return $this->memcache->decrement($key, abs(intval($val)));
     }
 
     /**
