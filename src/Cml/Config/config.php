@@ -85,6 +85,7 @@ return array(
             array(
                 'host' => '127.0.0.1',
                 'port' => 6379,
+                //'pconnect' => false //默认使用长连接
                 //'db' => 6
                 //'password' => '123456' //没有密码的时候不要配置
             ),
@@ -110,6 +111,7 @@ return array(
     'html_right_deper' => '}}', //模板右定界符
     'html_exception' => CML_PATH.'/Cml/Tpl/cmlException.tpl', // 默认成功跳转对应的模板文件
     '404_page' => CML_PATH.'/Cml/Tpl/404.tpl', // 404跳转页
+    'debug_page' => CML_PATH.'/Cml/Tpl/debug.tpl', // 404跳转页
 
 
     /* URL设置 */

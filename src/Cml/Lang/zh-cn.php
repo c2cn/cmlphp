@@ -33,4 +33,11 @@ return array(
     '_CREATE_DIR_ERROR_' => '无法创建目录',
     '_NOT_OPEN_' => '%s未启用',
     '_ROUTE_PARAM_ERROR_' => '[%s]路由配置错误,【至少要控制器/方法】2个参数',
+    '_PHP_VERSION_' => 'PHP版本',
+    '_UPTIME_' => '消耗时间',
+    '_USED_MEMORY_' => '消耗内存',
+    '_OPERATION_INFORMATION_' => '运行信息',
+    '_INCLUDE_CLASS_' => '包含类库',
+    '_SYSTEM_INFORMATION_' => '系统信息',
+    '_SQL_STATEMENT_' => 'SQL语句',
 );

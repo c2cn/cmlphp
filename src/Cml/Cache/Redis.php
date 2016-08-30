@@ -58,24 +58,31 @@ class Redis extends namespace\Base
         if (!isset($this->redis[$success]) || !is_object($this->redis[$success])) {
             $instance = new \Redis();
 
-            $connectToRedisFunction = function($host, $port) use ($instance) {
-                return $instance->pconnect($host, $port, 1.5);
+            $connectToRedisFunction = function($host, $port, $isPersistentConnect) use ($instance) {
+                if ($isPersistentConnect) {
+                    return $instance->pconnect($host, $port, 1.5);
+                } else {
+                    return $instance->connect($host, $port, 1.5);
+                }
             };
 
-            $connectResult = $connectToRedisFunction($this->conf['server'][$success]['host'], $this->conf['server'][$success]['port']);
+            $isPersistentConnect = !(isset($this->conf['server'][$success]['pconnect']) && $this->conf['server'][$success]['pconnect'] === false);
+            $connectResult = $connectToRedisFunction($this->conf['server'][$success]['host'], $this->conf['server'][$success]['port'], $isPersistentConnect);
 
             $failOver = null;
 
             if (!$connectResult && !empty($this->conf['back'])) {
                 $failOver = $this->conf['back'];
-                $connectResult = $connectToRedisFunction($failOver['host'], $failOver['port']);
+                $isPersistentConnect = !(isset($failOver['pconnect']) && $failOver['pconnect'] === false);
+                $connectResult = $connectToRedisFunction($failOver['host'], $failOver['port'], $isPersistentConnect);
             }
 
             if (!$connectResult && $serverNum > 1) {
                 $failOver = $success + 1;
                 $failOver >= $serverNum && $failOver = $success - 1;
                 $failOver = $this->conf['server'][$failOver];
-                $connectResult = $connectToRedisFunction($failOver['host'], $failOver['port']);
+                $isPersistentConnect = !(isset($failOver['pconnect']) && $failOver['pconnect'] === false);
+                $connectResult = $connectToRedisFunction($failOver['host'], $failOver['port'], $isPersistentConnect);
             }
 
             if (!$connectResult) {
@@ -245,6 +252,17 @@ class Redis extends namespace\Base
     public function getInstance($key = '')
     {
         return $this->hash($key);
+    }
+
+    /**
+     * 定义析构方法。不用判断长短连接，长链接执行close无效
+     *
+     */
+    public function __destruct()
+    {
+        foreach ($this->redis  as $instance) {
+            $instance->close();
+        }
     }
 
 }

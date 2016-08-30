@@ -167,20 +167,21 @@ class Html extends Base
     }
 
     /**
-     * 设定模板参数
+     * 设定模板配置参数
      *
      * @param  string | array $name  参数名称
      * @param  mixed  $value 参数值
      *
-     * @return void
+     * @return $this
      */
-    private function set($name, $value = '')
+    public function setHtmlEngineOptions($name, $value = '')
     {
         if (is_array($name)) {
             $this->options = array_merge($this->options, $name);
         } else {
             $this->options[$name] = $value;
         }
+        return $this;
     }
 
     /**
@@ -251,7 +252,7 @@ class Html extends Base
      * @param  string $cacheFile 模板缓存文件名
      * @param int $type 缓存类型0当前操作的模板的缓存 1包含的模板的缓存
      *
-     * @return void
+     * @return mixed
      */
     private function compile($tplFile, $cacheFile, $type)
     {
@@ -271,12 +272,16 @@ class Html extends Base
         }
 
         //添加 头信息
-
         $template = '<?php if (!class_exists(\'\Cml\View\')) die(\'Access Denied\');?>' . $template;
+
+        if (!$cacheFile) {
+            return $template;
+        }
 
         //写入缓存文件
         $this->makePath($cacheFile);
         file_put_contents($cacheFile, $template, LOCK_EX);
+        return true;
     }
 
     /**
@@ -409,7 +414,7 @@ class Html extends Base
             'autoUpdate' => true, //当模板修改时自动更新缓存
         );
 
-        $this->set($options);
+        $this->setHtmlEngineOptions($options);
         return $file;
     }
 
@@ -427,8 +432,18 @@ class Html extends Base
         header('Content-Type:text/html; charset='.Config::get('default_charset'));
 
         echo $this->fetch($templateFile, $inOtherApp);
-
         Cml::cmlStop();
+    }
+
+    /**
+     * 重置所有参数
+     *
+     */
+    private function reset()
+    {
+        $this->layout = null;
+        $this->args = array();
+        $this->layoutBlockData = array();
     }
 
     /**
@@ -436,10 +451,12 @@ class Html extends Base
      *
      * @param string $templateFile 指定要调用的模板文件 默认为空 由系统自动定位模板文件
      * @param bool $inOtherApp 是否为载入其它应用的模板
+     * @param bool $doNotSetDir 不自动根据当前请求设置目录模板目录。用于特殊模板显示
+     * @param bool $donNotWriteCacheFileImmediateReturn 不要使用模板缓存，实时渲染(系统模板使用)
      *
      * @return string
      */
-    public function fetch($templateFile = '', $inOtherApp = false)
+    public function fetch($templateFile = '', $inOtherApp = false, $doNotSetDir = false, $donNotWriteCacheFileImmediateReturn = false)
     {
         if (Config::get('form_token')) {
             Secure::setToken();
@@ -451,7 +468,17 @@ class Html extends Base
         }
 
         ob_start();
-        require $this->getFile($this->initBaseDir($templateFile, $inOtherApp));
+        if ($donNotWriteCacheFileImmediateReturn) {
+            $tplFile = $this->getTplFile($doNotSetDir ? $templateFile : $this->initBaseDir($templateFile, $inOtherApp));
+            if (!is_readable($tplFile)) {
+                throw new FileCanNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $tplFile));
+            }
+            $return = $this->compile($tplFile, false, 0);
+            eval('?>'.$return.'<?php ');
+        } else {
+            require $this->getFile(($doNotSetDir ? $templateFile : $this->initBaseDir($templateFile, $inOtherApp)));
+        }
+        $this->reset();
         return ob_get_clean();
     }
 

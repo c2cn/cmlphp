@@ -70,7 +70,8 @@ class Cml
                     pd($error);
                 } else {
                     header('HTTP/1.1 500 Internal Server Error');
-                    require Config::get('html_exception');
+                    View::getEngine('Html')->assign('error', $error);
+                    Cml::showSystemTemplate(Config::get('html_exception'));
                 }
 
                 Plugin::hook('cml.after_fatal_error', $error);
@@ -116,7 +117,8 @@ class Cml
             pd($error);
         } else {
             header('HTTP/1.1 500 Internal Server Error');
-            require Config::get('html_exception');
+            View::getEngine('Html')->assign('error', $error);
+            Cml::showSystemTemplate(Config::get('html_exception'));
         }
     }
 
@@ -441,6 +443,21 @@ class Cml
     public static function isEmergencyMode()
     {
         return Config::get('emergency_mode_not_real_time_refresh_mysql_query_cache') !== false;
+    }
+
+    /**
+     * 渲染显示系统模板
+     *
+     * @param string $tpl 要渲染的模板文件
+     */
+    public static function showSystemTemplate($tpl)
+    {
+        $configSubFix =  Config::get('html_template_suffix');
+        Config::set('html_template_suffix', '');
+        echo View::getEngine('Html')
+            ->setHtmlEngineOptions('templateDir', dirname($tpl).DIRECTORY_SEPARATOR)
+            ->fetch(basename($tpl), false, true, true);
+        Config::set('html_template_suffix', $configSubFix);
     }
 
 }
