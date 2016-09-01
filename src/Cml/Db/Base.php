@@ -260,10 +260,11 @@ abstract class Base
      *
      * @param int $offset 偏移量
      * @param int $limit 返回的条数
+     * @param bool $useMaster 是否使用主库 默认读取从库
      *
      * @return array
      */
-    abstract public function select($offset = null, $limit = null);
+    abstract public function select($offset = null, $limit = null,  $useMaster = false);
 
     /**
      * 分页获取数据
@@ -1018,50 +1019,55 @@ abstract class Base
      *
      * @param string $field 要统计的字段名
      * @param bool $isMulti 结果集是否为多条 默认只有一条
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    abstract public function count($field = '*', $isMulti = false);
+    abstract public function count($field = '*', $isMulti = false, $useMaster = false);
 
     /**
      * 获取 MAX(字段名或*) 的结果
      *
      * @param string $field 要统计的字段名
      * @param bool|string $isMulti 结果集是否为多条 默认只有一条。传字符串时相当于执行了 groupBy($isMulti)
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    abstract public function max($field = '*', $isMulti = false);
+    abstract public function max($field = '*', $isMulti = false, $useMaster = false);
 
     /**
      * 获取 MIN(字段名或*) 的结果
      *
      * @param string $field 要统计的字段名
      * @param bool|string $isMulti 结果集是否为多条 默认只有一条。传字符串时相当于执行了 groupBy($isMulti)
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    abstract public function min($field = '*', $isMulti = false);
+    abstract public function min($field = '*', $isMulti = false, $useMaster = false);
 
     /**
      * 获取 SUM(字段名或*) 的结果
      *
      * @param string $field 要统计的字段名
      * @param bool|string $isMulti 结果集是否为多条 默认只有一条。传字符串时相当于执行了 groupBy($isMulti)
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    abstract public function sum($field = '*', $isMulti = false);
+    abstract public function sum($field = '*', $isMulti = false, $useMaster = false);
 
     /**
      * 获取 AVG(字段名或*) 的结果
      *
      * @param string $field 要统计的字段名
      * @param bool|string $isMulti 结果集是否为多条 默认只有一条。传字符串时相当于执行了 groupBy($isMulti)
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    abstract public function avg($field = '*', $isMulti = false);
+    abstract public function avg($field = '*', $isMulti = false, $useMaster = false);
 
     /**
      * 返回INSERT，UPDATE 或 DELETE 查询所影响的记录行数。

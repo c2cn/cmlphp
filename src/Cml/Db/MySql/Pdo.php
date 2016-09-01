@@ -144,8 +144,8 @@ class Pdo extends Base
      */
     public function get($key, $and = true, $useMaster = false, $tablePrefix = null)
     {
-        if (is_string($useMaster)) {
-            is_null($tablePrefix) && $tablePrefix = $useMaster;
+        if (is_string($useMaster) && is_null($tablePrefix)) {
+            $tablePrefix = $useMaster;
             $useMaster = false;
         }
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;

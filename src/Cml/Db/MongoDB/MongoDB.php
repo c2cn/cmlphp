@@ -199,7 +199,7 @@ class MongoDB extends Base
      *
      * @param string $key get('user-uid-123');
      * @param bool $and 多个条件之间是否为and  true为and false为or
-     * @param bool|string $useMaster 是否使用主库,mongodb驱动下无效,为了保证一致的操作api保留此选项,此选项为字符串时为表前缀$tablePrefix
+     * @param bool|string $useMaster 是否使用主库,此选项为字符串时为表前缀$tablePrefix
      * @param null|string $tablePrefix 表前缀
      *
      * @return array
@@ -208,6 +208,7 @@ class MongoDB extends Base
     {
         if (is_string($useMaster) && is_null($tablePrefix)) {
             $tablePrefix = $useMaster;
+            $useMaster = false;
         }
 
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
@@ -218,7 +219,7 @@ class MongoDB extends Base
         isset($this->sql['limit'][0]) && $filter['skip'] = $this->sql['limit'][0];
         isset($this->sql['limit'][1]) && $filter['limit'] = $this->sql['limit'][1];
 
-        return $this->runMongoQuery($tablePrefix . $tableName, $condition, $filter);
+        return $this->runMongoQuery($tablePrefix . $tableName, $condition, $filter, $useMaster);
     }
 
 
@@ -228,15 +229,18 @@ class MongoDB extends Base
      * @param string $tableName 执行的mongoCollection名称
      * @param array $condition 查询条件
      * @param array $queryOptions 查询的参数
+     * @param bool|string $useMaster 是否使用主库
      * @return array
      */
-    public function runMongoQuery($tableName, $condition = array(), $queryOptions  = array())
+    public function runMongoQuery($tableName, $condition = array(), $queryOptions  = array(), $useMaster = false)
     {
         Cml::$debug && $this->debugLogSql('Query', $tableName, $condition, $queryOptions);
 
         $this->reset();
-        $cursor = $this->getSlave()->selectServer(new ReadPreference(ReadPreference::RP_SECONDARY_PREFERRED))
-            ->executeQuery($this->getDbName() . ".{$tableName}", new Query($condition, $queryOptions));
+        $db = $useMaster ?
+            $this->getMaster()->selectServer(new ReadPreference(ReadPreference::RP_PRIMARY_PREFERRED))
+            : $this->getSlave()->selectServer(new ReadPreference(ReadPreference::RP_SECONDARY_PREFERRED));
+        $cursor = $db->executeQuery($this->getDbName() . ".{$tableName}", new Query($condition, $queryOptions));
         $cursor->setTypeMap(['root' => 'array', 'document' => 'array']);
         $result = array();
         foreach ($cursor as $collection) {
@@ -487,7 +491,7 @@ class MongoDB extends Base
      *
      * @param string $tableName 要清空的表名
      *
-     * @return bool
+     * @return bool | $this
      */
     public function truncate($tableName)
     {
@@ -869,17 +873,18 @@ class MongoDB extends Base
      *
      * @param string $field Mongo中此选项无效
      * @param bool $isMulti Mongo中此选项无效
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    public function count($field = '*', $isMulti = false)
+    public function count($field = '*', $isMulti = false, $useMaster = false)
     {
         $cmd = array(
             'count' => $this->getRealTableName(key($this->table)),
             'query' => $this->sql['where']
         );
 
-        $count = $this->runMongoCommand($cmd, false);
+        $count = $this->runMongoCommand($cmd, $useMaster);
         return intval($count[0]['n']);
     }
 
@@ -888,12 +893,13 @@ class MongoDB extends Base
      *
      * @param string $field 要统计的字段名
      * @param bool|string $isMulti 结果集是否为多条 默认只有一条。传字符串时此参数为要$group的字段
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    public function max($field = 'id', $isMulti = false)
+    public function max($field = 'id', $isMulti = false, $useMaster = false)
     {
-        return $this->aggregation($field, $isMulti, '$max');
+        return $this->aggregation($field, $isMulti, '$max', $useMaster);
     }
 
     /**
@@ -901,12 +907,13 @@ class MongoDB extends Base
      *
      * @param string $field 要统计的字段名
      * @param bool|string $isMulti 结果集是否为多条 默认只有一条。传字符串时此参数为要$group的字段
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    public function min($field = 'id', $isMulti = false)
+    public function min($field = 'id', $isMulti = false, $useMaster = false)
     {
-        return $this->aggregation($field, $isMulti, '$min');
+        return $this->aggregation($field, $isMulti, '$min', $useMaster);
     }
 
     /**
@@ -914,12 +921,13 @@ class MongoDB extends Base
      *
      * @param string $field 要统计的字段名
      * @param bool|string $isMulti 结果集是否为多条 默认只有一条。传字符串时此参数为要$group的字段
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    public function sum($field = 'id', $isMulti = false)
+    public function sum($field = 'id', $isMulti = false, $useMaster = false)
     {
-        return $this->aggregation($field, $isMulti, '$sum');
+        return $this->aggregation($field, $isMulti, '$sum', $useMaster);
     }
 
     /**
@@ -927,12 +935,13 @@ class MongoDB extends Base
      *
      * @param string $field 要统计的字段名
      * @param bool|string $isMulti 结果集是否为多条 默认只有一条。传字符串时此参数为要$group的字段
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    public function avg($field = 'id', $isMulti = false)
+    public function avg($field = 'id', $isMulti = false, $useMaster = false)
     {
-        return $this->aggregation($field, $isMulti, '$avg');
+        return $this->aggregation($field, $isMulti, '$avg', $useMaster);
     }
 
     /**
@@ -941,10 +950,11 @@ class MongoDB extends Base
      * @param string $field 要统计的字段名
      * @param bool|string $isMulti 结果集是否为多条 默认只有一条。传字符串时此参数为要$group的字段
      * @param string $operation 聚合操作
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    private function aggregation($field, $isMulti = false, $operation = '$max')
+    private function aggregation($field, $isMulti = false, $operation = '$max', $useMaster = false)
     {
         $pipe = array();
         empty($this->sql['where']) || $pipe[] = array(
@@ -956,7 +966,7 @@ class MongoDB extends Base
                 'count' => array($operation => '$'.$field)
             )
         );
-        $res = $this->mongoDbAggregate($pipe);
+        $res = $this->mongoDbAggregate($pipe, array(), $useMaster);
         if ($isMulti ===  false) {
             return $res[0]['count'];
         } else {
@@ -988,17 +998,18 @@ class MongoDB extends Base
      *
      * @param array $pipeline List of pipeline operations
      * @param array $options  Command options
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
      *
      * @return mixed
      */
-    public function mongoDbAggregate($pipeline = array(), $options = array())
+    public function mongoDbAggregate($pipeline = array(), $options = array(), $useMaster = false)
     {
         $cmd = $options + array(
                 'aggregate' => $this->getRealTableName(key($this->table)),
                 'pipeline' => $pipeline
             );
 
-        $data = $this->runMongoCommand($cmd);
+        $data = $this->runMongoCommand($cmd, $useMaster);
         return $data[0]['result'];
     }
 
@@ -1032,10 +1043,11 @@ class MongoDB extends Base
      *
      * @param int $offset 偏移量
      * @param int $limit 返回的条数
+     * @param bool $useMaster 是否使用主库 默认读取从库
      *
      * @return array
      */
-    public function select($offset = null, $limit = null)
+    public function select($offset = null, $limit = null,  $useMaster = false)
     {
         is_null($offset) || $this->limit($offset, $limit);
 
@@ -1048,7 +1060,8 @@ class MongoDB extends Base
         return $this->runMongoQuery(
             $this->getRealTableName(key($this->table)),
             $this->sql['where'],
-            $filter
+            $filter,
+            $useMaster
         );
     }
 
@@ -1256,7 +1269,7 @@ class MongoDB extends Base
     /**
      * 开启事务-MongoDb不支持
      *
-     * @return bool
+     * @return bool | $this
      */
     public function  startTransAction()
     {
@@ -1266,7 +1279,7 @@ class MongoDB extends Base
     /**
      * 提交事务-MongoDb不支持
      *
-     * @return bool
+     * @return bool | $this
      */
     public function commit()
     {
@@ -1278,7 +1291,7 @@ class MongoDB extends Base
      *
      * @param string $pointName
      *
-     * @return bool
+     * @return bool | $this
      */
     public function savePoint($pointName)
     {
@@ -1290,10 +1303,10 @@ class MongoDB extends Base
      *
      * @param bool $rollBackTo 是否为还原到某个保存点
      *
-     * @return bool
+     * @return bool | $this
      */
     public function rollBack($rollBackTo = false)
-    {
+          {
         return $this;
     }
 
@@ -1304,7 +1317,7 @@ class MongoDB extends Base
      * @param array $bindParams 绑定的参数
      * @param bool|true $isSelect 是否为返回数据集的语句
      *
-     * @return array|int
+     * @return array|int | $this
      */
     public function callProcedure($procedureName = '', $bindParams = array(), $isSelect = true)
     {
