@@ -29,7 +29,7 @@
             <ul style="padding: 0; margin:0">
 
                 {{if count($includefile) > 0 }}
-                    <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _INCLUDE_CLASS_}}</b></li>
+                    <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _INCLUDE_CLASS_}}</b><span style="color:red">({{echo count($includefile);}})</span></li>
                     <li style="font-size:14px;padding:0 0 0 50px;">
                         {{loop $includefile $file}}
                             <span style='padding-left:10px;'>【{{$file}}】</span>
@@ -45,7 +45,7 @@
                 {{/if}}
 
                 {{if count($sqls) > 0 }}
-                    <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _SQL_STATEMENT_}}</b></li>
+                    <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _SQL_STATEMENT_}}</b><span style="color:red">({{echo count($sqls);}})</span></li>
                     {{loop $sqls $sql}}
                         <li style='font-size:14px;padding:0 0 0 60px;'>{{$sql}}</li>
                     {{/loop}}

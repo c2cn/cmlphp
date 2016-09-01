@@ -312,8 +312,9 @@ EOT;
             View::getEngine('Html')
                 ->assignByRef('includefile', self::$includefile)
                 ->assignByRef('tipInfo', self::$tipInfo)
-                ->assignByRef('usetime', self::useTime())
-                ->assignByRef('usememory', self::useMemory());
+                ->assignByRef('sqls', self::$sqls)
+                ->assign('usetime', self::useTime())
+                ->assign('usememory', self::useMemory());
             Cml::showSystemTemplate(Config::get('debug_page'));
         }
     }

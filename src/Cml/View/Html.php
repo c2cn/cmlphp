@@ -404,6 +404,7 @@ class Html extends Base
                 Route::$urlParams['controller'].DIRECTORY_SEPARATOR;
             $file = Route::$urlParams['action'];
         } else {
+            $templateFile = str_replace('.', '/', $templateFile);
             $baseDir .= DIRECTORY_SEPARATOR . dirname($templateFile).DIRECTORY_SEPARATOR;
             $file = basename($templateFile);
         }
