@@ -28,7 +28,7 @@ class File extends Base
     public function __construct()
     {
         $this->logDir = CML_RUNTIME_LOGS_PATH . DIRECTORY_SEPARATOR . date('Y/m/d') . DIRECTORY_SEPARATOR;
-        is_dir($this->logDir) || mkdir($this->logDir, 0755, true);
+        is_dir($this->logDir) || mkdir($this->logDir, 0700, true);
     }
 
     /**
