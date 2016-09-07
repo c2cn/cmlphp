@@ -76,7 +76,7 @@ class Cml
     private static function handleConfigLang()
     {
         //引入框架惯例配置文件
-        $cmlConfig = Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.Cml::getApplicationDir('app_config_path_name').DIRECTORY_SEPARATOR.'config.php');
+        $cmlConfig = Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'config.php');
         Config::init();
 
         //应用正式配置文件
@@ -91,8 +91,16 @@ class Cml
 
         Config::set(array_merge($cmlConfig, $commonConfig, $appConfig));//合并配置
 
+        if (Config::get('debug')){
+            self::$debug = true;
+            $GLOBALS['debug'] = true;//开启debug
+            Debug::addTipInfo(CML_CORE_PATH.DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'config.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+            Debug::addTipInfo(Cml::getApplicationDir('global_config_path').DIRECTORY_SEPARATOR.Config::$isLocal.DIRECTORY_SEPARATOR.'normal.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+            empty($commonConfig) || Debug::addTipInfo(Cml::getApplicationDir('global_config_path').DIRECTORY_SEPARATOR.'common.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+        }
+
         //引入系统语言包
-        Lang::set(Cml::requireFile((CML_CORE_PATH.DIRECTORY_SEPARATOR.Cml::getApplicationDir('app_lang_path_name').DIRECTORY_SEPARATOR.Config::get('lang').'.php')));
+        Lang::set(Cml::requireFile((CML_CORE_PATH.DIRECTORY_SEPARATOR.'Lang'.DIRECTORY_SEPARATOR.Config::get('lang').'.php')));
     }
 
     /**
@@ -107,6 +115,9 @@ class Cml
         define('CML_EXTEND_PATH', CML_PATH.DIRECTORY_SEPARATOR.'Vendor');// 系统扩展类库目录
 
         self::handleConfigLang();
+
+        //后面自动载入的类都会自动收集到Debug类下
+        spl_autoload_register('Cml\Cml::autoloadComposerAdditional', true, true);
 
         //初始化依赖
         $initDi();
@@ -143,7 +154,6 @@ class Cml
 
         ini_set('display_errors', 'off');//屏蔽系统自带的错误输出
 
-        Config::get('debug') && self::$debug = true;
         //载入插件配置文件
         $pluginConfig = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'plugin.php';
         is_file($pluginConfig) && Cml::requireFile($pluginConfig);
@@ -161,20 +171,15 @@ class Cml
 
         //设置调试模式
         if (Cml::$debug) {
-            $GLOBALS['debug'] = true;//开启debug
             Debug::start();//记录开始运行时间\内存初始使用
             //设置捕获系统异常 使用set_error_handler()后，error_reporting将会失效。所有的错误都会交给set_error_handler。
             set_error_handler('\Cml\Debug::catcher');
 
             Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', 'Cml\Cml'), Debug::TIP_INFO_TYPE_INCLUDE_LIB);
-            Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', 'Cml\Container'), Debug::TIP_INFO_TYPE_INCLUDE_LIB);
             Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', 'Cml\Config'), Debug::TIP_INFO_TYPE_INCLUDE_LIB);
             Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', 'Cml\Lang'), Debug::TIP_INFO_TYPE_INCLUDE_LIB);
             Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', 'Cml\Http\Request'), Debug::TIP_INFO_TYPE_INCLUDE_LIB);
-            //后面自动载入的类都会自动收集到Debug类下
-            spl_autoload_register('Cml\Cml::autoloadComposerAdditional', true, true);
-
-            Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', 'Cml\\Debug'), Debug::TIP_INFO_TYPE_INCLUDE_LIB);
+            Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', 'Cml\Debug'), Debug::TIP_INFO_TYPE_INCLUDE_LIB);
             $runTimeClassList = null;
         } else {
             $GLOBALS['debug'] = false;//关闭debug
@@ -403,7 +408,7 @@ class Cml
      *
      * @param array $dir
      */
-    public static function setApplicationDir(array $dir, $d=0)
+    public static function setApplicationDir(array $dir)
     {
         if (DIRECTORY_SEPARATOR == '\\') {//windows
             array_walk($dir, function(&$val) {
@@ -436,7 +441,7 @@ class Cml
     public static function requireFile($file, &$args = [])
     {
         empty($args) || extract($args, EXTR_PREFIX_SAME, "xxx");
-        Cml::$debug && Debug::addTipInfo(str_replace('\\', '/', str_replace(Cml::getApplicationDir('secure_src'), '{secure_src}', $file)), Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+        Cml::$debug && Debug::addTipInfo($file, Debug::TIP_INFO_TYPE_INCLUDE_FILE);
         return require $file;
     }
 }

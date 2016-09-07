@@ -226,7 +226,7 @@ class Debug implements DebugInterfaces
                     self::$sql[] = $msg;
                     break;
                 case self::TIP_INFO_TYPE_INCLUDE_FILE:
-                    self::$includeFile[] = $msg;
+                    self::$includeFile[] = str_replace('\\', '/', str_replace([Cml::getApplicationDir('secure_src'), CML_PATH], ['{secure_src}', '{cmlphp_src}'], $msg));
                     break;
             }
         }
