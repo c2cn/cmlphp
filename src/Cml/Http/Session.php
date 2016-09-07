@@ -86,6 +86,6 @@ class Session
     public static function clear()
     {
         session_destroy();
-        $_SESSION = array();
+        $_SESSION = [];
     }
 }

@@ -114,7 +114,9 @@ class Image
             ($height > $imageInfo['height']) && $height = $imageInfo['height'];
         }
 
-        if (!in_array($type, array('jpeg', 'gif', 'png'))) return false;
+        if (!in_array($type, ['jpeg', 'gif', 'png'])) {
+            return false;
+        }
         $createImageFunc = "imagecreatefrom{$type}";
         $sourceCreateImage = $createImageFunc($image);//载入原图
 

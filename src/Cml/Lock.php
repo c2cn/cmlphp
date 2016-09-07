@@ -26,14 +26,13 @@ class Lock
     public static function getLocker($useCache = null)
     {
         is_null($useCache) && $useCache = Config::get('locker_use_cache', 'default_cache');
-        static $_instance = array();
+        static $_instance = [];
         $config = Config::get($useCache);
         if (isset($_instance[$useCache])) {
             return $_instance[$useCache];
         } else {
             if ($config['on']) {
-                $lock = 'Cml\Lock\\'.$config['driver'];
-                $_instance[$useCache] = new $lock($useCache);
+                $_instance[$useCache] =  Cml::getContainer()->make('lock_'.strtolower($config['driver']), $useCache);
                 return $_instance[$useCache];
             } else {
                 throw new \InvalidArgumentException(Lang::get('_NOT_OPEN_', $useCache));

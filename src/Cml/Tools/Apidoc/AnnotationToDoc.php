@@ -6,6 +6,7 @@
  * @version  2.6
  * cml框架 从注释生成文档
  * *********************************************************** */
+use Cml\Cml;
 use Cml\Config;
 
 /**
@@ -21,10 +22,10 @@ class AnnotationToDoc
      */
     public static function parse()
     {
-        $result = array();
+        $result = [];
         $config = Config::load('api', Config::get('is_multi_modules') ? false : true);
         foreach($config['version'] as $version => $apiList) {
-            isset($result[$version]) || $result[$version] = array();
+            isset($result[$version]) || $result[$version] = [];
             foreach($apiList as $model => $api) {
                 $pos = strrpos($api, '\\');
                 $controller = substr($api, 0, $pos);
@@ -38,7 +39,7 @@ class AnnotationToDoc
                     if ($method->name == $action) {
                         $annotation = $method->getDocComment();
                         if (strpos($annotation, '@doc') !== false) {
-                            $result[$version][$model] = array();
+                            $result[$version][$model] = [];
                             //$result[$version][$model]['all'] = $annotation;
                             //描述
                             preg_match('/@desc([^\n]+)/', $annotation, $desc);
@@ -73,8 +74,8 @@ class AnnotationToDoc
             }
         }
         
-        $systemCode = require __DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR .'code.php';
+        $systemCode = Cml::requireFile(__DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR .'code.php');
 
-        require __DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR . 'doc.html';
+        Cml::requireFile(__DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR . 'doc.html');
     }
 }

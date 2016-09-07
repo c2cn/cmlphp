@@ -23,10 +23,9 @@ class Queue
      */
     public static function getQueue($driver = 'Redis')
     {
-        static $instance = array();
+        static $instance = [];
         if(!isset($instance[$driver])) {
-            $driver = '\\Cml\\Queue\\' . $driver;
-            $instance[$driver] = new $driver();
+            $instance[$driver] = Cml::getContainer()->make('queue_'.strtolower($driver));
         }
         return $instance[$driver];
     }

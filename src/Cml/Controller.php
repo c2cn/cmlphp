@@ -21,9 +21,11 @@ class Controller
     /**
      * 运行对应的控制器
      *
+     * @param string $method 要执行的控制器方法
+     *
      * @return void
      */
-    final public function runAppController()
+    final public function runAppController($method)
     {
         //检测csrf跨站攻击
         Secure::checkCsrf(Config::get('check_csrf'));
@@ -51,12 +53,11 @@ class Controller
         }
 
         //根据动作去找对应的方法
-        $method = Route::$urlParams['action'];
         if (method_exists($this, $method)){
             $this->$method();
         } elseif (Cml::$debug) {
             Cml::montFor404Page();
-            throw new \BadMethodCallException(Lang::get('_ACTION_NOT_FOUND_', Route::$urlParams['action']));
+            throw new \BadMethodCallException(Lang::get('_ACTION_NOT_FOUND_', $method));
         } else {
             Cml::montFor404Page();
             Response::show404Page();

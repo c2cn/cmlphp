@@ -9,14 +9,67 @@
 namespace Cml;
 
 use Cml\Http\Request;
+use \Cml\Interfaces\Route as RouteInterface;
 
 /**
  * Url解析类,负责路由及Url的解析
  *
  * @package Cml
  */
-class Route
+class Route implements RouteInterface
 {
+    /**
+     * 获取子目录路径。若项目在子目录中的时候为子目录的路径如/subdir/、否则为/
+     *
+     * @return string
+     */
+    public function getSubDirName()
+    {
+        substr(Route::$urlParams['root'], -1) != '/' && Route::$urlParams['root'] .= '/';
+        substr(Route::$urlParams['root'], 0, 1) != '/' && Route::$urlParams['root'] = '/' . Route::$urlParams['root'];
+        return Route::$urlParams['root'];
+    }
+
+    /**
+     * 获取应用目录可以是多层目录。如web、admin等
+     *
+     * @return string
+     */
+    public function getAppName()
+    {
+        return trim(Route::$urlParams['path'], '\\/');
+    }
+
+    /**
+     * 获取控制器名称不带Controller后缀
+     *
+     * @return string
+     */
+    public function getControllerName()
+    {
+        return trim(Route::$urlParams['controller'], '\\/');
+    }
+
+    /**
+     * 获取控制器名称方法名称
+     *
+     * @return string
+     */
+    public function getActionName()
+    {
+        return trim(Route::$urlParams['action'], '\\/');
+    }
+
+    /**
+     * 获取不含子目录的完整路径 如: web/Goods/add
+     *
+     * @return string
+     */
+    public function getFullPathNotContainSubDir()
+    {
+        return self::getAppName() . '/' . self::getControllerName() . '/' . self::getActionName();
+    }
+
     /**
      * 是否启用分组
      *
@@ -29,7 +82,7 @@ class Route
      *
      * @var array
      */
-    private static $pathinfo = array();
+    private static $pathinfo = [];
 
     /**
      * 路由类型为GET请求
@@ -98,30 +151,30 @@ class Route
      *
      * @var array
      */
-    private static $rules = array();
+    private static $rules = [];
 
     /**
      * 解析得到的请求信息 含应用名、控制器、操作
      *
      * @var array
      */
-    public static $urlParams = array(
+    public static $urlParams = [
         'path' => '',
         'controller' => '',
         'action' => '',
         'root' => '',
-    );
+    ];
 
     /**
      * 解析url
      *
      * @return void
      */
-    public static function parseUrl()
+    public function parseUrl()
     {
-        $path = DIRECTORY_SEPARATOR;
+        $path = '/';
         $urlModel = Config::get('url_model');
-        $pathinfo = array();
+        $pathinfo = [];
         $isCli = Request::isCli(); //是否为命令行访问
         if ($isCli) {
             isset($_SERVER['argv'][1]) && $pathinfo = explode('/', $_SERVER['argv'][1]);
@@ -142,10 +195,10 @@ class Route
                 if (!empty($param)) { //无参数时直接跳过取默认操作
                     //获取参数
                     $pathinfo = explode(Config::get('url_pathinfo_depr'), trim(preg_replace(
-                        array(
+                        [
                             '/\\'.Config::get('url_html_suffix').'/',
                             '/\&.*/', '/\?.*/'
-                        ),
+                        ],
                         '',
                         $param
                     ), Config::get('url_pathinfo_depr')));
@@ -161,7 +214,7 @@ class Route
             }
         }
 
-        isset($pathinfo[0]) && empty($pathinfo[0]) && $pathinfo = array();
+        isset($pathinfo[0]) && empty($pathinfo[0]) && $pathinfo = [];
 
         //参数不完整获取默认配置
         if (empty($pathinfo)) {
@@ -178,11 +231,13 @@ class Route
                 self::$urlParams['action']= array_pop($routeArr);
                 self::$urlParams['controller'] = ucfirst(array_pop($routeArr));
                 $controllerPath = '';
+
+               $isOld = Cml::getApplicationDir('app_controller_path');
                 while ($dir = array_shift($routeArr)) {
-                    if (!CML_IS_MULTI_MODULES || $path == DIRECTORY_SEPARATOR) {
-                        $path .= $dir.DIRECTORY_SEPARATOR;
+                    if (!$isOld || $path == '/') {
+                        $path .= $dir.'/';
                     } else {
-                        $controllerPath .= $dir . DIRECTORY_SEPARATOR;
+                        $controllerPath .= $dir . '/';
                     }
                 }
                 self::$urlParams['controller'] = $controllerPath . self::$urlParams['controller'];
@@ -203,11 +258,11 @@ class Route
 
         if (self::$urlParams['controller'] == '') {
             //控制器没取到,这时程序会 中止/404，取$path最后1位当做控制器用于异常提醒
-            $dir  = explode(DIRECTORY_SEPARATOR, trim($path, DIRECTORY_SEPARATOR));
+            $dir  = explode('/', trim($path, '/'));
             self::$urlParams['controller'] = ucfirst(array_pop($dir));
-            $path = empty($dir) ? '' : DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $dir).DIRECTORY_SEPARATOR;
+            $path = empty($dir) ? '' : '/'.implode('/', $dir).'/';
         }
-        self::$urlParams['path'] = $path ? $path : DIRECTORY_SEPARATOR;
+        self::$urlParams['path'] = $path ? $path : '/';
         unset($path);
 
         //定义URL常量
@@ -219,30 +274,62 @@ class Route
     }
 
     /**
+     * 获取要执行的控制器类名及方法
+     *
+     */
+    public function getControllerAndAction()
+    {
+        $isOld = Cml::getApplicationDir('app_controller_path');
+        //控制器所在路径
+        $actionController = (
+            $isOld ?
+                $isOld . Route::$urlParams['path']
+                : Cml::getApplicationDir('apps_path') . Route::$urlParams['path'] . Cml::getApplicationDir('app_controller_path_name') . '/'
+            )
+            . Route::$urlParams['controller'] . 'Controller.php';
+
+        if (is_file($actionController)) {
+            $className = Route::$urlParams['controller'].'Controller';
+            $className = ($isOld ? '\Controller' : '')
+                .Route::$urlParams['path'].
+                ($isOld ? '' : 'Controller'.'/').
+                "{$className}";
+            $className = str_replace('/', '\\', $className);
+
+            return ['class' => $className, 'action' => Route::$urlParams['action']];
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 从文件查找控制器
      *
-     * @param $pathinfo
-     * @param $path
+     * @param array $pathinfo
+     * @param string $path
      */
     private static function findAction(&$pathinfo, &$path)
     {
-        $controllerPath = $controllerName ='';
+        $controllerPath = $controllerName = '';
+        $controllerAppPath = Cml::getApplicationDir('app_controller_path');//兼容旧版本
+
         while ($dir = array_shift($pathinfo)) {
             $controllerName = ucfirst($dir);
-            if (
-                CML_IS_MULTI_MODULES && $path != DIRECTORY_SEPARATOR &&
-                is_file(CML_APP_MODULES_PATH . $path .'Controller' . DIRECTORY_SEPARATOR .$controllerPath. $controllerName . 'Controller.php')
-            ) {
+            if ($controllerAppPath) {
+                $controller = $controllerAppPath . $path;
+            } else {
+                $controller = Cml::getApplicationDir('apps_path') . $path . Cml::getApplicationDir('app_controller_path_name') . '/';
+            }
+            $controller .= $controllerPath. $controllerName . 'Controller.php';
+
+            if ($path != '/' && is_file($controller) ) {
                 self::$urlParams['controller'] = $controllerPath . $controllerName;
                 break;
-            } else if (!CML_IS_MULTI_MODULES && is_file(CML_APP_FULL_PATH.DIRECTORY_SEPARATOR.'Controller'.$path.$controllerName.'Controller.php')) {
-                self::$urlParams['controller'] = $controllerName;
-                break;
             } else {
-                if (!CML_IS_MULTI_MODULES || $path == DIRECTORY_SEPARATOR) {
-                    $path .= $dir.DIRECTORY_SEPARATOR;
+                if ($path == '/') {
+                    $path .= $dir . '/';
                 } else {
-                    $controllerPath .= $dir . DIRECTORY_SEPARATOR;
+                    $controllerPath .= $dir . '/';
                 }
             }
         }
@@ -400,7 +487,7 @@ class Route
     private static function isRoute(&$pathinfo)
     {
         empty($pathinfo) && $pathinfo[0] = '/';//网站根地址
-        $issuccess = array();
+        $issuccess = [];
         $route = self::$rules;
         isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] = self::REQUEST_METHOD_ANY;
         switch ($_SERVER['REQUEST_METHOD']) {
@@ -435,7 +522,7 @@ class Route
             }
             unset($v);
             $singleRule = substr($k, 1);
-            $arr = $singleRule === '/' ? array(0 => $singleRule) : explode('/', ltrim($singleRule, '/'));
+            $arr = $singleRule === '/' ? [$singleRule] : explode('/', ltrim($singleRule, '/'));
 
             if ($arr[0] == $pathinfo[0]) {
                 array_shift($arr);
@@ -521,16 +608,16 @@ class Route
      */
     public static function loadAppRoute($app = 'web')
     {
-        static $loaded = array();
+        static $loaded = [];
         if (isset($loaded[$app]) ) {
             return;
         }
-        $appRoute = CML_APP_MODULES_PATH.DIRECTORY_SEPARATOR.$app.DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'route.php';
+        $appRoute = Cml::getApplicationDir('apps_path').DIRECTORY_SEPARATOR.$app.DIRECTORY_SEPARATOR.Cml::getApplicationDir('app_config_path_name').DIRECTORY_SEPARATOR.'route.php';
         if (!is_file($appRoute)) {
-            throw new \InvalidArgumentException(Lang::get('_NOT_FOUND_', $app.DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'route.php'));
+            throw new \InvalidArgumentException(Lang::get('_NOT_FOUND_', $app.DIRECTORY_SEPARATOR.Cml::getApplicationDir('app_config_path_name').DIRECTORY_SEPARATOR.'route.php'));
         }
 
         $loaded[$app] = 1;
-        require $appRoute;
+        Cml::requireFile($appRoute);
     }
 }

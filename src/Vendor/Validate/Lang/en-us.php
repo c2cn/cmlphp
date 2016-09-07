@@ -6,7 +6,7 @@
  * @version  2.6
  * 数据验证类语言包
  * *********************************************************** */
-return array(
+return [
     'require'      => "is required",
     'gt'           => "must be greater than %s",
     'lt'           => "must be less than  %s",
@@ -32,4 +32,4 @@ return array(
     'qq'         => "not a qq",
     'english'      => "Can only be included in the English alphabet(A-za-z)",
     'chinese'          => "Only for Chinese"
-);
+];

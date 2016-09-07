@@ -7,6 +7,7 @@
  * cml框架 Html 扩展类 静态页面生成
  * *********************************************************** */
 namespace Cml\Vendor;
+use Cml\Cml;
 
 
 /**
@@ -56,7 +57,7 @@ class Html
     {
         $filename = $this->getFilename($key);
         if (!$filename || !is_file($filename)) return false;
-        require ($filename);
+        Cml::requireFile($filename);
         return true;
     }
 

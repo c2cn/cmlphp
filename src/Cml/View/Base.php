@@ -7,20 +7,21 @@
  * cml框架 视图渲染引擎 抽象基类
  * *********************************************************** */
 namespace Cml\View;
+use Cml\Interfaces\View;
 
 /**
  * 视图渲染引擎 抽象基类
  *
  * @package Cml\View
  */
-abstract class Base
+abstract class Base implements View
 {
     /**
      * 要传到模板的数据
      *
      * @var array
      */
-    protected $args = array();
+    protected $args = [];
 
     /**
      * 变量赋值
@@ -74,11 +75,4 @@ abstract class Base
             return null;
         }
     }
-
-    /**
-     * 抽象display
-     *
-     * @return mixed
-     */
-    abstract public function display();
 } 

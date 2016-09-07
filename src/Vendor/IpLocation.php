@@ -269,7 +269,7 @@ class IpLocation
 
         // IP地址合法验证
         $long = sprintf("%u",ip2long($ip));
-        $ip   = $long ? array($ip, $long) : array('0.0.0.0', 0);
+        $ip   = $long ? [$ip, $long] : ['0.0.0.0', 0];
         return $ip[$type];
     }
 

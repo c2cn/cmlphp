@@ -20,9 +20,9 @@ class Lang extends Config
      * 
      * @var array
      */
-    protected  static $_content= array(
-        'normal' => array()
-    );
+    protected  static $_content= [
+        'normal' => []
+    ];
 
     /**
      * 获取语言 不区分大小写

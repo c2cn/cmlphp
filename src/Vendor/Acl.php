@@ -13,7 +13,6 @@ use Cml\Config;
 use Cml\Encry;
 use Cml\Http\Cookie;
 use Cml\Model;
-use Cml\Route;
 
 /**
    权限控制类
@@ -85,7 +84,7 @@ class Acl
      *
      * @var array
      */
-    public static $aclNames = array();
+    public static $aclNames = [];
 
     /**
      * 当前登录的用户信息
@@ -120,11 +119,11 @@ class Acl
      */
     public static function setLoginStatus($uid, $sso = true)
     {
-        $user = array(
+        $user = [
             'uid' => $uid,
             'expire' => Cml::$nowTime + 3600,
             'ssosign' => $sso ? (string)Cml::$nowMicroTime : self::$ssoSign
-        );
+        ];
 
         //Cookie::set本身有一重加密 这里再加一重
         $sso && Model::getInstance()->cache()->set("SSOSingleSignOn{$uid}", (string)Cml::$nowMicroTime);
@@ -159,12 +158,12 @@ class Acl
                     self::$authUser = false;
                 } else {
                     $user = $user[0];
-                    $tmp = array(
+                    $tmp = [
                         'id' => $user['id'],
                         'username' => $user['username'],
                         'nickname' => $user['nickname'],
                         'groupid' => explode('|', $user['groupid'])
-                    );
+                    ];
                     $groups = Model::getInstance()->db()->table('groups')
                         ->columns('name')
                         ->whereIn('id', $tmp['groupid'])
@@ -172,7 +171,7 @@ class Acl
                         ->where('status', 1)
                         ->select();
 
-                    $tmp['groupname'] = array();
+                    $tmp['groupname'] = [];
                     foreach($groups as $group) {
                         $tmp['groupname'][] = $group['name'];
                     }
@@ -211,8 +210,8 @@ class Acl
             return true;
         }
 
-        $checkUrl = Route::$urlParams['path'].Route::$urlParams['controller'].'\\'.Route::$urlParams['action'];
-        $checkAction = Route::$urlParams['action'];
+        $checkUrl = Cml::getContainer()->make('cml_route')->getFullPathNotContainSubDir();
+        $checkAction = Cml::getContainer()->make('cml_route')->getActionName();
 
         if (is_string($controller)) {
             $checkUrl = trim($controller, '/\\');
@@ -243,7 +242,7 @@ class Acl
                         return true;
                     }
 
-                    $checkUrlArray = array();
+                    $checkUrlArray = [];
 
                     if (preg_match('/@acljump([^\n]+)/i', $annotation, $aclJump)) {
                         if (isset($aclJump[1]) && $aclJump[1]) {
@@ -260,8 +259,8 @@ class Acl
 
         $acl = Model::getInstance()->db()
             ->columns('m.id')
-            ->table(array('access'=> 'a'))
-            ->join(array('menus' => 'm'), 'a.menuid=m.id')
+            ->table(['access'=> 'a'])
+            ->join(['menus' => 'm'], 'a.menuid=m.id')
             ->lBrackets()
             ->whereIn('a.groupid', $authInfo['groupid'])
             ->_or()
@@ -280,19 +279,19 @@ class Acl
      */
     public static function getMenus()
     {
-        $res = array();
+        $res = [];
         $authInfo = self::getLoginInfo();
         if (!$authInfo) { //登录超时
             return $res;
         }
 
-        Model::getInstance()->db()->table(array('menus'=> 'm'))
-            ->columns(array('m.id', 'm.pid', 'm.title', 'm.url'));
+        Model::getInstance()->db()->table(['menus'=> 'm'])
+            ->columns(['m.id', 'm.pid', 'm.title', 'm.url']);
 
         //当前登录用户是否为超级管理员
         if (!self::isSuperUser()) {
             Model::getInstance()->db()
-                ->join(array('access'=> 'a'), 'a.menuid=m.id')
+                ->join(['access'=> 'a'], 'a.menuid=m.id')
                 ->lBrackets()
                 ->whereIn('a.groupid', $authInfo['groupid'])
                 ->_or()

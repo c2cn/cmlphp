@@ -6,6 +6,7 @@
  * @version  2.6
  * cml框架 Log 文件驱动实现
  * *********************************************************** */
+use Cml\Cml;
 
 /**
  *  Log 文件驱动实现
@@ -27,8 +28,8 @@ class File extends Base
      */
     public function __construct()
     {
-        $this->logDir = CML_RUNTIME_LOGS_PATH . DIRECTORY_SEPARATOR . date('Y/m/d') . DIRECTORY_SEPARATOR;
-        is_dir($this->logDir) || mkdir($this->logDir, 0700, true);
+        $this->logDir = Cml::getApplicationDir('runtime_logs_path') . DIRECTORY_SEPARATOR . date('Y/m/d') . DIRECTORY_SEPARATOR;
+        is_dir($this->logDir) || mkdir($this->logDir, 0755, true);
     }
 
     /**
@@ -39,7 +40,7 @@ class File extends Base
      * @param array $context 上下文信息
      * @return null
      */
-    public function log($level, $message, array $context = array())
+    public function log($level, $message, array $context = [])
     {
         return error_log ( $this->format($message, $context) . "\r\n" ,  3 ,  $this->logDir . $level . '.log');
     }

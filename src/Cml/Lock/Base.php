@@ -9,6 +9,7 @@
 namespace Cml\Lock;
 
 use Cml\Config;
+use Cml\Interfaces\Lock;
 use Cml\Model;
 
 /**
@@ -16,7 +17,7 @@ use Cml\Model;
  *
  * @package Cml\Lock
  */
-abstract class Base
+abstract class Base implements Lock
 {
     /**
      * 使用的缓存
@@ -43,14 +44,14 @@ abstract class Base
      *
      * @var array
      */
-    protected $lockCache = array();
+    protected $lockCache = [];
 
     /**
      * 设置锁的过期时间
      *
      * @param int $expire
      *
-     * @return \Cml\Lock\Redis | \Cml\Lock\Memcache | \Cml\Lock\File
+     * @return $this | \Cml\Lock\Redis | \Cml\Lock\Memcache | \Cml\Lock\File
      */
     public function setExpire($expire = 100)
     {
@@ -69,16 +70,6 @@ abstract class Base
     {
         return Config::get('lock_prefix').$key;
     }
-
-    /**
-     * 上锁
-     *
-     * @param string $key 要解锁的锁的key
-     * @param bool $wouldblock 是否堵塞
-     *
-     * @return mixed
-     */
-    abstract public function lock($key, $wouldblock = false);
 
     /**
      * 解锁

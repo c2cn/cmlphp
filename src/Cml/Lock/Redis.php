@@ -44,7 +44,7 @@ class Redis extends Base
         if (Model::getInstance()->cache($this->userCache)->getInstance()->set(
             $key,
             Cml::$nowMicroTime,
-            array('nx', 'ex' => $this->expire)
+            ['nx', 'ex' => $this->expire]
         )) {
             $this->lockCache[$key] = (string)Cml::$nowMicroTime;
             return true;
@@ -61,7 +61,7 @@ class Redis extends Base
         } while (!Model::getInstance()->cache($this->userCache)->getInstance()->set(
             $key,
             Cml::$nowMicroTime,
-            array('nx', 'ex' => $this->expire)
+            ['nx', 'ex' => $this->expire]
         ));
 
         $this->lockCache[$key] = (string)Cml::$nowMicroTime;

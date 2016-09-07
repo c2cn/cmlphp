@@ -33,14 +33,14 @@ class Model
      *
      * @var array
      */
-    private static $dbInstance = array();
+    private static $dbInstance = [];
 
     /**
      * Cache驱动实例
      *
      * @var array
      */
-    private static $cacheInstance = array();
+    private static $cacheInstance = [];
 
     /**
      * 获取db实例
@@ -59,11 +59,12 @@ class Model
             $config = Config::get($conf);
         }
         $config['mark'] = $conf;
-        $driver = '\Cml\Db\\'.str_replace('.', '\\', $config['driver']);
+
         if (isset(self::$dbInstance[$conf])) {
             return self::$dbInstance[$conf];
         } else {
-            self::$dbInstance[$conf] = new $driver($config);
+            $pos = strpos($config['driver'], '.');
+            self::$dbInstance[$conf] = Cml::getContainer()->make('db_'.strtolower($pos ? substr($config['driver'], 0, $pos) : $config['driver']), $config);
             return self::$dbInstance[$conf];
         }
     }
@@ -95,12 +96,11 @@ class Model
             $config = Config::get($conf);
         }
 
-        $driver = '\Cml\Cache\\'.$config['driver'];
         if (isset(self::$cacheInstance[$conf])) {
             return self::$cacheInstance[$conf];
         } else {
             if ($config['on']) {
-                self::$cacheInstance[$conf] = new $driver($config);
+                self::$cacheInstance[$conf] = Cml::getContainer()->make('cache_'. strtolower($config['driver']), $config);
                 return self::$cacheInstance[$conf];
             } else {
                 throw new \InvalidArgumentException(Lang::get('_NOT_OPEN_', $conf));
@@ -115,7 +115,7 @@ class Model
      */
     public static function getInstance()
     {
-        static $mInstance = array();
+        static $mInstance = [];
         $class = get_called_class();
         if (!isset($mInstance[$class])) {
             $mInstance[$class] = new $class();
@@ -269,7 +269,7 @@ class Model
     {
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        is_array($order) || $order = array($this->db($this->getDbConf())->getPk($tableName, $tablePrefix) => $order);
+        is_array($order) || $order = [$this->db($this->getDbConf())->getPk($tableName, $tablePrefix) => $order];
 
         $dbInstance = $this->db($this->getDbConf())->table($tableName, $tablePrefix);
         foreach($order as $key => $val)  {
@@ -293,7 +293,7 @@ class Model
     {
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        is_array($order) || $order = array($this->db($this->getDbConf())->getPk($tableName, $tablePrefix) => $order);
+        is_array($order) || $order = [$this->db($this->getDbConf())->getPk($tableName, $tablePrefix) => $order];
 
         $dbInstance = $this->db($this->getDbConf())->table($tableName, $tablePrefix);
         foreach($order as $key => $val)  {
@@ -315,7 +315,7 @@ class Model
     /**
      * 自动根据 db属性执行$this->db(xxx)方法; table/tablePrefix属性执行$this->db('xxx')->table('tablename', 'tablePrefix')方法
      *
-     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB
+     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base
      */
     public function mapDbAndTable()
     {

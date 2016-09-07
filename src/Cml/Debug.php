@@ -9,21 +9,23 @@
 namespace Cml;
 
 use Cml\Http\Request;
+use \Cml\Interfaces\Debug as DebugInterfaces;
 
 /**
  * Debug调试处理类,debug=true时负责调试相关信息的收集及ui的展示
  *
  * @package Cml
  */
-class Debug
+class Debug implements DebugInterfaces
 {
-    private static $includefile = array();//消息的类型为包含文件
-    private static $tipInfo = array();//消息的类型为普通消息
-    private static $sqls = array();//消息的类型为sql
+    private static $includeFile = [];//消息的类型为包含文件
+    private static $includeLib = [];//消息的类型为包含文件
+    private static $tipInfo = [];//消息的类型为普通消息
+    private static $sql = [];//消息的类型为sql
     private static $stopTime;//程序运行结束时间
     private static $startMemory;//程序开始运行所用内存
     private static $stopMemory;//程序结束运行时所用内存
-    private static $tipInfoType = array(
+    private static $tipInfoType = [
         E_WARNING => '运行时警告',
         E_NOTICE => '运行时提醒',
         E_STRICT => '编码标准化警告',
@@ -33,7 +35,7 @@ class Debug
         E_DEPRECATED => '过时函数提醒',
         E_RECOVERABLE_ERROR => '可捕获的致命错误',
         'Unknow' => '未知错误'
-    );
+    ];
 
 
     /**
@@ -48,7 +50,7 @@ class Debug
      *
      * @var int
      */
-    const TIP_INFO_TYPE_INCLUDE_FILE = 1;
+    const TIP_INFO_TYPE_INCLUDE_LIB = 1;
 
     /**
      * SQL语句调试信息
@@ -56,6 +58,13 @@ class Debug
      * @var int
      */
     const TIP_INFO_TYPE_SQL = 2;
+
+    /**
+     * 包含文件的提示信息
+     *
+     * @var int
+     */
+    const TIP_INFO_TYPE_INCLUDE_FILE = 3;
 
     /**
      * 正常的sql执行语句
@@ -85,7 +94,7 @@ class Debug
      */
     public static function getSqls()
     {
-        return self::$sqls;
+        return self::$sql;
     }
 
     /**
@@ -105,7 +114,17 @@ class Debug
      */
     public static function getIncludeFiles()
     {
-        return self::$includefile;
+        return self::$includeFile;
+    }
+
+    /**
+     * 返回包含的类库
+     *
+     * @return array
+     */
+    public static function getIncludeLib()
+    {
+        return self::$includeLib;
     }
 
 
@@ -120,7 +139,7 @@ class Debug
     }
 
     /**
-     * 程序执行完毕,打印CmlPHP运行信息并中止
+     * 程序执行完毕,打印CmlPHP运行信息
      *
      */
     public static function stop()
@@ -128,9 +147,10 @@ class Debug
         self::$stopTime = microtime(true);
         // 记录内存结束使用
         function_exists('memory_get_usage') && self::$stopMemory = memory_get_usage();
-        self::showCmlPHPConsole();
+
+        Cml::getContainer()->make('cml_debug')->stopAndShowDebugInfo();
+
         CML_OB_START && ob_end_flush();
-        exit();
     }
 
     /**
@@ -138,7 +158,7 @@ class Debug
      *
      * @return float
      */
-    public static function useTime()
+    public static function getUseTime()
     {
         return round((self::$stopTime - Cml::$nowMicroTime), 4);  //计算后以4舍5入保留4位返回
     }
@@ -148,7 +168,7 @@ class Debug
      *
      * @return string
      */
-    public static function useMemory()
+    public static function getUseMemory()
     {
         if (function_exists('memory_get_usage')) {
             return number_format((self::$stopMemory - self::$startMemory) / 1024, 2) . 'kb';
@@ -160,26 +180,26 @@ class Debug
     /**
      * 错误handler
      *
-     * @param int $errno 错误类型 分运行时警告、运行时提醒、自定义错误、自定义提醒、未知等
-     * @param string $errstr 错误提示
-     * @param string $errfile 发生错误的文件
-     * @param int $errline 错误所在行数
+     * @param int $errorType 错误类型 分运行时警告、运行时提醒、自定义错误、自定义提醒、未知等
+     * @param string $errorTip 错误提示
+     * @param string $errorFile 发生错误的文件
+     * @param int $errorLine 错误所在行数
      *
      * @return void
      */
-    public static function catcher($errno, $errstr, $errfile, $errline)
+    public static function catcher($errorType, $errorTip, $errorFile, $errorLine)
     {
-        if (!isset(self::$tipInfoType[$errno])) {
-            $errno = 'Unknow';
+        if (!isset(self::$tipInfoType[$errorType])) {
+            $errorType = 'Unknow';
         }
-        if ($errno == E_NOTICE || $errno == E_USER_NOTICE) {
+        if ($errorType == E_NOTICE || $errorType == E_USER_NOTICE) {
             $color = '#000088';
         } else {
             $color = 'red';
         }
         $mess = "<span style='color:{$color}'>";
-        $mess .= '<b>' . self::$tipInfoType[$errno] . "</b>[在文件 {$errfile} 中,第 $errline 行]:";
-        $mess .= $errstr;
+        $mess .= '<b>' . self::$tipInfoType[$errorType] . "</b>[在文件 {$errorFile} 中,第 {$errorLine} 行]:";
+        $mess .= $errorTip;
         $mess .= '</span>';
         self::addTipInfo($mess);
     }
@@ -196,14 +216,17 @@ class Debug
     {
         if (Cml::$debug) {
             switch ($type) {
-                case 0:
+                case self::TIP_INFO_TYPE_INFO:
                     self::$tipInfo[] = $msg;
                     break;
-                case 1:
-                    self::$includefile[] = $msg;
+                case self::TIP_INFO_TYPE_INCLUDE_LIB:
+                    self::$includeLib[] = $msg;
                     break;
-                case 2:
-                    self::$sqls[] = $msg;
+                case self::TIP_INFO_TYPE_SQL:
+                    self::$sql[] = $msg;
+                    break;
+                case self::TIP_INFO_TYPE_INCLUDE_FILE:
+                    self::$includeFile[] = $msg;
                     break;
             }
         }
@@ -239,7 +262,7 @@ class Debug
      *
      * @return string
      */
-    public static function codeSnippet( $file, $focus, $range = 7, $style = array('lineHeight' => 20, 'fontSize' => 13))
+    public static function codeSnippet( $file, $focus, $range = 7, $style = ['lineHeight' => 20, 'fontSize' => 13])
     {
         $html = highlight_file( $file, true );
         if (!$html) {
@@ -260,7 +283,7 @@ class Debug
         // 如果缺少，片段开始的代码则没有颜色了，所以需要把它找出来
         if (substr($html[$start], 0, 5) !== '<span') {
             while ( ($start - 1) >= 0 ) {
-                $match = array();
+                $match = [];
                 preg_match('/<span style="color: #([\w]+)"(.(?!<\/span>))+$/', $html[--$start], $match);
                 if ( !empty($match) ) {
                     $html[$start] = "<span style=\"color: #{$match[1]}\">" . $html[$start];
@@ -294,27 +317,30 @@ EOT;
      *
      * @return void
      */
-    private static function showCmlPHPConsole()
+    public function stopAndShowDebugInfo()
     {
         if (Request::isAjax()) {
             if (Config::get('dump_use_php_console')) {
-                self::$sqls && \Cml\dumpUsePHPConsole(self::$sqls, 'sql');
+                self::$sql && \Cml\dumpUsePHPConsole(self::$sql, 'sql');
                 \Cml\dumpUsePHPConsole(self::$tipInfo, 'tipInfo');
-                \Cml\dumpUsePHPConsole(self::$includefile, 'includeFile');
+                \Cml\dumpUsePHPConsole(self::$includeFile, 'includeFile');
             } else {
-                $deBugLogData = array(
+                $deBugLogData = [
                     'tipInfo' => self::$tipInfo
-                );
-                self::$sqls && $deBugLogData['sql'] = self::$sqls;
-                if (!empty($deBugLogData)) require CML_PATH.DIRECTORY_SEPARATOR.'Cml'.DIRECTORY_SEPARATOR.'ConsoleLog.php';
+                ];
+                self::$sql && $deBugLogData['sql'] = self::$sql;
+                if (!empty($deBugLogData)) {
+                    Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.'ConsoleLog.php');
+                }
             }
         } else {
-            View::getEngine('Html')
-                ->assignByRef('includefile', self::$includefile)
-                ->assignByRef('tipInfo', self::$tipInfo)
-                ->assignByRef('sqls', self::$sqls)
-                ->assign('usetime', self::useTime())
-                ->assign('usememory', self::useMemory());
+            View::getEngine('html')
+                ->assign('includeLib', Debug::getIncludeLib())
+                ->assign('includeFile', Debug::getIncludeFiles())
+                ->assign('tipInfo', Debug::getTipInfo())
+                ->assign('sqls', Debug::getSqls())
+                ->assign('usetime', Debug::getUseTime())
+                ->assign('usememory', Debug::getUseMemory());
             Cml::showSystemTemplate(Config::get('debug_page'));
         }
     }
@@ -352,10 +378,10 @@ class dBug
     private $xmlCount = 0;
     private $xmlAttrib;
     private $xmlName;
-    private $arrType = array("array", "object", "resource", "boolean", "NULL");
+    private $arrType = ["array", "object", "resource", "boolean", "NULL"];
     private $bInitialized = false;
     private $bCollapsed = false;
-    private $arrHistory = array();
+    private $arrHistory = [];
 
     /**
      * 构造方法
@@ -368,7 +394,7 @@ class dBug
     {
         //include js and css scripts
         $this->initJSandCSS();
-        $arrAccept=array("array", "object", "xml"); //array of variable types that can be "forced"
+        $arrAccept = ["array", "object", "xml"]; //array of variable types that can be "forced"
         $this->bCollapsed = $bCollapsed;
         if (in_array($forceType,$arrAccept)) {
             $this->{"varIs" . ucfirst($forceType)}($var);
@@ -383,7 +409,7 @@ class dBug
         $arrBacktrace = debug_backtrace();
 
         //possible 'included' functions
-        $arrInclude = array("include", "include_once", "require", "require_once");
+        $arrInclude = ["include", "include_once", "require", "require_once"];
 
         //check for any included/required files. if found, get array of the last included file (they contain the right line numbers)
         for ($i = count($arrBacktrace) - 1; $i >= 0; $i--) {
@@ -448,7 +474,7 @@ class dBug
         $error = "Error: Variable cannot be a";
         // this just checks if the type starts with a vowel or "x" and displays either "a" or "an"
         if (
-        in_array(substr($type, 0, 1), array("a", "e", "i", "o", "u", "x"))
+        in_array(substr($type, 0, 1), ["a", "e", "i", "o", "u", "x"])
         ) {
             $error .= "n";
         }
@@ -606,12 +632,12 @@ class dBug
         if ($db == "sybase-db" || $db == "sybase-ct") {
             $db = "sybase";
         }
-        $arrFields = array("name", "type", "flags");
+        $arrFields = ["name", "type", "flags"];
         $numrows = call_user_func($db."_num_rows",$var);
         $numfields = call_user_func($db."_num_fields",$var);
         $this->makeTableHeader("resource", $db." result", $numfields + 1);
         echo "<tr><td class=\"dBug_resourceKey\">&nbsp;</td>";
-        $field = array();
+        $field = [];
         for ($i=0;$i<$numfields;$i++) {
             $field_header = $field_name = "";
             for ($j = 0; $j < count($arrFields); $j++) {
@@ -670,9 +696,9 @@ class dBug
     {
         $xml_parser = xml_parser_create();
         xml_parser_set_option($xml_parser, XML_OPTION_CASE_FOLDING,0);
-        xml_set_element_handler($xml_parser, array(&$this, "xmlStartElement"), array(&$this, "xmlEndElement"));
-        xml_set_character_data_handler($xml_parser, array(&$this, "xmlCharacterData"));
-        xml_set_default_handler($xml_parser, array(&$this, "xmlDefaultHandler"));
+        xml_set_element_handler($xml_parser, [&$this, "xmlStartElement"], [&$this, "xmlEndElement"]);
+        xml_set_character_data_handler($xml_parser, [&$this, "xmlCharacterData"]);
+        xml_set_default_handler($xml_parser, [&$this, "xmlDefaultHandler"]);
 
         $this->makeTableHeader("xml", "xml document",2);
         $this->makeTDHeader("xml", "xmlRoot");
@@ -762,7 +788,7 @@ class dBug
     private function xmlDefaultHandler($parser, $data)
     {
         //strip '<!--' and '-->' off comments
-        $data = str_replace(array("&lt;!--","--&gt;"), "", htmlspecialchars($data));
+        $data = str_replace(["&lt;!--","--&gt;"], "", htmlspecialchars($data));
         $count = $this->xmlCount - 1;
         if (!empty($this->xmlDData[$count])) {
             $this->xmlDData[$count] .= $data;

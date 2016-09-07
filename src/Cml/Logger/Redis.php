@@ -26,7 +26,7 @@ class Redis extends Base
      *
      * @return null
      */
-    public function log($level, $message, array $context = array())
+    public function log($level, $message, array $context = [])
     {
         return Model::getInstance()->cache(Config::get('log_use_cache'))->getInstance()->lPush(
             Config::get('log_prefix') . '_' . $level ,

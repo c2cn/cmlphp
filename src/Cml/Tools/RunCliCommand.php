@@ -30,7 +30,7 @@ class RunCliCommand
         array_shift($_SERVER['argv']);
         array_shift($_SERVER['argv']);
         $tool = array_shift($_SERVER['argv']);
-        $args = array();
+        $args = [];
         foreach($_SERVER['argv'] as $val) {
             $args[] = $val;
         }

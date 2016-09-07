@@ -21,8 +21,6 @@ class StaticResource
 {
     public static function createSymbolicLink($rootDir = null)
     {
-        CML_IS_MULTI_MODULES || exit('please set is_multi_modules => true');
-
         $deper = (Request::isCli() ? PHP_EOL : '<br />');
 
         echo "{$deper}**************************create link start!*********************{$deper}";
@@ -33,11 +31,11 @@ class StaticResource
         is_dir($rootDir) || mkdir($rootDir, true, 0700);
         //modules_static_path_name
         // 递归遍历目录
-        $dirIterator = new \DirectoryIterator(CML_APP_MODULES_PATH);
+        $dirIterator = new \DirectoryIterator(Cml::getApplicationDir('apps_path'));
 
         foreach ($dirIterator as $file) {
             if (!$file->isDot() && $file->isDir()) {
-                $resourceDir = $file->getPathname() . DIRECTORY_SEPARATOR . Config::get('modules_static_path_name');
+                $resourceDir = $file->getPathname() . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_static_path_name');
                 if (is_dir($resourceDir)) {
                     $distDir = CML_PROJECT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $file->getFilename();
                     $cmd = Request::operatingSystem() ? "mklink /d {$distDir} {$resourceDir}" : "ln -s {$resourceDir} {$distDir}";
@@ -65,7 +63,7 @@ class StaticResource
     {
         //简单判断没有.的时候当作是目录不加版本号
         $isDir = strpos($resource, '.') === false ? true : false;
-        if (Cml::$debug && CML_IS_MULTI_MODULES) {
+        if (Cml::$debug) {
             $file = Response::url("cmlframeworkstaticparse/{$resource}", false);
             if (Config::get('url_model') == 2 ) {
                 $file = rtrim($file, Config::get('url_html_suffix'));
@@ -73,7 +71,7 @@ class StaticResource
 
             $isDir || $file .= ( Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Cml::$nowTime;
         } else {
-            $file = Config::get("static__path", Route::$urlParams["root"]."public/").$resource;
+            $file = Config::get("static__path", Cml::getContainer()->make('cml_route')->getSubDirName()."public/").$resource;
             $isDir || $file .= ( Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Config::get('static_file_version');
         }
         echo $file;
@@ -89,10 +87,10 @@ class StaticResource
         array_shift($pathinfo);
         $resource = implode('/', $pathinfo);
 
-        if (Cml::$debug && CML_IS_MULTI_MODULES) {
+        if (Cml::$debug) {
             $pos = strpos ($resource, '/');
-            $file = CML_APP_MODULES_PATH . DIRECTORY_SEPARATOR.substr($resource, 0, $pos).DIRECTORY_SEPARATOR
-                .Config::get('modules_static_path_name') . substr($resource, $pos);
+            $file = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR.substr($resource, 0, $pos).DIRECTORY_SEPARATOR
+                .Cml::getApplicationDir('app_static_path_name') . substr($resource, $pos);
 
             if (is_file($file)) {
                 Response::sendContentTypeBySubFix(substr($resource, strrpos($resource, '.') + 1));

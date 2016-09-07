@@ -25,7 +25,7 @@ class Redis extends namespace\Base
     /**
      * @var array(\Redis)
      */
-    private $redis = array();
+    private $redis = [];
 
     /**
      * 使用的缓存配置 默认为使用default_cache配置的参数
@@ -86,7 +86,7 @@ class Redis extends namespace\Base
             }
 
             if (!$connectResult) {
-                Plugin::hook('cml.cache_server_down', array($this->conf['server'][$success]));
+                Plugin::hook('cml.cache_server_down', [$this->conf['server'][$success]]);
 
                 throw new CacheConnectFailException(Lang::get('_CACHE_CONNECT_FAIL_', 'Redis',
                     $this->conf['server'][$success]['host'] . ':' . $this->conf['server'][$success]['port']
@@ -107,8 +107,8 @@ class Redis extends namespace\Base
 
                 isset($failOver['db']) && $instance->select($failOver['db']);
 
-                Log::emergency('redis server down', array('downServer' => $this->conf['server'][$success], 'failOverTo' => $failOver));
-                Plugin::hook('cml.redis_server_down_fail_over', array('downServer' => $this->conf['server'][$success], 'failOverTo' => $failOver));
+                Log::emergency('redis server down', ['downServer' => $this->conf['server'][$success], 'failOverTo' => $failOver]);
+                Plugin::hook('cml.redis_server_down_fail_over', ['downServer' => $this->conf['server'][$success], 'failOverTo' => $failOver]);
             }
 
             if ($password && !$instance->auth($password)) {
@@ -166,9 +166,9 @@ class Redis extends namespace\Base
     {
         $value = json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0);
         if ($expire > 0) {
-            return $this->hash($key)->set($key, $value, array('xx', 'ex' => $expire));
+            return $this->hash($key)->set($key, $value, ['xx', 'ex' => $expire]);
         } else {
-            return $this->hash($key)->set($key, $value, array('xx'));
+            return $this->hash($key)->set($key, $value, ['xx']);
         }
     }
 

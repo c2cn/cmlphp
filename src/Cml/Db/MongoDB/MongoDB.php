@@ -42,14 +42,14 @@ class MongoDB extends Base
     /**
      * @var array sql组装
      */
-    protected  $sql = array(
-        'where' => array(),
-        'columns' => array(),
-        'limit' => array(0, 5000),
-        'orderBy' => array(),
+    protected  $sql = [
+        'where' => [],
+        'columns' => [],
+        'limit' => [0, 5000],
+        'orderBy' => [],
         'groupBy' => '',
         'having' => '',
-    );
+    ];
 
     /**
      * 标识下个where操作为and 还是 or 默认是and操作
@@ -83,7 +83,7 @@ class MongoDB extends Base
      */
     public function getTables()
     {
-        $tables = array();
+        $tables = [];
         if ($this->serverSupportFeature(3)) {
             $result = $this->runMongoCommand(['listCollections' => 1]);
             foreach ($result as $val) {
@@ -108,7 +108,7 @@ class MongoDB extends Base
      */
     public function getAllTableStatus()
     {
-        $return = array();
+        $return = [];
         $collections = $this->getTables();
         foreach($collections as $collection) {
             $res = $this->runMongoCommand(['collStats' => $collection]);
@@ -159,8 +159,8 @@ class MongoDB extends Base
     public function getDbFields($table, $tablePrefix = null, $filter = 0)
     {
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        $one = $this->runMongoQuery($tablePrefix . $table, array(), array('limit' => 1));
-        return empty($one) ? array() : array_keys($one[0]);
+        $one = $this->runMongoQuery($tablePrefix . $table, [], ['limit' => 1]);
+        return empty($one) ? [] : array_keys($one[0]);
     }
 
     /**
@@ -171,14 +171,14 @@ class MongoDB extends Base
      * @param bool $noCondition 是否为无条件操作  set/delete/update操作的时候 condition为空是正常的不报异常
      * @param bool $noTable 是否可以没有数据表 当delete/update等操作的时候已经执行了table() table为空是正常的
      *
-     * @return array eg: array('forum', "`fid` = '1' AND `uid` = '2'")
+     * @return array eg: ['forum', "`fid` = '1' AND `uid` = '2'"]
      */
     protected function parseKey($key, $and = true, $noCondition = false, $noTable = false)
     {
         $keys = explode('-', $key);
         $table = strtolower(array_shift($keys));
         $len = count($keys);
-        $condition = array();
+        $condition = [];
         for($i = 0; $i < $len; $i += 2) {
             $val = is_numeric($keys[$i+1]) ? intval($keys[$i+1]) : $keys[$i+1];
             $and ? $condition[$keys[$i]] =  $val : $condition['$or'][][$keys[$i]] = $val;
@@ -191,7 +191,7 @@ class MongoDB extends Base
             throw new \InvalidArgumentException(Lang::get('_DB_PARAM_ERROR_PARSE_KEY_', $key, 'condition'));
         }
 
-        return array($table, $condition);
+        return [$table, $condition];
     }
 
     /**
@@ -215,7 +215,7 @@ class MongoDB extends Base
 
         list($tableName, $condition) = $this->parseKey($key, $and);
 
-        $filter = array();
+        $filter = [];
         isset($this->sql['limit'][0]) && $filter['skip'] = $this->sql['limit'][0];
         isset($this->sql['limit'][1]) && $filter['limit'] = $this->sql['limit'][1];
 
@@ -232,7 +232,7 @@ class MongoDB extends Base
      * @param bool|string $useMaster 是否使用主库
      * @return array
      */
-    public function runMongoQuery($tableName, $condition = array(), $queryOptions  = array(), $useMaster = false)
+    public function runMongoQuery($tableName, $condition = [], $queryOptions  = [], $useMaster = false)
     {
         Cml::$debug && $this->debugLogSql('Query', $tableName, $condition, $queryOptions);
 
@@ -242,7 +242,7 @@ class MongoDB extends Base
             : $this->getSlave()->selectServer(new ReadPreference(ReadPreference::RP_SECONDARY_PREFERRED));
         $cursor = $db->executeQuery($this->getDbName() . ".{$tableName}", new Query($condition, $queryOptions));
         $cursor->setTypeMap(['root' => 'array', 'document' => 'array']);
-        $result = array();
+        $result = [];
         foreach ($cursor as $collection) {
             $result[] = $collection;
         }
@@ -256,23 +256,23 @@ class MongoDB extends Base
     protected  function reset()
     {
         if (!$this->paramsAutoReset) {
-            $this->sql['columns'] = array();
+            $this->sql['columns'] = [];
             return;
         }
 
-        $this->sql = array(
-            'where' => array(),
-            'columns' => array(),
-            'limit' => array(),
-            'orderBy' => array(),
+        $this->sql = [
+            'where' => [],
+            'columns' => [],
+            'limit' => [],
+            'orderBy' => [],
             'groupBy' => '',
             'having' => '',
-        );
+        ];
 
-        $this->table = array(); //操作的表
-        $this->join = array(); //是否内联
-        $this->leftJoin = array(); //是否左联结
-        $this->rightJoin = array(); //是否右联
+        $this->table = []; //操作的表
+        $this->join = []; //是否内联
+        $this->leftJoin = []; //是否左联结
+        $this->rightJoin = []; //是否右联
         $this->whereNeedAddAndOrOr = 0;
         $this->opIsAnd = true;
     }
@@ -305,7 +305,7 @@ class MongoDB extends Base
                 ), 0, $e);
             }
 
-            $errors = array();
+            $errors = [];
             // Check if any write operations did not complete at all
             foreach ($result->getWriteErrors() as $writeError) {
                 $errors[] = sprintf("Operation#%d: %s (%d)\n",
@@ -330,7 +330,7 @@ class MongoDB extends Base
      * @param array $condition 条件
      * @param array $options 额外参数
      */
-    private function debugLogSql($type = 'Query', $tableName, $condition = array(), $options = array())
+    private function debugLogSql($type = 'Query', $tableName, $condition = [], $options = [])
     {
         if (Cml::$debug) {
             Debug::addSqlInfo(sprintf(
@@ -351,7 +351,7 @@ class MongoDB extends Base
      *
      * @return array|Cursor
      */
-    public function runMongoCommand($cmd = array(), $runOnMaster = true, $returnCursor = false)
+    public function runMongoCommand($cmd = [], $runOnMaster = true, $returnCursor = false)
     {
         Cml::$debug && $this->debugLogSql('Command', '', $cmd);
 
@@ -365,7 +365,7 @@ class MongoDB extends Base
             return $cursor;
         } else {
             $cursor->setTypeMap(['root' => 'array', 'document' => 'array']);
-            $result = array();
+            $result = [];
             foreach ($cursor as $collection) {
                 $result[] = $collection;
             }
@@ -377,7 +377,7 @@ class MongoDB extends Base
      * 根据key 新增 一条数据
      *
      * @param string $table
-     * @param array $data eg: array('username'=>'admin', 'email'=>'linhechengbush@live.com')
+     * @param array $data eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      *
      * @return bool|int
@@ -391,7 +391,7 @@ class MongoDB extends Base
             $insertId = $bulk->insert($data);
             $result = $this->runMongoBulkWrite($tablePrefix . $table, $bulk);
 
-            Cml::$debug && $this->debugLogSql('BulkWrite INSERT', $tablePrefix . $table, array(), $data);
+            Cml::$debug && $this->debugLogSql('BulkWrite INSERT', $tablePrefix . $table, [], $data);
 
             if ($result->getInsertedCount() > 0) {
                 $this->lastInsertId = sprintf('%s', $insertId);
@@ -406,7 +406,7 @@ class MongoDB extends Base
      * 根据key更新一条数据
      *
      * @param string $key eg 'user-uid-$uid' 如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组
-     * @param array | null $data eg: array('username'=>'admin', 'email'=>'linhechengbush@live.com')
+     * @param array | null $data eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
      * @param bool $and 多个条件之间是否为and  true为and false为or
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      *
@@ -433,7 +433,7 @@ class MongoDB extends Base
         }
 
         $bulk = new BulkWrite();
-        $bulk->update($condition, array('$set' => $data), array('multi' => true));
+        $bulk->update($condition, ['$set' => $data], ['multi' => true]);
         $result = $this->runMongoBulkWrite($tableName, $bulk);
 
         Cml::$debug && $this->debugLogSql('BulkWrite UPDATE', $tableName, $condition, $data);
@@ -537,14 +537,14 @@ class MongoDB extends Base
             case 'IN':
                 // no break
             case 'NOT IN':
-                empty($value) && $value = array(0);
+                empty($value) && $value = [0];
                 //这边可直接跳过不组装sql，但是为了给用户提示无条件 便于调试还是加上where field in(0)
                 if ($this->opIsAnd) {
                     $this->sql['where'][$column][$operator == 'IN' ? '$in' : '$nin'] = $value;
                 } else if ($this->bracketsIsOpen) {
                     $this->sql['where']['$or'][$currentOrIndex][$column][$operator == 'IN' ? '$in' : '$nin'] = $value ;
                 } else {
-                    $this->sql['where']['$or'][][$column] = $operator == 'IN' ? array('$in' => $value) : array('$nin' => $value);
+                    $this->sql['where']['$or'][][$column] = $operator == 'IN' ? ['$in' => $value] : ['$nin' => $value];
                 }
                 break;
             case 'BETWEEN':
@@ -555,7 +555,7 @@ class MongoDB extends Base
                     $this->sql['where']['$or'][$currentOrIndex][$column]['$gt'] = $value[0];
                     $this->sql['where']['$or'][$currentOrIndex][$column]['$lt'] = $value[1];
                 } else {
-                    $this->sql['where']['$or'][][$column] = array('$gt' => $value[0], '$lt' => $value[1]);
+                    $this->sql['where']['$or'][][$column] = ['$gt' => $value[0], '$lt' => $value[1]];
                 }
                 break;
             case 'NOT BETWEEN':
@@ -566,18 +566,18 @@ class MongoDB extends Base
                     $this->sql['where']['$or'][$currentOrIndex][$column]['$lt'] = $value[0];
                     $this->sql['where']['$or'][$currentOrIndex][$column]['$gt'] = $value[1];
                 } else {
-                    $this->sql['where']['$or'][][$column] = array('$lt' => $value[0], '$gt' => $value[1]);
+                    $this->sql['where']['$or'][][$column] = ['$lt' => $value[0], '$gt' => $value[1]];
                 }
                 break;
             case 'IS NULL':
                 if ($this->opIsAnd) {
-                    $this->sql['where'][$column]['$in'] = array(null);
+                    $this->sql['where'][$column]['$in'] = [null];
                     $this->sql['where'][$column]['$exists'] = true;
                 } else if ($this->bracketsIsOpen) {
-                    $this->sql['where']['$or'][$currentOrIndex][$column]['$in'] = array(null);
+                    $this->sql['where']['$or'][$currentOrIndex][$column]['$in'] = [null];
                     $this->sql['where']['$or'][$currentOrIndex][$column]['$exists'] = true;
                 } else {
-                    $this->sql['where']['$or'][][$column] = array('$in' => array(null), '$exists' => true);
+                    $this->sql['where']['$or'][][$column] = ['$in' => [null], '$exists' => true];
                 }
                 break;
             case 'IS NOT NULL':
@@ -588,7 +588,7 @@ class MongoDB extends Base
                     $this->sql['where']['$or'][$currentOrIndex][$column]['$ne'] = null;
                     $this->sql['where']['$or'][$currentOrIndex][$column]['$exists'] = true;
                 } else {
-                    $this->sql['where']['$or'][][$column] = array('$ne' => null, '$exists' => true);
+                    $this->sql['where']['$or'][][$column] = ['$ne' => null, '$exists' => true];
                 }
                 break;
             case '>':
@@ -599,7 +599,7 @@ class MongoDB extends Base
                 } else if ($this->bracketsIsOpen) {
                     $this->sql['where']['$or'][$currentOrIndex][$column][$operator == '>' ? '$gt' : '$lt'] = $value;
                 } else {
-                    $this->sql['where']['$or'][][$column] = $operator == '>' ? array('$gt' => $value) : array('$lt' => $value);
+                    $this->sql['where']['$or'][][$column] = $operator == '>' ? ['$gt' => $value] : ['$lt' => $value];
                 }
                 break;
             case '>=':
@@ -610,7 +610,7 @@ class MongoDB extends Base
                 } else if ($this->bracketsIsOpen) {
                     $this->sql['where']['$or'][$currentOrIndex][$column][$operator == '>=' ? '$gte' : '$lte'] = $value;
                 } else {
-                    $this->sql['where']['$or'][][$column] = $operator == '>=' ? array('$gte' => $value) : array('$lte' => $value);
+                    $this->sql['where']['$or'][][$column] = $operator == '>=' ? ['$gte' => $value] : ['$lte' => $value];
                 }
                 break;
             case 'NOT LIKE':
@@ -641,7 +641,7 @@ class MongoDB extends Base
                 } else if ($this->bracketsIsOpen) {
                     $this->sql['where']['$or'][$currentOrIndex][$column]['$ne'] = $value;
                 } else {
-                    $this->sql['where']['$or'][][$column] = array('$ne' => $value);
+                    $this->sql['where']['$or'][][$column] = ['$ne' => $value];
                 }
                 break;
             case '=':
@@ -699,7 +699,7 @@ class MongoDB extends Base
     /**
      * 选择列
      *
-     * @param string|array $columns 默认选取所有 array('id, 'name') 选取id,name两列
+     * @param string|array $columns 默认选取所有 ['id, 'name'] 选取id,name两列
      *
      * @return $this
      */
@@ -757,7 +757,7 @@ class MongoDB extends Base
     /**
      * join内联结 MongoDB不支持此命令
      *
-     * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
+     * @param string|array $table 表名 要取别名时使用 [不带前缀表名 => 别名]
      * @param string $on 联结的条件 如：'c.cid = a.cid'
      * @param mixed $tablePrefix 表前缀
      *
@@ -771,7 +771,7 @@ class MongoDB extends Base
     /**
      * leftJoin左联结 MongoDB不支持此命令
      *
-     * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
+     * @param string|array $table 表名 要取别名时使用 [不带前缀表名 => 别名]
      * @param string $on 联结的条件 如：'c.cid = a.cid'
      * @param mixed $tablePrefix 表前缀
      *
@@ -785,7 +785,7 @@ class MongoDB extends Base
     /**
      * rightJoin右联结 MongoDB不支持此命令
      *
-     * @param string|array $table 表名 要取别名时使用 array(不带前缀表名 => 别名)
+     * @param string|array $table 表名 要取别名时使用 [不带前缀表名 => 别名]
      * @param string $on 联结的条件 如：'c.cid = a.cid'
      * @param mixed $tablePrefix 表前缀
      *
@@ -864,7 +864,7 @@ class MongoDB extends Base
     public function limit($offset = 0, $limit = 10)
     {
         ($limit < 1 || $limit > 5000) && $limit = 100;
-        $this->sql['limit'] = array($offset, $limit);
+        $this->sql['limit'] = [$offset, $limit];
         return $this;
     }
 
@@ -879,10 +879,10 @@ class MongoDB extends Base
      */
     public function count($field = '*', $isMulti = false, $useMaster = false)
     {
-        $cmd = array(
+        $cmd = [
             'count' => $this->getRealTableName(key($this->table)),
             'query' => $this->sql['where']
-        );
+        ];
 
         $count = $this->runMongoCommand($cmd, $useMaster);
         return intval($count[0]['n']);
@@ -956,17 +956,17 @@ class MongoDB extends Base
      */
     private function aggregation($field, $isMulti = false, $operation = '$max', $useMaster = false)
     {
-        $pipe = array();
-        empty($this->sql['where']) || $pipe[] = array(
+        $pipe = [];
+        empty($this->sql['where']) || $pipe[] = [
             '$match' => $this->sql['where']
-        );
-        $pipe[] = array(
-            '$group' => array(
+        ];
+        $pipe[] = [
+            '$group' => [
                 '_id' => $isMulti ? '$'.$isMulti :  '0',
-                'count' => array($operation => '$'.$field)
-            )
-        );
-        $res = $this->mongoDbAggregate($pipe, array(), $useMaster);
+                'count' => [$operation => '$'.$field]
+            ]
+        ];
+        $res = $this->mongoDbAggregate($pipe, [], $useMaster);
         if ($isMulti ===  false) {
             return $res[0]['count'];
         } else {
@@ -983,11 +983,11 @@ class MongoDB extends Base
      */
     public function mongoDbDistinct($field = '')
     {
-        $cmd = array(
+        $cmd = [
             'distinct' => $this->getRealTableName(key($this->table)),
             'key' => $field,
             'query' => $this->sql['where']
-        );
+        ];
 
         $data = $this->runMongoCommand($cmd, false);
         return $data[0]['values'];
@@ -1002,12 +1002,12 @@ class MongoDB extends Base
      *
      * @return mixed
      */
-    public function mongoDbAggregate($pipeline = array(), $options = array(), $useMaster = false)
+    public function mongoDbAggregate($pipeline = [], $options = [], $useMaster = false)
     {
-        $cmd = $options + array(
+        $cmd = $options + [
                 'aggregate' => $this->getRealTableName(key($this->table)),
                 'pipeline' => $pipeline
-            );
+            ];
 
         $data = $this->runMongoCommand($cmd, $useMaster);
         return $data[0]['result'];
@@ -1025,16 +1025,16 @@ class MongoDB extends Base
      */
     public function getMongoDbAutoIncKey($collection = 'mongoinckeycol', $table = 'post')
     {
-        $res = $this->runMongoCommand(array(
+        $res = $this->runMongoCommand([
             'findandmodify' => $collection,
-            'update' => array(
-                '$inc' => array('id' => 1)
-            ),
-            'query' => array(
+            'update' => [
+                '$inc' => ['id' => 1]
+            ],
+            'query' => [
                 'table' => $table
-            ),
+            ],
             'new' => true
-        ));
+        ]);
         return intval($res[0]['value']['id']);
     }
 
@@ -1051,7 +1051,7 @@ class MongoDB extends Base
     {
         is_null($offset) || $this->limit($offset, $limit);
 
-        $filter = array();
+        $filter = [];
         count($this->sql['orderBy']) > 0 && $filter['sort'] = $this->sql['orderBy'];
         count($this->sql['columns']) > 0 && $filter['projection'] = $this->sql['columns'];
         isset($this->sql['limit'][0]) && $filter['skip'] = $this->sql['limit'][0];
@@ -1189,10 +1189,10 @@ class MongoDB extends Base
         $tableName = $tablePrefix.$tableName;
 
         $bulk = new BulkWrite();
-        $bulk->update($condition, array('$inc' => array($field => $val)), array('multi' => true));
+        $bulk->update($condition, ['$inc' => [$field => $val]], ['multi' => true]);
         $result = $this->runMongoBulkWrite($tableName, $bulk);
 
-        Cml::$debug && $this->debugLogSql('BulkWrite INC', $tableName, $condition, array('$inc' => array($field => $val)));
+        Cml::$debug && $this->debugLogSql('BulkWrite INC', $tableName, $condition, ['$inc' => [$field => $val]]);
 
         return $result->getModifiedCount();
     }
@@ -1219,10 +1219,10 @@ class MongoDB extends Base
         $tableName = $tablePrefix.$tableName;
 
         $bulk = new BulkWrite();
-        $bulk->update($condition, array('$inc' => array($field => -$val)), array('multi' => true));
+        $bulk->update($condition, ['$inc' => [$field => -$val]], ['multi' => true]);
         $result = $this->runMongoBulkWrite($tableName, $bulk);
 
-        Cml::$debug && $this->debugLogSql('BulkWrite DEC', $tableName, $condition, array('$inc' => array($field => -$val)));
+        Cml::$debug && $this->debugLogSql('BulkWrite DEC', $tableName, $condition, ['$inc' => [$field => -$val]]);
 
         return $result->getModifiedCount();
     }
@@ -1306,7 +1306,7 @@ class MongoDB extends Base
      * @return bool | $this
      */
     public function rollBack($rollBackTo = false)
-          {
+    {
         return $this;
     }
 
@@ -1319,7 +1319,7 @@ class MongoDB extends Base
      *
      * @return array|int | $this
      */
-    public function callProcedure($procedureName = '', $bindParams = array(), $isSelect = true)
+    public function callProcedure($procedureName = '', $bindParams = [], $isSelect = true)
     {
         return $this;
     }

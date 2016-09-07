@@ -20,7 +20,7 @@ class Excel
     private $type;
     private $tWorksheetTitle;
     private $filename;
-    private $titleRow = array();
+    private $titleRow = [];
 
     /**
      * Excel基础配置

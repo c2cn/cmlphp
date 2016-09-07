@@ -31,7 +31,7 @@ class File extends namespace\Base
     public function __construct($conf = false)
     {
         $this->conf = $conf ? $conf : Config::get('default_cache');
-        $this->conf['CACHE_PATH'] = isset($this->conf['CACHE_PATH']) ? $this->conf['CACHE_PATH'] : \CML_RUNTIME_CACHE_PATH.DIRECTORY_SEPARATOR.'FileCache'.DIRECTORY_SEPARATOR;
+        $this->conf['CACHE_PATH'] = isset($this->conf['CACHE_PATH']) ? $this->conf['CACHE_PATH'] : Cml::getApplicationDir('runtime_cache_path').DIRECTORY_SEPARATOR.'FileCache'.DIRECTORY_SEPARATOR;
         is_dir($this->conf['CACHE_PATH']) || mkdir($this->conf['CACHE_PATH'], 0700, true);
     }
 

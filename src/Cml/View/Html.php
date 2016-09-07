@@ -29,14 +29,14 @@ class Html extends Base
      *
      * @var array
      */
-    private $options = array();
+    private $options = [];
 
     /**
      * 子模板block内容数组
      *
      * @var array
      */
-    private $layoutBlockData = array();
+    private $layoutBlockData = [];
 
     /**
      * 模板布局文件
@@ -50,14 +50,14 @@ class Html extends Base
      *
      * @var array
      */
-    private $pattern = array();
+    private $pattern = [];
 
     /**
      * 替换后的内容
      *
      * @var array
      */
-    private $replacement = array();
+    private $replacement = [];
 
     /**
      * 构造方法
@@ -65,16 +65,16 @@ class Html extends Base
      */
     public function __construct()
     {
-        $this->options = array(
+        $this->options = [
             'templateDir' => 'templates' . DIRECTORY_SEPARATOR, //模板文件所在目录
             'cacheDir' => 'templates' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR, //缓存文件存放目录
             'autoUpdate' => true, //当模板文件改动时是否重新生成缓存
             'leftDelimiter' => preg_quote(Config::get('html_left_deper')),
             'rightDelimiter' => preg_quote(Config::get('html_right_deper'))
-        );
+        ];
 
         //要替换的标签
-        $this->pattern = array(
+        $this->pattern = [
             '#\<\?(=|php)(.+?)\?\>#s', //替换php标签
             '#'.$this->options['leftDelimiter']."(\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?\\[\S+?\\]\\[\S+?\\]|\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?\\[\S+?\\]|\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?);?".$this->options['rightDelimiter'].'#', //替换变量 $a['name']这种一维数组以及$a['name']['name']这种二维数组
             '#'.$this->options['leftDelimiter']."(\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?)\\.([a-zA-Z0-9_\x7f-\xff]+);?".$this->options['rightDelimiter'].'#', //替换$a.key这种一维数组
@@ -107,10 +107,10 @@ class Html extends Base
             '#'.$this->options['leftDelimiter'].'comment\s+(.+?)\s*'.$this->options['rightDelimiter'].'#i',//替换 comment 模板注释
             '#'.$this->options['leftDelimiter'].'acl\s+(.+?)\s*'.$this->options['rightDelimiter'].'#i',//替换 acl权限判断标识
             '#'.$this->options['leftDelimiter'].'\/acl'.$this->options['rightDelimiter'].'#i',//替换 /acl
-        );
+        ];
 
         //替换后的内容
-        $this->replacement = array(
+        $this->replacement = [
             '&lt;?${1}${2}?&gt',
             '<?php echo ${1};?>',
             '<?php echo ${1}[\'${2}\'];?>',
@@ -131,11 +131,11 @@ class Html extends Base
             '<?php echo \Cml\Config::get("${1}");?>',
             '<?php \Cml\Http\Response::url(${1});?>',
 
-            '<?php echo \Cml\Config::get("static__path", \Cml\Route::$urlParams["root"]."public/");?>',//替换 {{public}}
+            '<?php echo \Cml\Config::get("static__path", "/".\Cml\Cml::getContainer()->make("cml_route")->getAppName()."/public/");?>',//替换 {{public}}
             '<?php echo strip_tags($_SERVER["REQUEST_URI"]); ?>',//替换 {{self}}
             '<input type="hidden" name="CML_TOKEN" value="<?php echo \Cml\Secure::getToken();?>" />',//替换 {{token}}
-            '<?php echo \Cml\Route::$urlParams["controller"]; ?>',//替换 {{controller}}
-            '<?php echo \Cml\Route::$urlParams["action"]; ?>',//替换 {{action}}
+            '<?php echo \Cml\Cml::getContainer()->make("cml_route")->getControllerName(); ?>',//替换 {{controller}}
+            '<?php echo \Cml\Cml::getContainer()->make("cml_route")->getActionName(); ?>',//替换 {{action}}
             '<?php echo \Cml\Config::get("url_model") == 3 ? "&" : "?"; ?>',//替换 {{urldeper}}
             '',
             'href="javascript:void(0);"',
@@ -144,7 +144,7 @@ class Html extends Base
             '',
             '<?php if (\Cml\Vendor\Acl::checkAcl("${1}")) { ?>',//替换 acl权限判断标识
             '<?php } ?>',// /acl
-        );
+        ];
     }
 
     /**
@@ -195,7 +195,7 @@ class Html extends Base
     private function getFile($file, $type = 0)
     {
         $type == 1 && $file = $this->initBaseDir($file);//初始化路径
-        //$file = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $file);
+        //$file = str_replace([('/', '\\'], DIRECTORY_SEPARATOR, $file);
         $cacheFile = $this->getCacheFile($file);
         if ($this->options['autoUpdate']) {
             $tplFile = $this->getTplFile($file);
@@ -265,8 +265,8 @@ class Html extends Base
 
         if (!Cml::$debug) {
             /* 去除html空格与换行 */
-            $find = array('~>\s+<~','~>(\s+\n|\r)~');
-            $replace = array('><','>');
+            $find = ['~>\s+<~','~>(\s+\n|\r)~'];
+            $replace = ['><','>'];
             $template = preg_replace($find, $replace, $template);
             $template = str_replace('?><?php','',$template);
         }
@@ -334,7 +334,7 @@ class Html extends Base
                 $layoutCon
             );
             unset($layoutBlockData);
-            $this->layoutBlockData = array();
+            $this->layoutBlockData = [];
             return $layoutCon;//返回替换完的布局文件内容
         } else {
             return file_get_contents($tplFile);
@@ -390,30 +390,25 @@ class Html extends Base
      * @return string
      */
     private function initBaseDir($templateFile, $inOtherApp = false) {
-        $baseDir = CML_IS_MULTI_MODULES
-            ? Config::get('application_dir') . (
-            $inOtherApp
-                ? DIRECTORY_SEPARATOR.$inOtherApp.DIRECTORY_SEPARATOR
-                : Route::$urlParams['path']
-            )
-            : '';
-        $baseDir .=  'View' . (Config::get('html_theme') != '' ? DIRECTORY_SEPARATOR . Config::get('html_theme') : '');
+        $baseDir = $inOtherApp
+            ? $inOtherApp
+            : Cml::getContainer()->make('cml_route')->getAppName();
+        $baseDir .=  '/'. Cml::getApplicationDir('app_view_path_name') . (Config::get('html_theme') != '' ? DIRECTORY_SEPARATOR . Config::get('html_theme') : '');
 
         if ($templateFile === '' ) {
-            $baseDir .= (CML_IS_MULTI_MODULES ? DIRECTORY_SEPARATOR : Route::$urlParams['path']) .
-                Route::$urlParams['controller'].DIRECTORY_SEPARATOR;
-            $file = Route::$urlParams['action'];
+            $baseDir .=  '/' . Cml::getContainer()->make('cml_route')->getControllerName() . '/';
+            $file = Cml::getContainer()->make('cml_route')->getActionName();
         } else {
             $templateFile = str_replace('.', '/', $templateFile);
             $baseDir .= DIRECTORY_SEPARATOR . dirname($templateFile).DIRECTORY_SEPARATOR;
             $file = basename($templateFile);
         }
 
-        $options = array(
-            'templateDir' => CML_APP_FULL_PATH . DIRECTORY_SEPARATOR . $baseDir, //指定模板文件存放目录
-            'cacheDir' => CML_RUNTIME_CACHE_PATH.DIRECTORY_SEPARATOR. $baseDir, //指定缓存文件存放目录
+        $options = [
+            'templateDir' => Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR . $baseDir, //指定模板文件存放目录
+            'cacheDir' => Cml::getApplicationDir('runtime_cache_path').DIRECTORY_SEPARATOR. $baseDir, //指定缓存文件存放目录
             'autoUpdate' => true, //当模板修改时自动更新缓存
-        );
+        ];
 
         $this->setHtmlEngineOptions($options);
         return $file;
@@ -431,7 +426,6 @@ class Html extends Base
     {
         // 网页字符编码
         header('Content-Type:text/html; charset='.Config::get('default_charset'));
-
         echo $this->fetch($templateFile, $inOtherApp);
         Cml::cmlStop();
     }
@@ -440,11 +434,12 @@ class Html extends Base
      * 重置所有参数
      *
      */
-    private function reset()
+    public function reset()
     {
         $this->layout = null;
-        $this->args = array();
-        $this->layoutBlockData = array();
+        $this->args = [];
+        $this->layoutBlockData = [];
+        return $this;
     }
 
     /**
@@ -463,22 +458,20 @@ class Html extends Base
             Secure::setToken();
         }
 
-        if (!empty($this->args)) {
-            extract($this->args, EXTR_PREFIX_SAME, "xxx");
-            $this->args = array();
-        }
-
         ob_start();
         if ($donNotWriteCacheFileImmediateReturn) {
             $tplFile = $this->getTplFile($doNotSetDir ? $templateFile : $this->initBaseDir($templateFile, $inOtherApp));
             if (!is_readable($tplFile)) {
                 throw new FileCanNotReadableException(Lang::get('_TEMPLATE_FILE_NOT_FOUND_', $tplFile));
             }
+            empty($this->args) || extract($this->args, EXTR_PREFIX_SAME, "xxx");
             $return = $this->compile($tplFile, false, 0);
             eval('?>'.$return.'<?php ');
         } else {
-            require $this->getFile(($doNotSetDir ? $templateFile : $this->initBaseDir($templateFile, $inOtherApp)));
+            Cml::requireFile($this->getFile(($doNotSetDir ? $templateFile : $this->initBaseDir($templateFile, $inOtherApp))), $this->args);
         }
+
+        $this->args = [];
         $this->reset();
         return ob_get_clean();
     }
@@ -491,24 +484,13 @@ class Html extends Base
      * @param bool|false $layoutInOtherApp 面部是否在其它应用
      * @param bool|false $tplInOtherApp 模板是否在其它应用
      */
-    public function displayWithLayout($templateFile ='', $layout = 'master', $layoutInOtherApp = false, $tplInOtherApp = false)
+    public function displayWithLayout($templateFile = '', $layout = 'master', $layoutInOtherApp = false, $tplInOtherApp = false)
     {
-        $this->layout = CML_APP_FULL_PATH.DIRECTORY_SEPARATOR .
-            (
-            CML_IS_MULTI_MODULES
-                ? Config::get('application_dir') .
-                (
-                $layoutInOtherApp
-                    ? DIRECTORY_SEPARATOR.$layoutInOtherApp.DIRECTORY_SEPARATOR
-                    : Route::$urlParams['path']
-                )
-                : ''
-            )
-            . 'View' . DIRECTORY_SEPARATOR .
-            (
-            Config::get('html_theme') != '' ? Config::get('html_theme').DIRECTORY_SEPARATOR : ''
-            )
-            .'layout'.DIRECTORY_SEPARATOR.$layout.Config::get('html_template_suffix');
+        $this->layout = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR
+            . ($layoutInOtherApp ? $layoutInOtherApp :  Cml::getContainer()->make('cml_route')->getAppName())
+            . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_view_path_name') . DIRECTORY_SEPARATOR
+            . (Config::get('html_theme') != '' ? Config::get('html_theme').DIRECTORY_SEPARATOR : '')
+            . 'layout' . DIRECTORY_SEPARATOR . $layout . Config::get('html_template_suffix');
         $this->display($templateFile, $tplInOtherApp);
     }
 }

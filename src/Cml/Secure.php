@@ -140,11 +140,11 @@ class Secure
      */
     public static function filterStr($value)
     {
-        $value = str_replace(array("\0","%00","\r"), '', $value);
-        $value = preg_replace(array('/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]/','/&(?!(#[0-9]+|[a-z]+);)/is'), array('', '&amp;'), $value);
-        $value = str_replace(array("%3C",'<'), '&lt;', $value);
-        $value = str_replace(array("%3E",'>'), '&gt;', $value);
-        $value = str_replace(array('"',"'","\t",'  '), array('&quot;','&#39;','    ','&nbsp;&nbsp;'), $value);
+        $value = str_replace(["\0","%00","\r"], '', $value);
+        $value = preg_replace(['/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]/','/&(?!(#[0-9]+|[a-z]+);)/is'], ['', '&amp;'], $value);
+        $value = str_replace(["%3C", '<'], '&lt;', $value);
+        $value = str_replace(["%3E", '>'], '&gt;', $value);
+        $value = str_replace(['"', "'", "\t",'  '], ['&quot;','&#39;','    ','&nbsp;&nbsp;'], $value);
         return $value;
     }
 
@@ -157,8 +157,8 @@ class Secure
      */
     public static function filterSql($value)
     {
-        return str_ireplace(array("select", 'insert', "update", "delete", "\'", "\/\*", "\.\.\/", "\.\/", "union", "into", "load_file", "outfile"),
-            array("","","","","","","","","","","",""),
+        return str_ireplace(["select", 'insert', "update", "delete", "\'", "\/\*", "\.\.\/", "\.\/", "union", "into", "load_file", "outfile"],
+            ["","","","","","","","","","","",""],
             $value);
     }
 

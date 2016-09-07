@@ -17,19 +17,14 @@ namespace Cml;
 class View
 {
     /**
-     * 获取渲染引擎-单例
+     * 获取渲染引擎
      *
-     * @param string $engine 视图引擎 Html/Json/Xml/Excel
+     * @param string $engine 视图引擎 内置html/json/xml/excel
      *
      * @return \Cml\View\Html
      */
     public static function getEngine($engine = null) {
         is_null($engine) && $engine = Config::get('view_render_engine');
-        static $_instance = array();
-        $engine = '\Cml\View\\'.ucfirst($engine);
-        if (!isset($_instance[$engine])) {
-            $_instance[$engine] = new $engine();
-        }
-        return $_instance[$engine];
+        return Cml::getContainer()->make('view_'.strtolower($engine));
     }
 }

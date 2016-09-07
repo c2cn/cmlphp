@@ -8,10 +8,10 @@
  * *********************************************************** */
 namespace Cml\Vendor;
 
+use Cml\Cml;
 use Cml\Config;
 use Cml\Http\Input;
 use Cml\Http\Response;
-use Cml\Route;
 
 /**
  * 分页类,对外系统现在一般使用js分页很少用到php分页了
@@ -87,23 +87,23 @@ class Page
     /**
      * @var array 分页定制显示
      */
-    protected $config = array(
+    protected $config = [
         'header' => '条记录',
         'prev' => '上一页',
         'next' => '下一页',
         'first' => '第一页',
         'last' => '最后一页',
         'theme' => '<li><a>%totalRow% %header% %nowPage%/%totalPage%页</a></li>%upPage% %downPage% %first%  %prePage% %linkPage%  %nextPage%  %end%'
-    );
+    ];
 
     /**
      * 构造函数
      *
      * @param int $totalRows 总行数
      * @param int $numPerPage 每页显示条数
-     * @param array $param 分页跳转时带的参数 如：array('name' => '张三')
+     * @param array $param 分页跳转时带的参数 如：['name' => '张三']
      */
-    public function __construct($totalRows, $numPerPage = 20, $param = array())
+    public function __construct($totalRows, $numPerPage = 20, $param = [])
     {
         $this->totalRows = $totalRows;
         $this->numPerPage = $numPerPage ? intval($numPerPage) : 10;
@@ -141,7 +141,7 @@ class Page
         if ($this->totalRows == 0)  return '';
         $nowCoolPage = ceil($this->nowPage/$this->barShowPage);
         $delimiter = Config::get('url_pathinfo_depr');
-        $params = array_merge($this->param, array($this->pageShowVarName => '__PAGE__'));
+        $params = array_merge($this->param, [$this->pageShowVarName => '__PAGE__']);
         $paramsString = '';
         foreach($params as $key => $val) {
             $paramsString == '' || $paramsString .= '/';
@@ -151,10 +151,7 @@ class Page
         if ($this->url) {
             $url = rtrim(Response::url($this->url . '/' . $paramsString, false), $delimiter);
         } else {
-            $url = Route::$urlParams;
-            $url['path'] = trim($url['path'], '\\/');
-            unset($url['root']);
-            $url = rtrim(Response::url(implode('/', $url)  . '/' .  $paramsString, false), $delimiter);
+            $url = rtrim(Response::url(Cml::getContainer()->make('cml_route')->getFullPathNotContainSubDir()  . '/' .  $paramsString, false), $delimiter);
         }
         $upRow = $this->nowPage - 1;
         $downRow = $this->nowPage + 1;
@@ -196,8 +193,8 @@ class Page
             }
         }
         $pageStr = str_replace(
-            array('%header%','%nowPage%','%totalRow%','%totalPage%','%upPage%','%downPage%','%first%','%prePage%','%linkPage%','%nextPage%','%end%'),
-            array($this->config['header'],$this->nowPage,$this->totalRows,$this->totalPages,$upPage,$downPage,$theFirst,$prePage,$linkPage,$nextPage,$theEnd),
+            ['%header%','%nowPage%','%totalRow%','%totalPage%','%upPage%','%downPage%','%first%','%prePage%','%linkPage%','%nextPage%','%end%'],
+            [$this->config['header'],$this->nowPage,$this->totalRows,$this->totalPages,$upPage,$downPage,$theFirst,$prePage,$linkPage,$nextPage,$theEnd],
             $this->config['theme']
         );
         return '<ul>'.$pageStr.'</ul>';

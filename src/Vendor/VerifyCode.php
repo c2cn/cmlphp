@@ -134,19 +134,19 @@ class VerifyCode
                 $ba = $tmp;
             }
         }
-        $randarr= array(
+        $randarr = [
             1 => $la + $ba,
             2 => $la * $ba,
             3 => $la - $ba
             // 4 => $la / $ba,
-        );
+        ];
         $randstr = $randarr[$randnum];
-        $randResult = array(
+        $randResult = [
             1 => $la .'+'. $ba.'=?',
             2 => $la .'*'. $ba.'=?',
             3 => $la .'-'.$ba.'=?'
             // 4 => $la .'/'. $ba.'='. $randarr[4],
-        );
+        ];
         $randval = $randResult[$randnum];
         $authKey = md5(mt_rand().microtime());
         Cookie::set($verifyName, $authKey);

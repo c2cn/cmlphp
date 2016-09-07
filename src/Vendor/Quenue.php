@@ -17,7 +17,7 @@ namespace Cml\Vendor;
 class Quenue
 {
 
-    private static $queue = array(); //存放队列数据
+    private static $queue = []; //存放队列数据
 
     /**
      * 队列-设置值
@@ -59,6 +59,6 @@ class Quenue
      */
     public function clear()
     {
-        return self::$queue = array();
+        return self::$queue = [];
     }
 }

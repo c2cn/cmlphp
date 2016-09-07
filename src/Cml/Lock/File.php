@@ -8,6 +8,7 @@
  * *********************************************************** */
 
 namespace Cml\Lock;
+use Cml\Cml;
 
 /**
  * 锁机制File驱动
@@ -99,7 +100,7 @@ class File extends Base
     {
         $md5Key = md5($this->getKey($key));
 
-        $dir = \CML_RUNTIME_CACHE_PATH.DIRECTORY_SEPARATOR.'LockFileCache'.DIRECTORY_SEPARATOR . substr($key, 0, strrpos($key, '/')) . DIRECTORY_SEPARATOR;
+        $dir = Cml::getApplicationDir('runtime_cache_path').DIRECTORY_SEPARATOR.'LockFileCache'.DIRECTORY_SEPARATOR . substr($key, 0, strrpos($key, '/')) . DIRECTORY_SEPARATOR;
         $dir .=  substr($md5Key, 0, 2) . DIRECTORY_SEPARATOR . substr($md5Key, 2, 2);
         is_dir($dir) || mkdir($dir, 0700, true);
         return  $dir.DIRECTORY_SEPARATOR. $md5Key . '.php';

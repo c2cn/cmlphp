@@ -28,13 +28,22 @@
         <div style="overflow:auto;height:352px;padding: 0; line-height: 24px">
             <ul style="padding: 0; margin:0">
 
-                {{if count($includefile) > 0 }}
-                    <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _INCLUDE_CLASS_}}</b><span style="color:red">({{echo count($includefile);}})</span></li>
+                {{if count($includeLib) > 0 }}
+                    <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _INCLUDE_LIB_}}</b><span style="color:red">({{echo count($includeLib);}})</span></li>
                     <li style="font-size:14px;padding:0 0 0 50px;">
-                        {{loop $includefile $file}}
+                        {{loop $includeLib $file}}
                             <span style='padding-left:10px;'>【{{$file}}】</span>
                         {{/loop}}
                      </li>
+                {{/if}}
+
+                {{if count($includeFile) > 0 }}
+                <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _INCLUDE_FILE_}}</b><span style="color:red">({{echo count($includeFile);}})</span></li>
+
+                {{loop $includeFile $file}}
+                    <li style='font-size:14px;padding:0 0 0 60px;'>{{$file}}</li>
+                {{/loop}}
+
                 {{/if}}
 
                 {{if count($tipInfo) > 0 }}
