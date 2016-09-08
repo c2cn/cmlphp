@@ -21,30 +21,12 @@
             </div>
         </div>
     </div>
-    <div id="cmlphp_console_info_content" style="display: none;background:white;margin:0;height: 390px;">
+    <div id="cmlphp_console_info_content" style="display: none;background:white; margin:0; height: 450px; padding-bottom:8px; border-bottom: 3px solid #cddc39;">
         <div style="height:30px;padding: 6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px">
             <span>{{lang _OPERATION_INFORMATION_}}</span>
         </div>
-        <div style="overflow:auto;height:352px;padding: 0; line-height: 24px">
+        <div style="overflow:auto;height:420px;padding: 0; line-height: 24px">
             <ul style="padding: 0; margin:0">
-
-                {{if count($includeLib) > 0 }}
-                    <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _INCLUDE_LIB_}}</b><span style="color:red">({{echo count($includeLib);}})</span></li>
-                    <li style="font-size:14px;padding:0 0 0 50px;">
-                        {{loop $includeLib $file}}
-                            <span style='padding-left:10px;'>【{{$file}}】</span>
-                        {{/loop}}
-                     </li>
-                {{/if}}
-
-                {{if count($includeFile) > 0 }}
-                <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _INCLUDE_FILE_}}</b><span style="color:red">({{echo count($includeFile);}})</span></li>
-
-                {{loop $includeFile $file}}
-                    <li style='font-size:14px;padding:0 0 0 60px;'>{{$file}}</li>
-                {{/loop}}
-
-                {{/if}}
 
                 {{if count($tipInfo) > 0 }}
                     <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _SYSTEM_INFORMATION_}}</b></li>
@@ -57,6 +39,22 @@
                     <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _SQL_STATEMENT_}}</b><span style="color:red">({{echo count($sqls);}})</span></li>
                     {{loop $sqls $sql}}
                         <li style='font-size:14px;padding:0 0 0 60px;'>{{$sql}}</li>
+                    {{/loop}}
+                {{/if}}
+
+                {{if count($includeLib) > 0 }}
+                    <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _INCLUDE_LIB_}}</b><span style="color:red">({{echo count($includeLib);}})</span></li>
+                    <li style="font-size:14px;padding:0 0 0 50px;">
+                        {{loop $includeLib $file}}
+                            <span style='padding-left:10px;'>【{{$file}}】</span>
+                        {{/loop}}
+                    </li>
+                {{/if}}
+
+                {{if count($includeFile) > 0 }}
+                    <li style="border-bottom:1px solid #EEE;font-size:14px;padding:0 12px;font-weight:bold;"><b>{{lang _INCLUDE_FILE_}}</b><span style="color:red">({{echo count($includeFile);}})</span></li>
+                    {{loop $includeFile $file}}
+                        <li style='font-size:14px;padding:0 0 0 60px;'>{{$file}}</li>
                     {{/loop}}
                 {{/if}}
             </ul>
