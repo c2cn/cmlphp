@@ -23,11 +23,11 @@ class Redis extends Base
      * 上锁
      *
      * @param string $key 要上的锁的key
-     * @param bool $wouldblock 是否堵塞
+     * @param bool $wouldBlock 是否堵塞
      *
      * @return mixed
      */
-    public function lock($key, $wouldblock = false)
+    public function lock($key, $wouldBlock = false)
     {
         if(empty($key)) {
             return false;
@@ -36,12 +36,12 @@ class Redis extends Base
 
         if (
             isset($this->lockCache[$key])
-            && $this->lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
+            && $this->lockCache[$key] == Model::getInstance()->cache($this->useCache)->getInstance()->get($key)
         ) {
             return true;
         }
 
-        if (Model::getInstance()->cache($this->userCache)->getInstance()->set(
+        if (Model::getInstance()->cache($this->useCache)->getInstance()->set(
             $key,
             Cml::$nowMicroTime,
             ['nx', 'ex' => $this->expire]
@@ -51,14 +51,14 @@ class Redis extends Base
         }
 
         //非堵塞模式
-        if (!$wouldblock) {
+        if (!$wouldBlock) {
             return false;
         }
 
         //堵塞模式
         do {
             usleep(200);
-        } while (!Model::getInstance()->cache($this->userCache)->getInstance()->set(
+        } while (!Model::getInstance()->cache($this->useCache)->getInstance()->set(
             $key,
             Cml::$nowMicroTime,
             ['nx', 'ex' => $this->expire]

@@ -154,8 +154,7 @@ class Model
         is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $tablePrefix);
         $data = $this->db($this->getDbConf())->table($tableName, $tablePrefix)
             ->where($column, $val)
-            ->limit(0, 1)
-            ->select();
+            ->select(0, 1);
         if (isset($data[0])) {
             return $data[0];
         } else {

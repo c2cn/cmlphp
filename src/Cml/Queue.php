@@ -17,16 +17,12 @@ class Queue
     /**
      * 获取Queue
      *
-     * @param string | null Queue使用的驱动
+     * @param mixed $useCache 如果该锁服务使用的是cache，则这边可传配置文件中配置的cache的key
      *
      * @return \Cml\Queue\Base
      */
-    public static function getQueue($driver = 'Redis')
+    public static function getQueue($useCache = false)
     {
-        static $instance = [];
-        if(!isset($instance[$driver])) {
-            $instance[$driver] = Cml::getContainer()->make('queue_'.strtolower($driver));
-        }
-        return $instance[$driver];
+       return Cml::getContainer()->make('cml_queue', $useCache);
     }
 }

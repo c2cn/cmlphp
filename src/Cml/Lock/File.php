@@ -21,11 +21,11 @@ class File extends Base
      * 上锁
      *
      * @param string $key 要上的锁的key
-     * @param bool $wouldblock 是否堵塞
+     * @param bool $wouldBlock 是否堵塞
      *
      * @return mixed
      */
-    public function lock($key, $wouldblock = false)
+    public function lock($key, $wouldBlock = false)
     {
         if(empty($key)) {
             return false;
@@ -46,7 +46,7 @@ class File extends Base
         }
 
         //非堵塞模式
-        if (!$wouldblock) {
+        if (!$wouldBlock) {
             return false;
         }
 

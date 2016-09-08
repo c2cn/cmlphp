@@ -98,12 +98,11 @@ return [
     ],
     */
 
-    //模板设置
-    'view_render_engine' => 'Html',//默认的视图渲染引擎，Html/Excel/Json/Xml
+    /*模板设置*/
+    'view_render_engine' => 'html',//默认的视图渲染引擎，html/excel/json/xml
     'default_charset' => 'utf-8', // 默认输出编码
     'http_cache_control' => 'private', // 网页缓存控制
     'output_encode' => true, // 页面压缩输出
-
     //Html引擎配置
     'html_theme' =>'', //默认只有单主题
     'html_template_suffix' => '.html',     // 默认模板文件后缀
@@ -147,17 +146,17 @@ return [
 
     /**锁配置**/
     'lock_prefix' => 'cml_',
-    //上锁使用的缓存
-    'locker_use_cache' => 'default_cache',
+    'locker_use_cache' => 'default_cache', //上锁使用的缓存
 
     /**日志配置**/
     'log_warn_log' => false, //警告级别的日志默认不记录
     'log_prefix' => 'cml_log', //会显示到日志内容中,同时当以redis为驱动的时候会做为队列的前缀
+    //Log类使用redis为驱动时使用的缓存配置key
+    'redis_log_use_cache' => 'default_cache',//只有在该缓存的驱动为redis的时候才有效,否则会报错
 
-    //Log类使用的缓存
-    'log_use_cache' => 'default_cache',//只有在该缓存的驱动为redis的时候才有效,否则会报错
-    //队列使用的缓存
-    'queue_use_cache' => 'default_cache',//只有在该缓存的驱动为redis的时候才有效,否则会报错
+    /**队列配置**/
+    //Redis队列使用的缓存
+    'redis_queue_use_cache' => 'default_cache',//只有在该缓存的驱动为redis的时候才有效,否则会报错
 
     /*系统路由-统一用小写url*/
     'cmlframework_system_command' => [

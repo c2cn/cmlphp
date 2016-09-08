@@ -28,11 +28,11 @@ interface Lock
      * 上锁
      *
      * @param string $key 要解锁的锁的key
-     * @param bool $wouldblock 是否堵塞
+     * @param bool $wouldBlock 是否堵塞
      *
      * @return mixed
      */
-    public function lock($key, $wouldblock = false);
+    public function lock($key, $wouldBlock = false);
 
     /**
      * 解锁

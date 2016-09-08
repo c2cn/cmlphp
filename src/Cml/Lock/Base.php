@@ -20,14 +20,15 @@ use Cml\Model;
 abstract class Base implements Lock
 {
     /**
-     * 使用的缓存
+     * 锁驱动使用redis/memcache时使用的缓存
      *
      * @var string
      */
-    protected $userCache = 'default_cache';
+    protected $useCache = '';
 
-    public function __construct($userCache) {
-        is_null($userCache) || $this->userCache = $userCache;
+    public function __construct($useCache) {
+        $useCache || $useCache = Config::get('locker_use_cache', 'default_cache');
+        $this->useCache = $useCache;
     }
 
     /**
@@ -84,9 +85,9 @@ abstract class Base implements Lock
 
         if (
             isset($this->lockCache[$key])
-            && $this->lockCache[$key] == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)
+            && $this->lockCache[$key] == Model::getInstance()->cache($this->useCache)->getInstance()->get($key)
         ) {
-            Model::getInstance()->cache($this->userCache)->getInstance()->delete($key);
+            Model::getInstance()->cache($this->useCache)->getInstance()->delete($key);
             $this->lockCache[$key] = null;//防止gc延迟,判断有误
             unset($this->lockCache[$key]);
         }
@@ -99,8 +100,8 @@ abstract class Base implements Lock
     public function __destruct()
     {
         foreach ($this->lockCache as $key => $isMyLock) {
-            if ($isMyLock == Model::getInstance()->cache($this->userCache)->getInstance()->get($key)) {
-                Model::getInstance()->cache($this->userCache)->getInstance()->delete($key);
+            if ($isMyLock == Model::getInstance()->cache($this->useCache)->getInstance()->get($key)) {
+                Model::getInstance()->cache($this->useCache)->getInstance()->delete($key);
             }
             $this->lockCache[$key] = null;//防止gc延迟,判断有误
             unset($this->lockCache[$key]);
