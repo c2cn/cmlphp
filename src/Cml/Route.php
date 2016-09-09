@@ -208,6 +208,19 @@ class Route
     }
 
     /**
+     * 访问Cml::getContainer()->make('cml_route')中其余方法
+     *
+     * @param string $name
+     * @param array $arguments
+     *
+     * @return mixed
+     */
+    public static function __callStatic($name, $arguments)
+    {
+        return call_user_func_array([Cml::getContainer()->make('cml_route'), $name], $arguments);
+    }
+
+    /**
      * 载入应用单独的路由
      *
      * @param string $app 应用名称

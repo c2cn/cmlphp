@@ -25,4 +25,17 @@ class Queue
     {
        return Cml::getContainer()->make('cml_queue', $useCache);
     }
+
+    /**
+     * 访问Cml::getContainer()->make('cml_queue')中其余方法
+     *
+     * @param string $name
+     * @param array $arguments
+     *
+     * @return mixed
+     */
+    public static function __callStatic($name, $arguments)
+    {
+        return call_user_func_array([Cml::getContainer()->make('cml_queue'), $name], $arguments);
+    }
 }
