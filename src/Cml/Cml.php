@@ -234,6 +234,7 @@ class Cml
         //载入路由
         $routeConfigFile =  Cml::getApplicationDir('global_config_path').DIRECTORY_SEPARATOR.'route.php';
         is_file($routeConfigFile) && Cml::requireFile($routeConfigFile);
+
         Cml::getContainer()->make('cml_route')->parseUrl();//解析处理URL
 
         Plugin::hook('cml.after_parse_url');

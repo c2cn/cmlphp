@@ -8,6 +8,7 @@
  * *********************************************************** */
 namespace Cml\Db;
 
+use Cml\Cml;
 use Cml\Config;
 use Cml\Http\Input;
 use Cml\Interfaces\Db;
@@ -842,7 +843,7 @@ abstract class Base implements Db
      */
     protected function arrToCondition($arr, $tableName)
     {
-        empty($tableName) && $tableName = Route::$urlParams['controller'];
+        empty($tableName) && $tableName = Cml::getContainer()->make('cml_route')->getControllerName();
        /*
        //这个应该开发人员自己判断。框架不做额外开销
        $dbFields = $this->getDbFields($tableName, $tablePrefix);

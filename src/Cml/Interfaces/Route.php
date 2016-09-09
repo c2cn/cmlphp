@@ -17,14 +17,14 @@ namespace Cml\Interfaces;
 interface Route
 {
     /**
-     * 获取子目录路径。若项目在子目录中的时候为子目录的路径如/subdir/、否则为/
+     * 获取子目录路径。若项目在子目录中的时候为子目录的路径如/sub_dir/、否则为/
      *
      * @return string
      */
     public function getSubDirName();
 
     /**
-     * 获取应用目录可以是多层目录。如web、admin等
+     * 获取应用目录可以是多层目录。如web、admin等.404的时候也必须有值用于绑定系统命令
      *
      * @return string
      */
@@ -67,5 +67,93 @@ interface Route
      * @return mixed
      */
     public function getControllerAndAction();
+
+    /**
+     * 增加get访问方式路由
+     *
+     * @param string $pattern 路由规则
+     * @param string $action 执行的操作
+     *
+     * @return void
+     */
+    public function get($pattern, $action);
+
+    /**
+     * 增加post访问方式路由
+     *
+     * @param string $pattern 路由规则
+     * @param string $action 执行的操作
+     *
+     * @return void
+     */
+    public function post($pattern, $action);
+
+    /**
+     * 增加put访问方式路由
+     *
+     * @param string $pattern 路由规则
+     * @param string $action 执行的操作
+     *
+     * @return void
+     */
+    public function put($pattern, $action);
+
+    /**
+     * 增加patch访问方式路由
+     *
+     * @param string $pattern 路由规则
+     * @param string $action 执行的操作
+     *
+     * @return void
+     */
+    public function patch($pattern, $action);
+
+    /**
+     * 增加delete访问方式路由
+     *
+     * @param string $pattern 路由规则
+     * @param string $action 执行的操作
+     *
+     * @return void
+     */
+    public function delete($pattern, $action);
+
+    /**
+     * 增加options访问方式路由
+     *
+     * @param string $pattern 路由规则
+     * @param string $action 执行的操作
+     *
+     * @return void
+     */
+    public function options($pattern, $action);
+
+    /**
+     * 增加任意访问方式路由
+     *
+     * @param string $pattern 路由规则
+     * @param string $action 执行的操作
+     *
+     * @return void
+     */
+    public function any($pattern, $action);
+
+    /**
+     * 增加REST方式路由
+     *
+     * @param string $pattern 路由规则
+     * @param string $action 执行的操作
+     *
+     * @return void
+     */
+    public function rest($pattern, $action);
+
+    /**
+     * 分组路由
+     *
+     * @param string $namespace 分组名
+     * @param callable $func 闭包
+     */
+    public function group($namespace, callable $func);
 
 }
