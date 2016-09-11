@@ -103,11 +103,14 @@ return [
     'default_charset' => 'utf-8', // 默认输出编码
     'http_cache_control' => 'private', // 网页缓存控制
     'output_encode' => true, // 页面压缩输出
-    //Html引擎配置
+
+    /*Html引擎配置。只适用于html模板引擎*/
     'html_theme' =>'', //默认只有单主题
     'html_template_suffix' => '.html',     // 默认模板文件后缀
     'html_left_deper' => '{{', //模板左定界符
     'html_right_deper' => '}}', //模板右定界符
+
+    /*系统模板定义*/
     'html_exception' => CML_CORE_PATH.'/Tpl/cmlException.tpl', // 默认成功跳转对应的模板文件
     '404_page' => CML_CORE_PATH.'/Tpl/404.tpl', // 404跳转页
     'debug_page' => CML_CORE_PATH.'/Tpl/debug.tpl', // debug调试信息模板

@@ -4,7 +4,7 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 16-9-6 下午3:07
  * @version  2.6
- * cml框架 FastRoute封装实现
+ * cml框架 FastRoute封装实现 使用请先安装依赖composer require nikic/fast-route
  * *********************************************************** */
 namespace Cml\Service;
 

@@ -286,7 +286,7 @@ class Acl
         }
 
         Model::getInstance()->db()->table(['menus'=> 'm'])
-            ->columns(['m.id', 'm.pid', 'm.title', 'm.url']);
+            ->columns(['distinct m.id', 'm.pid', 'm.title', 'm.url']);
 
         //当前登录用户是否为超级管理员
         if (!self::isSuperUser()) {
