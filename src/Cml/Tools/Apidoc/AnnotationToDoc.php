@@ -76,6 +76,7 @@ class AnnotationToDoc
         
         $systemCode = Cml::requireFile(__DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR .'code.php');
 
-        Cml::requireFile(__DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR . 'doc.html');
+
+        Cml::requireFile(__DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR . 'doc.html', ['config' => $config, 'result' => $result, 'systemCode' => $systemCode]);
     }
 }

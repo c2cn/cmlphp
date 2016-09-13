@@ -336,7 +336,7 @@ class Cml
         } else {
             $deBugLogData = dump('', 1);
             if (!empty($deBugLogData)) {
-                Config::get('dump_use_php_console') ? dumpUsePHPConsole($deBugLogData) : Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.'ConsoleLog.php');
+                Config::get('dump_use_php_console') ? dumpUsePHPConsole($deBugLogData) : Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.'ConsoleLog.php', ['deBugLogData' => $deBugLogData]);
             };
             CML_OB_START && ob_end_flush();
         }
@@ -439,7 +439,7 @@ class Cml
      *
      * @return mixed
      */
-    public static function requireFile($file, &$args = [])
+    public static function requireFile($file, $args = [])
     {
         empty($args) || extract($args, EXTR_PREFIX_SAME, "xxx");
         Cml::$debug && Debug::addTipInfo($file, Debug::TIP_INFO_TYPE_INCLUDE_FILE);

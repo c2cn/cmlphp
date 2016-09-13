@@ -330,7 +330,7 @@ EOT;
                 ];
                 self::$sql && $deBugLogData['sql'] = self::$sql;
                 if (!empty($deBugLogData)) {
-                    Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.'ConsoleLog.php');
+                    Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.'ConsoleLog.php', ['deBugLogData' => $deBugLogData]);
                 }
             }
         } else {

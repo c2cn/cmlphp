@@ -148,12 +148,16 @@ class Config
         if (isset(static::$_content[$file])) {
             return static::$_content[$file];
         } else {
-            $file = $global
-                ? Cml::getApplicationDir('global_config_path')
-                : Cml::getApplicationDir('secure_src')
-                    .  '/' . Cml::getContainer()->make('cml_route')->getAppName(). '/'
-                    . Cml::getApplicationDir('app_config_path_name')
-                    . ( $global ? self::$isLocal.DIRECTORY_SEPARATOR : '' ).$file.'.php';
+            $file =
+                (
+                    $global
+                    ? Cml::getApplicationDir('global_config_path')
+                    : Cml::getApplicationDir('apps_path')
+                        .  '/' . Cml::getContainer()->make('cml_route')->getAppName(). '/'
+                        . Cml::getApplicationDir('app_config_path_name')
+                )
+                . '/'. ( $global ? self::$isLocal.DIRECTORY_SEPARATOR : '' ).$file.'.php';
+
             if (!is_file($file)) {
                 throw new ConfigNotFoundException(Lang::get('_NOT_FOUND_', $file));
             }
