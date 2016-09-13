@@ -162,7 +162,7 @@ class Acl
                         'id' => $user['id'],
                         'username' => $user['username'],
                         'nickname' => $user['nickname'],
-                        'groupid' => explode('|', $user['groupid'])
+                        'groupid' => explode('|', trim($user['groupid'], '|'))
                     ];
                     $groups = Model::getInstance()->db()->table('groups')
                         ->columns('name')
