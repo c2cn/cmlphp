@@ -3,7 +3,7 @@
  * [cml] (C)2012 - 3000 cml http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 2016/01/23 17:30
- * @version  2.6
+ * @version  2.7
  * cml框架 守护进程工作进程
  * *********************************************************** */
 use Cml\Cml;

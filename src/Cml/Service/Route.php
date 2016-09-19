@@ -3,7 +3,7 @@
  * [cml] (C)2012 - 3000 cml http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 16-9-6 下午3:07
- * @version  2.6
+ * @version  2.7
  * cml框架 自带路由实现
  * *********************************************************** */
 namespace Cml\Service;
@@ -26,9 +26,9 @@ class Route implements RouteInterface
      */
     public function getSubDirName()
     {
-        substr(Route::$urlParams['root'], -1) != '/' && Route::$urlParams['root'] .= '/';
-        substr(Route::$urlParams['root'], 0, 1) != '/' && Route::$urlParams['root'] = '/' . Route::$urlParams['root'];
-        return Route::$urlParams['root'];
+        substr(self::$urlParams['root'], -1) != '/' && self::$urlParams['root'] .= '/';
+        substr(self::$urlParams['root'], 0, 1) != '/' && self::$urlParams['root'] = '/' . self::$urlParams['root'];
+        return self::$urlParams['root'];
     }
 
     /**
@@ -38,7 +38,7 @@ class Route implements RouteInterface
      */
     public function getAppName()
     {
-        return trim(Route::$urlParams['path'], '\\/');
+        return trim(self::$urlParams['path'], '\\/');
     }
 
     /**
@@ -48,7 +48,7 @@ class Route implements RouteInterface
      */
     public function getControllerName()
     {
-        return trim(Route::$urlParams['controller'], '\\/');
+        return trim(self::$urlParams['controller'], '\\/');
     }
 
     /**
@@ -58,7 +58,7 @@ class Route implements RouteInterface
      */
     public function getActionName()
     {
-        return trim(Route::$urlParams['action'], '\\/');
+        return trim(self::$urlParams['action'], '\\/');
     }
 
     /**

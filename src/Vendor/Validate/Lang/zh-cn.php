@@ -3,7 +3,7 @@
  * [cml] (C)2012 - 3000 cml http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 16-7-30 下午2:23
- * @version  2.6
+ * @version  2.7
  * 数据验证类语言包
  * *********************************************************** */
 return [

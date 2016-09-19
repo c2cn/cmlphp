@@ -3,7 +3,7 @@
  * [cml] (C)2012 - 3000 cml http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 16-9-6 下午3:07
- * @version  2.6
+ * @version  2.7
  * cml框架 异常、错误捕获 使用第三方错误捕获插件 必须封装实现本接口
  * *********************************************************** */
 

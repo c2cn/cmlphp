@@ -3,7 +3,7 @@
  * [cml] (C)2012 - 3000 cml http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 13-10-22 下午5:06
- * @version  2.6
+ * @version  2.7
  * cml框架 stmp邮件发送
  * *********************************************************** */
 namespace Cml\Vendor;

@@ -4,7 +4,7 @@ namespace Cml;
  * [cml] (C)2012 - 3000 cml http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 16-09-10 下午2:51
- * @version  2.6
+ * @version  2.7
  * cml框架 容器
  * *********************************************************** */
 
