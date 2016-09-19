@@ -255,11 +255,11 @@ class Cml
     /**
      * 某些场景(如：跟其它项目混合运行的时候)只希望使用CmlPHP中的组件而不希望运行控制器，用来替代runApp
      *
-     *
+     * @param callable $initDi 注入依赖
      */
-    public static function onlyInitEnvironmentNotRunController()
+    public static function onlyInitEnvironmentNotRunController(callable $initDi)
     {
-        self::init(function(){});
+        self::init($initDi);
     }
 
     /**
