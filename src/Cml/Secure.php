@@ -124,6 +124,7 @@ class Secure
      */
     public static function filterScript($value)
     {
+        $value = preg_replace("/javascript:/i","&111n\\2",$value);
         $value = preg_replace("/(javascript:)?on(click|load|key|mouse|error|abort|move|unload|change|dblclick|move|reset|resize|submit)/i","&111n\\2",$value);
         $value = preg_replace("/<script(.*?)>(.*?)<\/script>/si","&ltscript\\1&gt\\2&lt/script&gt",$value);
         $value = preg_replace("/<iframe(.*?)>(.*?)<\/iframe>/si","&ltiframe\\1&gt\\2&lt/iframe&gt",$value);
