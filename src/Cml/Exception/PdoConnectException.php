@@ -6,6 +6,12 @@
  * @version  2.7
  * cml框架 PdoConnectException
  * *********************************************************** */
+
+/**
+ * Pdo连接失败异常类
+ *
+ * @package Cml\Exception
+ */
 class PdoConnectException extends \RuntimeException
 {
 }

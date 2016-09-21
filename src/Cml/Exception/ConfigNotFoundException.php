@@ -6,6 +6,12 @@
  * @version  2.7
  * cml框架 ConfigNotFoundException
  * *********************************************************** */
+
+/**
+ * 配置文件加载失败异常类
+ *
+ * @package Cml\Exception
+ */
 class ConfigNotFoundException extends \RuntimeException
 {
 }

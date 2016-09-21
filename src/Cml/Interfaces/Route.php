@@ -10,7 +10,7 @@
 namespace Cml\Interfaces;
 
 /**
- * Interface Route
+ * 路由驱动抽象接口
  *
  * @package Cml\Interfaces
  */

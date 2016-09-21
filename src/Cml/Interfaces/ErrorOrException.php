@@ -9,7 +9,7 @@
 namespace Cml\Interfaces;
 
 /**
- * Interface ErrorOrException
+ * 系统错误及异常捕获驱动抽象接口
  *
  * @package Cml\Interfaces
  */

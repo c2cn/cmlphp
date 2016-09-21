@@ -6,6 +6,12 @@
  * @version  2.7
  * cml框架 ControllerNotFoundException
  * *********************************************************** */
+
+/**
+ * 控制器未找到异常类
+ *
+ * @package Cml\Exception
+ */
 class ControllerNotFoundException extends \RuntimeException
 {
 }

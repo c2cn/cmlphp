@@ -9,7 +9,7 @@
 namespace Cml\Interfaces;
 
 /**
- * Interface Cache
+ * 缓存驱动抽象接口
  *
  * @package Cml\Interfaces
  */
