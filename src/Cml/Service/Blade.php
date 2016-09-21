@@ -21,14 +21,23 @@ use CmlExt\Blade\FileViewFinder;
  * @package Cml
  */
 class Blade extends Base
-{    /**
- * 初始化目录
- *
- * @param string $templateFile 模板文件名
- *
- * @return string
- */
-    private function initBaseDir($templateFile) {
+{
+    /**
+     * 自定义规则
+     *
+     * @var array
+     */
+    private $rule = [];
+
+    /**
+     * 初始化目录
+     *
+     * @param string $templateFile 模板文件名
+     *
+     * @return string
+     */
+    private function initBaseDir($templateFile)
+    {
         $baseDir = Cml::getContainer()->make('cml_route')->getAppName();
         $baseDir .=  '/'. Cml::getApplicationDir('app_view_path_name') . (Config::get('html_theme') != '' ? DIRECTORY_SEPARATOR . Config::get('html_theme') : '');
 
@@ -120,6 +129,9 @@ class Blade extends Base
             return '<?php } ?>';
         });
 
+        foreach($this->rule as $pattern => $func) {
+            $compiler->directive($pattern, $func);
+        }
 
 
         $finder = new FileViewFinder([$options['templateDir'], $options['layoutDir']]);
@@ -131,5 +143,16 @@ class Blade extends Base
         header('Content-Type:text/html; charset='.Config::get('default_charset'));
         echo $factory->make($options['file'], $this->args)->render();
         Cml::cmlStop();
+    }
+
+    /**
+     * 添加一个模板替换规则
+     *
+     * @param string $pattern 正则
+     * @param callable $func 执行的闭包函数
+     */
+    public function addRule($pattern, callable $func)
+    {
+        $this->rule[$pattern] = $func;
     }
 }

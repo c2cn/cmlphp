@@ -148,7 +148,7 @@ class Html extends Base
     }
 
     /**
-     * 添加一个模板标签
+     * 添加一个模板替换规则
      *
      * @param string $pattern 正则
      * @param string $replacement 替换成xx内容
