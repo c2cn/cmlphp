@@ -122,11 +122,11 @@ class Blade extends Base
         });
 
         $compiler->directive('acl', function ($url) {
-            return preg_replace('/\((.*?)\)/', '<?php if (\Cml\Vendor\Acl::checkAcl("${1}")) { ?>', $url);
+            return preg_replace('/\((.*?)\)/', '<?php if (\Cml\Vendor\Acl::checkAcl("${1}")) : ?>', $url);
         });
 
         $compiler->directive('endacl', function () {
-            return '<?php } ?>';
+            return '<?php endif; ?>';
         });
 
         foreach($this->rule as $pattern => $func) {
