@@ -19,6 +19,11 @@ use Cml\Route;
  */
 class StaticResource
 {
+    /**
+     * 生成软链接
+     *
+     * @param null $rootDir 站点静态文件根目录默认为项目目录下的public目录
+     */
     public static function createSymbolicLink($rootDir = null)
     {
         $deper = (Request::isCli() ? PHP_EOL : '<br />');
@@ -37,7 +42,7 @@ class StaticResource
             if (!$file->isDot() && $file->isDir()) {
                 $resourceDir = $file->getPathname() . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_static_path_name');
                 if (is_dir($resourceDir)) {
-                    $distDir = CML_PROJECT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $file->getFilename();
+                    $distDir = $rootDir . DIRECTORY_SEPARATOR . $file->getFilename();
                     $cmd = Request::operatingSystem() ? "mklink /d {$distDir} {$resourceDir}" : "ln -s {$resourceDir} {$distDir}";
                     exec($cmd, $result);
                     $tip = "create link Application [{$file->getFilename()}] result : ["
@@ -88,9 +93,21 @@ class StaticResource
         $resource = implode('/', $pathinfo);
 
         if (Cml::$debug) {
-            $pos = strpos ($resource, '/');
-            $file = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR.substr($resource, 0, $pos).DIRECTORY_SEPARATOR
-                .Cml::getApplicationDir('app_static_path_name') . substr($resource, $pos);
+            $appName = $file = '';
+            $i = 0;
+
+            while (true) {
+                $resource = ltrim($resource, '/');
+                $pos = strpos ($resource, '/');
+                $appName = ($appName == '' ? '' : $appName . DIRECTORY_SEPARATOR) . substr($resource, 0, $pos);
+                $resource = substr($resource, $pos);
+                $file = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR.$appName.DIRECTORY_SEPARATOR
+                    .Cml::getApplicationDir('app_static_path_name') . $resource;
+
+                if (is_file($file) || ++$i >= 3) {
+                    break;
+                }
+            }
 
             if (is_file($file)) {
                 Response::sendContentTypeBySubFix(substr($resource, strrpos($resource, '.') + 1));
