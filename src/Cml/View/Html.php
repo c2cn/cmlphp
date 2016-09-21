@@ -154,16 +154,15 @@ class Html extends Base
      * @param string $replacement 替换成xx内容
      * @param bool $haveDelimiter $pattern的内容是否要带上左右定界符
      *
-     * @return bool
+     * @return $this
      */
     public function addRule($pattern, $replacement, $haveDelimiter = true)
     {
         if ($pattern && $replacement) {
             $this->pattern = $haveDelimiter ? '#'.$this->options['leftDelimiter'].$pattern.$this->options['rightDelimiter'].'#s' : "#{$pattern}#s";
             $this->replacement = $replacement;
-            return true;
         }
-        return false;
+        return $this;
     }
 
     /**

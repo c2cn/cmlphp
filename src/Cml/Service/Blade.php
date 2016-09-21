@@ -150,9 +150,12 @@ class Blade extends Base
      *
      * @param string $pattern 正则
      * @param callable $func 执行的闭包函数
+     *
+     * @return $this
      */
     public function addRule($pattern, callable $func)
     {
         $this->rule[$pattern] = $func;
+        return $this;
     }
 }
