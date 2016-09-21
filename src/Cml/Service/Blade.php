@@ -102,7 +102,7 @@ class Blade extends Base
         });
 
         $compiler->directive('public', function () {
-            return '<?php echo \Cml\Config::get("static__path", "/".\Cml\Cml::getContainer()->make("cml_route")->getAppName()."/public/");?>';
+            return '<?php echo \Cml\Config::get("static__path", \Cml\Cml::getContainer()->make("cml_route")->getSubDirName()."public/");?>';
         });
 
         $compiler->directive('token', function () {

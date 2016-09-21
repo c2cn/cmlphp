@@ -130,8 +130,7 @@ class Html extends Base
             '<?php echo \Cml\Lang::get("${1}");?>',
             '<?php echo \Cml\Config::get("${1}");?>',
             '<?php \Cml\Http\Response::url(${1});?>',
-
-            '<?php echo \Cml\Config::get("static__path", "/".\Cml\Cml::getContainer()->make("cml_route")->getAppName()."/public/");?>',//替换 {{public}}
+            '<?php echo \Cml\Config::get("static__path", \Cml\Cml::getContainer()->make("cml_route")->getSubDirName()."public/");?>',//替换 {{public}}
             '<?php echo strip_tags($_SERVER["REQUEST_URI"]); ?>',//替换 {{self}}
             '<input type="hidden" name="CML_TOKEN" value="<?php echo \Cml\Secure::getToken();?>" />',//替换 {{token}}
             '<?php echo \Cml\Cml::getContainer()->make("cml_route")->getControllerName(); ?>',//替换 {{controller}}
