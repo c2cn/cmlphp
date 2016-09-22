@@ -220,7 +220,15 @@ class Pdo extends Base
             $data = $key;
         }
 
-        $tableName = empty($tableName) ? $this->getRealTableName(key($this->table)) : $tablePrefix.$tableName;
+        if (empty($tableName)) {
+            $tableAndCacheKey = $this->tableFactory(false);
+            $tableName = $tableAndCacheKey[0];
+            $upCacheTables = $tableAndCacheKey[1];
+        } else {
+            $tableName = $tablePrefix.$tableName;
+            $upCacheTables = [$tableName];
+        }
+
         if (empty($tableName)) {
             throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'update'));
         }
@@ -233,7 +241,9 @@ class Pdo extends Base
         $stmt = $this->prepare("UPDATE {$tableName} SET {$s} {$whereCondition}", $this->wlink);
         $this->execute($stmt);
 
-        $this->setCacheVer($tableName);
+        foreach($upCacheTables as $tb) {
+            $this->setCacheVer($tb);
+        }
         return $stmt->rowCount();
     }
 
@@ -253,7 +263,15 @@ class Pdo extends Base
 
         empty($key) || list($tableName, $condition) = $this->parseKey($key, $and, true, true);
 
-        $tableName = empty($tableName) ? $this->getRealTableName(key($this->table)) : $tablePrefix . $tableName;
+        if (empty($tableName)) {
+            $tableAndCacheKey = $this->tableFactory(false);
+            $tableName = $tableAndCacheKey[0];
+            $upCacheTables = $tableAndCacheKey[1];
+        } else {
+            $tableName = $tablePrefix.$tableName;
+            $upCacheTables = [$tableName];
+        }
+
         if (empty($tableName)) {
             throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'delete'));
         }
@@ -265,7 +283,9 @@ class Pdo extends Base
         $stmt = $this->prepare("DELETE FROM {$tableName} {$whereCondition}", $this->wlink);
         $this->execute($stmt);
 
-        $this->setCacheVer($tableName);
+        foreach($upCacheTables as $tb) {
+            $this->setCacheVer($tb);
+        }
         return $stmt->rowCount();
     }
 
@@ -392,26 +412,19 @@ class Pdo extends Base
     }
 
     /**
-     * 获取多条数据
-     * 
-     * @param int $offset 偏移量
-     * @param int $limit 返回的条数
-     * @param bool $useMaster 是否使用主库 默认读取从库
+     * table组装工厂
+     *
+     * @param bool $isRead 是否为读操作
      *
      * @return array
      */
-    public function select($offset = null, $limit = null,  $useMaster = false)
+    private function tableFactory($isRead = true)
     {
-        is_null($offset) || $this->limit($offset, $limit);
-
-        $this->sql['columns'] == '' && ($this->sql['columns'] = '*');
-
-        $columns = $this->sql['columns'];
-
-        $table = $operator = $cacheKey = '';
+        $table = $operator = '';
+        $cacheKey = [];
         foreach ($this->table as $key => $val) {
             $realTable = $this->getRealTableName($key);
-            $cacheKey .= $this->getCacheVer($realTable);
+            $cacheKey[] = $isRead ? $this->getCacheVer($realTable) : $realTable;
 
             $on = null;
             if (isset($this->join[$key])) {
@@ -435,14 +448,36 @@ class Pdo extends Base
         }
 
         if (empty($table)) {
-            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'select'));
+            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', $isRead ? 'select' : 'update/delete'));
         }
+        return [$table, $cacheKey];
+    }
+
+    /**
+     * 获取多条数据
+     *
+     * @param int $offset 偏移量
+     * @param int $limit 返回的条数
+     * @param bool $useMaster 是否使用主库 默认读取从库
+     *
+     * @return array
+     */
+    public function select($offset = null, $limit = null,  $useMaster = false)
+    {
+        is_null($offset) || $this->limit($offset, $limit);
+
+        $this->sql['columns'] == '' && ($this->sql['columns'] = '*');
+
+        $columns = $this->sql['columns'];
+
+        $tableAndCacheKey = $this->tableFactory();
+
         empty($this->sql['limit']) && ($this->sql['limit'] = "LIMIT 0, 100");
 
-        $sql = "SELECT $columns FROM {$table} ".$this->sql['where'].$this->sql['groupBy'].$this->sql['having']
+        $sql = "SELECT $columns FROM {$tableAndCacheKey[0]} ".$this->sql['where'].$this->sql['groupBy'].$this->sql['having']
             .$this->sql['orderBy'].$this->union.$this->sql['limit'];
 
-        $cacheKey = md5($sql.json_encode($this->bindParams)).$cacheKey;
+        $cacheKey = md5($sql.json_encode($this->bindParams)).implode('', $tableAndCacheKey[1]);
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) {
             $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
@@ -455,7 +490,7 @@ class Pdo extends Base
                 $this->debugLogSql(Debug::SQL_TYPE_FROM_CACHE);
                 $this->currentSql = '';
             }
-            
+
             $this->reset();
             $this->clearBindParams();
         }
