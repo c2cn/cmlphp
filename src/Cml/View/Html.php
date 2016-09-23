@@ -14,7 +14,6 @@ use Cml\Config;
 use Cml\Exception\FileCanNotReadableException;
 use Cml\Exception\MkdirErrorException;
 use Cml\Lang;
-use Cml\Route;
 use Cml\Secure;
 
 /**
@@ -388,10 +387,12 @@ class Html extends Base
      * @return string
      */
     private function initBaseDir($templateFile, $inOtherApp = false) {
-        $baseDir = $inOtherApp
-            ? $inOtherApp
-            : Cml::getContainer()->make('cml_route')->getAppName();
-        $baseDir .=  '/'. Cml::getApplicationDir('app_view_path_name') . (Config::get('html_theme') != '' ? DIRECTORY_SEPARATOR . Config::get('html_theme') : '');
+
+        $baseDir = Cml::getApplicationDir('app_view_path_name') . (Config::get('html_theme') != '' ? DIRECTORY_SEPARATOR . Config::get('html_theme') : '');
+
+        if (!Cml::getApplicationDir('app_controller_path')) {
+            $baseDir = ($inOtherApp ? $inOtherApp : Cml::getContainer()->make('cml_route')->getAppName()) . '/'. $baseDir;
+        }
 
         if ($templateFile === '' ) {
             $baseDir .=  '/' . Cml::getContainer()->make('cml_route')->getControllerName() . '/';
