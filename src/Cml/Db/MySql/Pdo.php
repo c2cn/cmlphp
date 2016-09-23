@@ -33,6 +33,13 @@ class Pdo extends Base
     private $currentSql = '';
 
     /**
+     * 强制某表使用某索引
+     *
+     * @var array
+     */
+    private $forceIndex = [];
+
+    /**
      * 数据库连接串
      *
      * @param $conf
@@ -444,6 +451,7 @@ class Pdo extends Base
             } else {
                 $table .= "{$operator} `{$realTable}` AS `{$val}`";
             }
+            isset($this->forceIndex[$realTable]) && $table .= ' force index('.$this->forceIndex[$realTable].') ';
             is_null($on) || $table .= " ON {$on}";
         }
 
@@ -451,6 +459,22 @@ class Pdo extends Base
             throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', $isRead ? 'select' : 'update/delete'));
         }
         return [$table, $cacheKey];
+    }
+
+    /**
+     * 强制使用索引
+     *
+     * @param string $table 要强制索引的表名(不带前缀)
+     * @param string $index 要强制使用的索引
+     * @param string $tablePrefix 表前缀 不传则获取配置中配置的前缀
+     *
+     * @return $this
+     */
+    public function forceIndex($table, $index, $tablePrefix = null)
+    {
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        $this->forceIndex[$tablePrefix.$table] = $index;
+        return $this;
     }
 
     /**
