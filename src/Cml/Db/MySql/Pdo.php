@@ -195,7 +195,7 @@ class Pdo extends Base
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         $tableName = $tablePrefix . $table;
         if (is_array($data)) {
-            $s = $this->arrToCondition($data, $table);
+            $s = $this->arrToCondition($data);
             $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
             $this->execute($stmt);
 
@@ -239,7 +239,7 @@ class Pdo extends Base
         if (empty($tableName)) {
             throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'update'));
         }
-        $s = $this->arrToCondition($data, substr($tableName, strlen($tablePrefix)));
+        $s = $this->arrToCondition($data);
         $whereCondition = $this->sql['where'];
         $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;
         if (empty($whereCondition)) {

@@ -834,23 +834,14 @@ abstract class Base implements Db
     }
 
     /**
-     *SQL语句条件组装
+     * SQL语句条件组装
      *
-     *@param array $arr; 要组装的数组
-     *@param string $tableName 当前操作的数据表名
+     * @param array $arr; 要组装的数组
      *
-     *@return string
+     * @return string
      */
-    protected function arrToCondition($arr, $tableName)
+    protected function arrToCondition($arr)
     {
-        empty($tableName) && $tableName = Cml::getContainer()->make('cml_route')->getControllerName();
-       /*
-       //这个应该开发人员自己判断。框架不做额外开销
-       $dbFields = $this->getDbFields($tableName, $tablePrefix);
-        foreach (array_keys($arr) as $key) {
-            if (!isset($dbFields[$key]))  unset($arr[$key]); //过滤db表中不存在的字段
-        }
-       */
         $s = $p = '';
         $params = [];
         foreach ($arr as $k => $v) {
