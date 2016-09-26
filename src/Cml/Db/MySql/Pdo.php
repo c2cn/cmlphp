@@ -580,7 +580,7 @@ class Pdo extends Base
             throw new PdoConnectException(
                 'Pdo Connect Error! ｛' .
                 $host[0] . (isset($host[1]) ? ':' . $host[1] : '') . ', ' . $dbName .
-                '} Code:' . $e->getCode() . ', ErrorInfo!:' . $e->getMessage() . '<br />',
+                '} Code:' . $e->getCode() . ', ErrorInfo!:' . $e->getMessage(),
                 0,
                 $e
             );
@@ -676,7 +676,7 @@ class Pdo extends Base
         if ($stmt === false) {
             $error = $link->errorInfo();
             throw new \InvalidArgumentException(
-                'Pdo Prepare Sql error! ,【Sql : '.$this->buildDebugSql().'】,【Code:'.$link->errorCode ().'】, 【ErrorInfo!:'.$error[2].'】 <br />'
+                'Pdo Prepare Sql error! ,【Sql : '.$this->buildDebugSql().'】,【Code:'.$link->errorCode ().'】, 【ErrorInfo!:'.$error[2].'】 '
             );
         } else {
             foreach($this->bindParams as $key => $val) {
