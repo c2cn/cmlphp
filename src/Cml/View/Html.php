@@ -78,6 +78,13 @@ class Html extends Base
             '#'.$this->options['leftDelimiter']."(\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?\\[\S+?\\]\\[\S+?\\]|\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?\\[\S+?\\]|\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?);?".$this->options['rightDelimiter'].'#', //替换变量 $a['name']这种一维数组以及$a['name']['name']这种二维数组
             '#'.$this->options['leftDelimiter']."(\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?)\\.([a-zA-Z0-9_\x7f-\xff]+);?".$this->options['rightDelimiter'].'#', //替换$a.key这种一维数组
             '#'.$this->options['leftDelimiter']."(\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?)\\.([a-zA-Z0-9_\x7f-\xff]+)\\.([a-zA-Z0-9_\x7f-\xff]+);?".$this->options['rightDelimiter'].'#', //替换$a.key.key这种二维数组
+
+            //htmlspecialchars
+            '#'.$this->options['leftDelimiter']."\\+(\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?\\[\S+?\\]\\[\S+?\\]|\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?\\[\S+?\\]|\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?);?".$this->options['rightDelimiter'].'#', //替换变量 $a['name']这种一维数组以及$a['name']['name']这种二维数组
+            '#'.$this->options['leftDelimiter']."\\+(\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?)\\.([a-zA-Z0-9_\x7f-\xff]+);?".$this->options['rightDelimiter'].'#', //替换$a.key这种一维数组
+            '#'.$this->options['leftDelimiter']."\\+(\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*?)\\.([a-zA-Z0-9_\x7f-\xff]+)\\.([a-zA-Z0-9_\x7f-\xff]+);?".$this->options['rightDelimiter'].'#', //替换$a.key.key这种二维数组
+            '#'.$this->options['leftDelimiter'].'\\+echo\s+(.+?)'.$this->options['rightDelimiter'].'#s', //替换 echo
+
             '#'.$this->options['leftDelimiter'].'template\s+([a-z0-9A-Z_\.\/]+);?'.$this->options['rightDelimiter'].'[\n\r\t]*#',//替换模板载入命令
             '#'.$this->options['leftDelimiter'].'eval\s+(.+?)'.$this->options['rightDelimiter'].'#s',//替换eval
             '#'.$this->options['leftDelimiter'].'echo\s+(.+?)'.$this->options['rightDelimiter'].'#s', //替换 echo
@@ -114,6 +121,13 @@ class Html extends Base
             '<?php echo ${1};?>',
             '<?php echo ${1}[\'${2}\'];?>',
             '<?php echo ${1}[\'${2}\'][\'${3}\'];?>',
+
+            //htmlspecialchars
+            '<?php echo htmlspecialchars(${1});?>',
+            '<?php echo htmlspecialchars(${1}[\'${2}\']);?>',
+            '<?php echo htmlspecialchars(${1}[\'${2}\'][\'${3}\']);?>',
+            '<?php echo htmlspecialchars(${1});?>',
+
             '<?php require(\Cml\View::getEngine()->getFile(\'${1}\', 1)); ?>',
             '<?php ${1};?>',
             '<?php echo ${1};?>',
