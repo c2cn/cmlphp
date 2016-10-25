@@ -1,12 +1,15 @@
 <?php namespace Cml\Tools\Daemon;
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 2016/01/23 17:30
- * @version  2.7
- * cml框架 守护进程工作进程
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 守护进程工作进程
  * *********************************************************** */
 use Cml\Cml;
+use Cml\Console\Format\Colour;
+use Cml\Console\IO\Output;
+use Cml\Exception\PhpExtendNotInstall;
 
 /**
  * 守护进程工作进程工作类
@@ -27,12 +30,12 @@ class ProcessManage
     private static function checkExtension()
     {
         if(!extension_loaded('posix')) {
-            die('error:need PHP posix extension!');
+            throw new PhpExtendNotInstall('please install PHP posix extension!');
         }
 
         // 检查扩展
         if(!extension_loaded('pcntl')) {
-            die('error:need PHP pcntl extension!');
+            throw new PhpExtendNotInstall('please install PHP pcntl extension!');
         }
 
     }
@@ -44,7 +47,8 @@ class ProcessManage
      */
     private static function message($message = '')
     {
-        printf(PHP_EOL . "%s %d %d %s". PHP_EOL, date('Y-m-d H:i:s'), posix_getpid(), posix_getppid(), $message);
+        $message = sprintf("%s %d %d %s", date('Y-m-d H:i:s'), posix_getpid(), posix_getppid(), $message);
+        Output::writeln(Colour::colour($message, Colour::GREEN));
     }
 
     /**
@@ -169,12 +173,12 @@ class ProcessManage
     /**
      * 信号处理
      *
-     * @param int $signo
+     * @param int $sigNo
      *
      */
-    private static function signalHandler($signo)
+    private static function signalHandler($sigNo)
     {
-        switch($signo) {
+        switch($sigNo) {
             // stop
             case SIGINT:
                 self::signStop();
@@ -235,6 +239,10 @@ class ProcessManage
      */
     public static function addTask($task, $frequency = 60)
     {
+        self::initEvn();
+
+        $frequency < 1 || $frequency = 60;
+
         $task || self::message('task is empty');
 
         $status = self::getStatus();
@@ -249,7 +257,7 @@ class ProcessManage
         ];
         file_put_contents(self::$status, '<?php return '.var_export($status, true).';', LOCK_EX );
 
-        self::message('task nums (' . count($status['task']) . ') list  ['.json_encode($status['task'], PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0).']');
+        self::message('task nums (' . count($status['task']) . ') list  ['.json_encode($status['task'], JSON_UNESCAPED_UNICODE).']');
     }
 
     /**
@@ -261,6 +269,8 @@ class ProcessManage
      */
     public static function rmTask($task)
     {
+        self::initEvn();
+
         $task || self::message('task name is empty');
 
         $status = self::getStatus();
@@ -281,7 +291,7 @@ class ProcessManage
         self::message("rm task [{$task}] success");
         file_put_contents(self::$status, '<?php return '.var_export($status, true).';', LOCK_EX );
 
-        self::message('task nums (' . count($status['task']) . ') list  ['.json_encode($status['task'], PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0).']');
+        self::message('task nums (' . count($status['task']) . ') list  ['.json_encode($status['task'], JSON_UNESCAPED_UNICODE).']');
     }
 
     /**
@@ -290,10 +300,11 @@ class ProcessManage
      */
     public static function start()
     {
+        self::initEvn();
         if (self::getPid() > 0) {
             self::message('already running...');
         } else {
-            self::message('start');
+            self::message('starting...');
             self::demonize();
         }
     }
@@ -303,9 +314,11 @@ class ProcessManage
      *
      * @param bool $showInfo 是否直接显示状态
      *
-     * @return array
+     * @return array|void
      */
-    public static function getStatus($showInfo = false) {
+    public static function getStatus($showInfo = false)
+    {
+        self::initEvn();
 
         $status = is_file(self::$status) ? Cml::requireFile(self::$status) : [];
         if (!$showInfo) {
@@ -316,9 +329,46 @@ class ProcessManage
             self::message('is running');
             self::message('master pid is '.self::getPid());
             self::message('worker pid is ['.implode($status['pid'], ',').']');
-            self::message('task nums (' . count($status['task']) . ') list  ['.json_encode($status['task'], PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0).']');
+            self::message('task nums (' . count($status['task']) . ') list  ['.json_encode($status['task'], JSON_UNESCAPED_UNICODE).']');
         } else {
             echo 'not running' .PHP_EOL;
+        }
+        return null;
+    }
+
+    /**
+     * reload服务
+     *
+     */
+    public static function reload()
+    {
+        self::initEvn();
+        posix_kill(self::getPid(), SIGUSR1);
+        self::message('reloading....');
+    }
+
+    /**
+     * 终止后台进程
+     *
+     */
+    public static function stop()
+    {
+        self::initEvn();
+        posix_kill(self::getPid(), SIGINT);
+        self::message('stop....');
+    }
+
+    /**
+     * 初始化环境
+     *
+     */
+    private static function initEvn()
+    {
+        if (!self::$pidFile) {
+            self::$pidFile = Cml::getApplicationDir('global_store_path').DIRECTORY_SEPARATOR.'DaemonProcess_.pid';
+            self::$log = Cml::getApplicationDir('global_store_path').DIRECTORY_SEPARATOR.'DaemonProcess_.log';
+            self::$status = Cml::getApplicationDir('global_store_path').DIRECTORY_SEPARATOR.'DaemonProcessStatus.php';
+            self::checkExtension();
         }
     }
 
@@ -329,10 +379,7 @@ class ProcessManage
      */
     public static function run($cmd)
     {
-        self::$pidFile = Cml::getApplicationDir('global_store_path').DIRECTORY_SEPARATOR.'DaemonProcess_.pid';
-        self::$log = Cml::getApplicationDir('global_store_path').DIRECTORY_SEPARATOR.'DaemonProcess_.log';
-        self::$status = Cml::getApplicationDir('global_store_path').DIRECTORY_SEPARATOR.'DaemonProcessStatus.php';
-        self::checkExtension();
+        self::initEvn();
 
         $param = is_array($cmd) && count($cmd) == 2 ? $cmd[1] : $cmd;
         switch ($param) {
@@ -340,27 +387,24 @@ class ProcessManage
                 self::start();
                 break;
             case 'stop':
-                posix_kill(self::getPid(), SIGINT);
-                self::message('stop....');
+                self::stop();
                 break;
             case 'reload':
-                posix_kill(self::getPid(), SIGUSR1);
-                self::message('reloading....');
+                self::reload();
                 break;
             case 'status':
                 self::getStatus(true);
                 break;
-            case 'addtask':
+            case 'add-task':
                 if (func_num_args() < 1) {
                     self::message('please input task name');
                     break;
                 }
                 $args = func_get_args();
                 $frequency = isset($args[2]) ? intval($args[2]) : 60;
-                $frequency < 1 || $frequency = 60;
                 self::addTask($args[1], $frequency);
                 break;
-            case 'rmtask':
+            case 'rm-task':
                 if (func_num_args() < 1) {
                     self::message('please input task name');
                     break;

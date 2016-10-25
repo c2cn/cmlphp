@@ -1,10 +1,10 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-8 下午3:07
- * @version  2.7
- * cml框架 memcache缓存驱动
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 memcache缓存驱动
  * *********************************************************** */
 namespace Cml\Cache;
 
@@ -168,7 +168,7 @@ class Memcache extends namespace\Base
         if ($this->type === 1) {
             return $this->memcache->set($key, $value, $expire);
         } else {
-            return $this->memcache->set($this->conf['prefix'] . $key, json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0), false, $expire);
+            return $this->memcache->set($this->conf['prefix'] . $key, json_encode($value, JSON_UNESCAPED_UNICODE), false, $expire);
         }
     }
 
@@ -186,7 +186,7 @@ class Memcache extends namespace\Base
         if ($this->type === 1) {
             return $this->memcache->replace($key, $value, $expire);
         } else {
-            return $this->memcache->replace($this->conf['prefix'] . $key, json_encode($value, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0), false, $expire);
+            return $this->memcache->replace($this->conf['prefix'] . $key, json_encode($value, JSON_UNESCAPED_UNICODE), false, $expire);
         }
 
     }

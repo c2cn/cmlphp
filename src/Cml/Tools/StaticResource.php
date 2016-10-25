@@ -1,13 +1,16 @@
 <?php namespace Cml\Tools;
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 2015/11/9 16:01
- * @version  2.7
- * cml框架 静态资源管理
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 静态资源管理
  * *********************************************************** */
 use Cml\Cml;
 use Cml\Config;
+use Cml\Console\Component\Box;
+use Cml\Console\Format\Colour;
+use Cml\Console\IO\Output;
 use Cml\Http\Request;
 use Cml\Http\Response;
 use Cml\Route;
@@ -26,11 +29,13 @@ class StaticResource
      */
     public static function createSymbolicLink($rootDir = null)
     {
-        $deper = (Request::isCli() ? PHP_EOL : '<br />');
+        $isCli = Request::isCli();
 
-        echo "{$deper}**************************create link start!*********************{$deper}";
-
-        echo '|' . str_pad('', 64, ' ', STR_PAD_BOTH) . '|';
+        if ($isCli) {
+            Output::writeln(Colour::colour('create link start!', [Colour::GREEN, Colour::HIGHLIGHT]));
+        } else {
+            echo "<br />**************************create link start!*********************<br />";
+        }
 
         is_null($rootDir) && $rootDir = CML_PROJECT_PATH . DIRECTORY_SEPARATOR . 'public';
         is_dir($rootDir) || mkdir($rootDir, true, 0700);
@@ -44,19 +49,23 @@ class StaticResource
                 if (is_dir($resourceDir)) {
                     $distDir = $rootDir . DIRECTORY_SEPARATOR . $file->getFilename();
                     $cmd = Request::operatingSystem() ? "mklink /d {$distDir} {$resourceDir}" : "ln -s {$resourceDir} {$distDir}";
-                    exec($cmd, $result);
-                    $tip = "create link Application [{$file->getFilename()}] result : ["
+                    is_dir($distDir) || exec($cmd, $result);
+                    $tip = "  create link Application [{$file->getFilename()}] result : ["
                         . (is_dir($distDir) ? 'true' : 'false') . "]";
-                    $tip = str_pad($tip, 64, ' ', STR_PAD_BOTH);
-                    print_r(
-                        $deper . '|' . $tip . '|'
-                    );
+                    if ($isCli) {
+                        Output::writeln(Colour::colour($tip, [Colour::WHITE, Colour::HIGHLIGHT]));
+                    } else {
+                        print_r('|<span style="color:blue">' . str_pad($tip, 64, ' ', STR_PAD_BOTH) . '</span>|');
+                    }
                 }
             }
         }
 
-        echo $deper . '|' . str_pad('', 64, ' ', STR_PAD_BOTH) . '|';
-        echo("{$deper}****************************create link end!**********************{$deper}");
+        if ($isCli) {
+            Output::writeln(Colour::colour('create link end!', [Colour::GREEN, Colour::HIGHLIGHT]));
+        } else {
+            echo("<br />****************************create link end!**********************<br />");
+        }
     }
 
     /**

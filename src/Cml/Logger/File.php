@@ -1,10 +1,10 @@
 <?php namespace Cml\Logger;
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 15-21-22 下午1:11
- * @version  2.7
- * cml框架 Log 文件驱动实现
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 Log 文件驱动实现
  * *********************************************************** */
 use Cml\Cml;
 

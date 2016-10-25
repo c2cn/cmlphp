@@ -1,10 +1,10 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 16-9-6 下午3:07
- * @version  2.7
- * cml框架 cml_error_or_exception服务Whoops实现 使用请先安装依赖composer require filp/whoops
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 cml_error_or_exception服务Whoops实现 使用请先安装依赖composer require filp/whoops
  * *********************************************************** */
 namespace Cml\Service;
 

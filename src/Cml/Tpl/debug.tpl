@@ -1,7 +1,7 @@
 <div id="cmlphp_console_info" style="font-family:Microsoft YaHei;letter-spacing: -.0em;position: fixed;bottom:0;right:0;font-size:14px;width:100%;z-index: 999999;color: #000;text-align:left;">
     <div id="cmlphp_console_info_switch" style="height: 28px; bottom: 0; color: rgb(0, 0, 0); cursor: pointer; display: block; width: 100%; border-top: 3px rgb(255, 102, 0) solid;">
         <div style="background:#232323;color:#FFF;padding:2px 6px;height:28px;font-size:14px;">
-            <span id="cmlphp_console_info_simpleinfo">{{lang _PHP_VERSION_}}:<i>{{echo phpversion();}}</i> &nbsp;&nbsp; {{lang _UPTIME_}}:<i>{{$usetime}}s</i> &nbsp;&nbsp; {{lang _USED_MEMORY_}}:<i>{{$usememory}}</i> {{if isset($_SERVER['SERVER_ADDR']) }} &nbsp;&nbsp;IP: {{echo $_SERVER['SERVER_ADDR']}} {{/if}}</span>
+            <span id="cmlphp_console_info_simpleinfo">CmlPHP: {{echo \Cml\Cml::VERSION}} &nbsp;&nbsp; {{lang _PHP_VERSION_}}:<i>{{echo phpversion();}}</i> &nbsp;&nbsp; {{lang _UPTIME_}}:<i>{{$usetime}}s</i> &nbsp;&nbsp; {{lang _USED_MEMORY_}}:<i>{{$usememory}}</i> {{if isset($_SERVER['SERVER_ADDR']) }} &nbsp;&nbsp;IP: {{echo $_SERVER['SERVER_ADDR']}} {{/if}}</span>
             <div style="float:right;margin:0 auto;width:110px;text-align:center;">
                 <svg id="cmlphp_console_info_logo" width="85" height="25" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                     <g>

@@ -1,17 +1,17 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-8 下午2:51
- * @version  2.7
- * cml框架 项目基类
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 项目基类
  * *********************************************************** */
 namespace Cml;
 
+use Cml\Console\Console;
 use Cml\Exception\ControllerNotFoundException;
 use Cml\Http\Request;
 use Cml\Http\Response;
-use Cml\Tools\RunCliCommand;
 
 /**
  * 框架基础类,负责初始化应用的一系列工作,如配置初始化、语言包载入、错误异常机制的处理等
@@ -20,6 +20,11 @@ use Cml\Tools\RunCliCommand;
  */
 class Cml
 {
+    /**
+     * 版本
+     */
+    const VERSION = 'v2.7.0';
+
     /**
      * 是否为debug模式
      *
@@ -213,7 +218,22 @@ class Cml
         }
 
         if (Request::isCli()) {
-            RunCliCommand::runCliCommand();
+            //兼容旧版直接运行方法
+            if ($_SERVER['argc'] != 2 || strpos($_SERVER['argv'][1], '/') < 1) {
+                $console = new Console([
+                    'symlink' => 'Cml\Console\Commands\CreateSymbolicLink',
+                    'run-action' => 'Cml\Console\Commands\RunAction',
+                    'worker:start' => 'Cml\Console\Commands\DaemonProcessManage\Start',
+                    'worker:status' => 'Cml\Console\Commands\DaemonProcessManage\Status',
+                    'worker:reload' => 'Cml\Console\Commands\DaemonProcessManage\Reload',
+                    'worker:stop' => 'Cml\Console\Commands\DaemonProcessManage\Stop',
+                    'worker:add-task' => 'Cml\Console\Commands\DaemonProcessManage\AddTask',
+                    'worker:rm-task' => 'Cml\Console\Commands\DaemonProcessManage\RmTask',
+                ]);
+                if ($console->run() !== 'don_not_exit') {
+                    exit(0);
+                }
+            }
         } else {
             header('X-Powered-By:CmlPHP');
             // 页面压缩输出支持

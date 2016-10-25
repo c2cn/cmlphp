@@ -1,10 +1,10 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 15-12-22 下午1:11
- * @version  2.7
- * cml框架 Logger 抽象类 参考 https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 Logger 抽象类 参考 https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
  * *********************************************************** */
 namespace Cml\Logger;
 
@@ -172,6 +172,6 @@ abstract class Base implements Logger
      */
     public function format($message, array $context = [])
     {
-         return '[' . date('Y-m-d H:i:s') . '] ' . Config::get('log_prefix', 'cml_log') . ': ' . $message . ' ' .json_encode($context, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0);
+         return '[' . date('Y-m-d H:i:s') . '] ' . Config::get('log_prefix', 'cml_log') . ': ' . $message . ' ' .json_encode($context, JSON_UNESCAPED_UNICODE);
     }
 }

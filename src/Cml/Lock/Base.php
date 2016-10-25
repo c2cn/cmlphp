@@ -1,10 +1,10 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 15-1-25 下午3:07
- * @version  2.7
- * cml框架 锁机制驱动抽象类基类
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 锁机制驱动抽象类基类
  * *********************************************************** */
 namespace Cml\Lock;
 

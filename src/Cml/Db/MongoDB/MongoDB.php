@@ -1,10 +1,10 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 16-3-1 下午18:07
- * @version  2.7
- * cml框架 MongoDB数据库MongoDB驱动类 http://php.net/manual/zh/set.mongodb.php
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 MongoDB数据库MongoDB驱动类 http://php.net/manual/zh/set.mongodb.php
  * *********************************************************** */
 namespace Cml\Db\MongoDB;
 
@@ -336,8 +336,8 @@ class MongoDB extends Base
             Debug::addSqlInfo(sprintf(
                 "［MongoDB {$type}］ Collection: %s, Condition: %s, Other: %s",
                 $this->getDbName() . ".{$tableName}",
-                json_encode($condition, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0),
-                json_encode($options, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0)
+                json_encode($condition, JSON_UNESCAPED_UNICODE),
+                json_encode($options, JSON_UNESCAPED_UNICODE)
             ));
         }
     }

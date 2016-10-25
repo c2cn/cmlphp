@@ -1,9 +1,9 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-8 下午3:07
- * @version  2.7
+ * @version  @see \Cml\Cml::VERSION
  * 用法  加密：encrypt($data, $key)、解密：ecrypt($data, $key = null)
  * *********************************************************** */
 namespace Cml;

@@ -1,10 +1,10 @@
 <?php
 /* * *********************************************************
- * [cml] (C)2012 - 3000 cml http://cmlphp.com
+ * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 14-2-13 下午5:30
- * @version  2.7
- * cml框架 请求类
+ * @version  @see \Cml\Cml::VERSION
+ * cmlphp框架 请求类
  * *********************************************************** */
 namespace Cml\Http;
 
@@ -208,7 +208,7 @@ class Request
         }
 
         if ($type == 'json') {
-            $queryStr = json_encode($parameter, PHP_VERSION >= '5.4.0' ? JSON_UNESCAPED_UNICODE : 0);
+            $queryStr = json_encode($parameter, JSON_UNESCAPED_UNICODE);
             //$queryStr = str_replace(['\/','[]'], ['/','{}'], $queryStr);//兼容
 
             curl_setopt($ch, CURLOPT_POST, 1);
