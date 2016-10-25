@@ -230,6 +230,11 @@ class Cml
                     'worker:add-task' => 'Cml\Console\Commands\DaemonProcessManage\AddTask',
                     'worker:rm-task' => 'Cml\Console\Commands\DaemonProcessManage\RmTask',
                 ]);
+                $commandList = Config::get('command_list');
+                if (is_array($commandList) && count($commandList) > 0) {
+                    $console->addCommands($commandList);
+                }
+
                 if ($console->run() !== 'don_not_exit') {
                     exit(0);
                 }
