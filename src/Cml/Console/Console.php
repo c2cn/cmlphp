@@ -8,6 +8,7 @@
  * *********************************************************** */
 namespace Cml\Console;
 
+use Cml\Console\Commands\Help;
 use Cml\Console\Format\Colour;
 use Cml\Console\IO\Input;
 use Cml\Console\IO\Output;
@@ -150,6 +151,11 @@ class Console
             }
 
             isset($options['no-ansi']) && Colour::setNoAnsi();
+            if (isset($options['h']) || isset($options['help'])) {
+                $help = new Help($this);
+                $help->execute([$command]);
+                exit(0);
+            }
 
             $command = explode('::', $this->commands[$command]);
 

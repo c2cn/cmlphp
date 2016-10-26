@@ -40,12 +40,18 @@ class Help extends Command
 
         $format = new Format(['indent' => 2]);
         $formatCommand = new Format(['indent' => 4]);
+
+        $echoDefaultOptions = function ($command = '') use ($format) {
+            $this->writeln("Options:");
+            $this->writeln($format->format(Colour::colour('-h | --help', Colour::GREEN) . str_repeat(' ', 5) . "display {$command}command help info"));
+            $this->writeln($format->format(Colour::colour('--no-ansi', Colour::GREEN) . str_repeat(' ', 7) . "disable ansi output\n"));
+        };
+
         if (empty($args)) {
             $this->writeln("Usage:");
-            $this->writeln($format->format("input 'command [options] [args]' to run command or input 'help command ' to get command help info!\n"));
+            $this->writeln($format->format("input 'command [options] [args]' to run command or input 'help command ' to display command help info!\n"));
 
-            $this->writeln("Options:");
-            $this->writeln($format->format(Colour::colour('--no-ansi', Colour::GREEN) . str_repeat(' ', 7) . "Disable ANSI Output\n"));
+            $echoDefaultOptions();
 
             $this->writeln('Available commands:');
 
@@ -92,8 +98,8 @@ class Help extends Command
             $this->writeln("Usage:");
             $this->writeln($format->format("{$args[0]} [options] [args]\n"));
 
-            $this->writeln("Options:");
-            $this->writeln($format->format(Colour::colour('--no-ansi', Colour::GREEN) . str_repeat(' ', 7) . "Disable ANSI Output"));
+            $echoDefaultOptions('this ');
+
             if (count($options)) {
                 foreach ($options as $option => $desc) {
                     $name = Colour::colour($option, Colour::GREEN);
