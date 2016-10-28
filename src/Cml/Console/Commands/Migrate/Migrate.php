@@ -11,7 +11,6 @@
 namespace Cml\Console\Commands\Migrate;
 
 use Cml\Console\Format\Colour;
-use Cml\Console\Format\Format;
 use Cml\Console\IO\Output;
 
 /**
@@ -56,16 +55,6 @@ EOT;
 
         $version = isset($options['target']) ? $options['target'] : $options['t'];
         $date = isset($options['date']) ? $options['date'] : $options['d'];
-
-        $format = new Format(['foregroundColors' => Colour::GREEN]);
-        $config = $this->getConfig();
-        $config = isset($config['migration_use_db']) ? $config[$config['migration_use_db']] : $config['default_db'];
-
-        $driver = explode('.', $config['driver']);
-        Output::writeln('using adapter ' . $format->format($driver[0]));
-        Output::writeln('using database ' . $format->format($config['master']['dbname']));
-        Output::writeln('using table prefix ' . $format->format($config['master']['tableprefix']));
-
 
         // run the migrations
         $start = microtime(true);

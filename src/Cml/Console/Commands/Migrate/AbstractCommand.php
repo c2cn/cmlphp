@@ -59,7 +59,6 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(array $args, array $options = [])
     {
-
         if (!$this->getConfig()) {
             $this->loadConfig($options);
         }
@@ -74,6 +73,7 @@ abstract class AbstractCommand extends Command
             'using seed path ' .
             Colour::colour(str_replace(Cml::getApplicationDir('secure_src'), '{secure_src}', $this->getConfig()->getSeedPath()), Colour::GREEN)
         );
+        $this->getConfig()->echoAdapterInfo();
     }
 
     /**

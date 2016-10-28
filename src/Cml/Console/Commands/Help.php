@@ -21,6 +21,8 @@ use Cml\Console\Format\Format;
  */
 class Help extends Command
 {
+    private $commandLength = 10;
+
     protected $description = "help command";
 
     protected $arguments = [
@@ -37,58 +39,23 @@ class Help extends Command
     public function execute(array $args, array $options = [])
     {
         $this->writeln("CmlPHP Console " . Cml::VERSION . "\n", ['foregroundColors' => [Colour::GREEN, Colour::HIGHLIGHT]]);
-
         $format = new Format(['indent' => 2]);
-        $formatCommand = new Format(['indent' => 4]);
-
-        $echoDefaultOptions = function ($command = '') use ($format) {
-            $this->writeln("Options:");
-            $this->writeln($format->format(Colour::colour('-h | --help', Colour::GREEN) . str_repeat(' ', 5) . "display {$command}command help info"));
-            $this->writeln($format->format(Colour::colour('--no-ansi', Colour::GREEN) . str_repeat(' ', 7) . "disable ansi output"));
-        };
 
         if (empty($args)) {
             $this->writeln("Usage:");
-            $this->writeln($format->format("input 'command [options] [args]' to run command or input 'help command ' to display command help info\n"));
-
-            $echoDefaultOptions();
-
+            $this->writeln($format->format("input 'command [options] [args]' to run command or input 'help command ' to display command help info"));
             $this->writeln('');
+
+            $options = $this->formatOptions();
+            $cmdList = $this->formatCommand();
+
+            $this->writeln("Options:");
+            $this->formatEcho($format, $options);
+            $this->writeln('');
+
             $this->writeln('Available commands:');
-
-            $cmdGroup = [
-                'no_group' => []
-            ];
-            foreach ($this->console->getCommands() as $name => $class) {
-                if ($class !== __CLASS__) {
-                    $class = new \ReflectionClass($class);
-                    $property = $class->getDefaultProperties();
-                    $property = isset($property['description']) ? $property['description'] : '';
-
-                    $hadGroup = strpos($name, ':');
-                    $group = substr($name, 0, $hadGroup);
-                    $name = Colour::colour($name, Colour::GREEN);
-                    $len = strlen($name);
-                    $name .= str_repeat(' ', 25 - $len) . $property;
-                    if ($hadGroup) {
-                        $cmdGroup[$group][] = $name;
-                    } else {
-                        $cmdGroup['no_group'][] = $name;
-                    }
-                }
-            }
-
-            foreach ($cmdGroup['no_group'] as $cmd) {
-                $this->writeln($formatCommand->format($cmd));
-            }
-            unset($cmdGroup['no_group']);
-
-            foreach ($cmdGroup as $group => $cmdList) {
-                $this->writeln($format->format($group));
-                foreach ($cmdList as $cmd) {
-                    $this->writeln($formatCommand->format($cmd));
-                }
-            }
+            $this->formatEcho($format, $cmdList[0]);
+            $this->formatEcho($format, $cmdList[1]);
         } else {
             $class = new \ReflectionClass($this->console->getCommand($args[0]));
             $property = $class->getDefaultProperties();
@@ -98,30 +65,120 @@ class Help extends Command
             $options = isset($property['options']) ? $property['options'] : [];
 
             $this->writeln("Usage:");
-            $this->writeln($format->format("{$args[0]} [options] [args]\n"));
+            $this->writeln($format->format("{$args[0]} [options] [args]"));
+            $this->writeln('');
 
-            $echoDefaultOptions('this ');
+            count($arguments) > 0 && $arguments = $this->formatArguments($arguments);
+            $options = $this->formatOptions($options, 'this');
 
-            if (count($options)) {
-                foreach ($options as $option => $desc) {
-                    $name = Colour::colour($option, Colour::GREEN);
-                    $name .= str_repeat(' ', 25 - strlen($name)) . $desc;
-                    $this->writeln($format->format($name));
-                }
-                $this->write("\n");
-            }
+            $this->writeln("Options:");
+            $this->formatEcho($format, $options);
+            $this->writeln('');
 
             if (count($arguments)) {
                 $this->writeln("Arguments");
-                foreach ($arguments as $argument => $desc) {
-                    $name = Colour::colour($argument, Colour::GREEN);
-                    $name .= str_repeat(' ', 25 - strlen($name)) . $desc;
-                    $this->writeln($format->format($name));
-                }
+                $this->formatEcho($format, $arguments);
+                $this->writeln('');
             }
-            $this->writeln("\nHelp:");
+
+            $this->writeln("Help:");
             $this->writeln($format->format($help ? $help : $description));
         }
         $this->write("\n");
+    }
+
+    /**
+     * 格式化命令
+     *
+     * @return array
+     */
+    private function formatCommand()
+    {
+        $cmdGroup = [];
+        $noGroup = [];
+        foreach ($this->console->getCommands() as $name => $class) {
+            if ($class !== __CLASS__) {
+                $class = new \ReflectionClass($class);
+                $property = $class->getDefaultProperties();
+                $property = isset($property['description']) ? $property['description'] : '';
+
+                $hadGroup = strpos($name, ':');
+                $group = substr($name, 0, $hadGroup);
+                $name = Colour::colour($name, Colour::GREEN);
+                $this->commandLength > strlen($name) || $this->commandLength = strlen($name) + 3;
+
+                if ($hadGroup) {
+                    $cmdGroup[$group][$name] = $property;
+                } else {
+                    $noGroup[$name] = $property;
+                }
+            }
+        }
+        return [$noGroup, $cmdGroup];
+    }
+
+    /**
+     * 格式化选项
+     *
+     * @param array $options
+     * @param string $command
+     *
+     * @return array
+     */
+    private function formatOptions($options = [], $command = '')
+    {
+        $dumpOptions = [
+            '-h | --help' => "display {$command}command help info",
+            '--no-ansi' => "disable ansi output"
+        ];
+
+        count($options) > 1 && $dumpOptions = array_merge($dumpOptions, $options);
+
+        $optionsDump = [];
+        foreach ($dumpOptions as $name => $desc) {
+            $name = Colour::colour($name, Colour::GREEN);
+            $this->commandLength > strlen($name) || $this->commandLength = strlen($name) + 3;
+            $optionsDump[$name] = $desc;
+        }
+        return $optionsDump;
+    }
+
+    /**
+     * 格式化参数
+     *
+     * @param array $arguments
+     *
+     * @return array
+     */
+    private function formatArguments(Array $arguments)
+    {
+        $echoArguments = [];
+        $argsLength = 0;
+        foreach ($arguments as $argument => $desc) {
+            $argument = Colour::colour($argument, Colour::GREEN);
+            $echoArguments[$argument] = $desc;
+            $argsLength > strlen($argument) || $argsLength = strlen($argument);
+        }
+        return $echoArguments;
+    }
+
+    /**
+     * 格式化输出
+     *
+     * @param Format $format
+     * @param array $args
+     */
+    private function formatEcho(Format $format, $args)
+    {
+        foreach ($args as $group => $list) {
+            if (is_array($list)) {
+                $this->writeln($format->format($group));
+                foreach ($list as $name => $desc) {
+                    $this->writeln($format->format('  ' . $name . str_repeat(' ', $this->commandLength - 2 - strlen($name)) . $desc));
+                }
+            } else {
+                $this->writeln($format->format($group . str_repeat(' ', $this->commandLength - strlen($group)) . $list));
+            }
+        }
     }
 }
