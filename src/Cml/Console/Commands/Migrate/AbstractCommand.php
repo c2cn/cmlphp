@@ -154,7 +154,7 @@ abstract class AbstractCommand extends Command
      */
     protected function loadConfig($options)
     {
-        if (isset($options['env']) && !in_array('env', ['cli', 'product', 'development'])) {
+        if (isset($options['env']) && !in_array($options['env'], ['cli', 'product', 'development'])) {
             throw new \InvalidArgumentException('option --env\'s value must be [cli, product, development]');
         }
         $env = 'development';
