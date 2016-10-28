@@ -28,7 +28,8 @@ class Migrate extends AbstractCommand
 
     protected $options = [
         '--t=xx | --target=xxx' => 'The version number to migrate to',
-        '--d=xx | --date=xxx' => 'The date to migrate to'
+        '--d=xx | --date=xxx' => 'The date to migrate to',
+        '--env=xxx' => "the environment [cli, product, development] load accordingly config",
     ];
 
     protected $help = <<<EOT

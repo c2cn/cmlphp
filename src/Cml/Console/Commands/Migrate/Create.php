@@ -37,6 +37,7 @@ class Create extends AbstractCommand
     protected $options = [
         '--template=xx' => 'Use an alternative template',
         '--class=xxx' => 'Use a class implementing "' . self::CREATION_INTERFACE . '" to generate the template',
+        '--env=xxx' => "the environment [cli, product, development] load accordingly config",
     ];
 
     /**

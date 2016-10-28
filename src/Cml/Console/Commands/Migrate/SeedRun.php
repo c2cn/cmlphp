@@ -28,6 +28,7 @@ class SeedRun extends AbstractCommand
 
     protected $options = [
         '--s=xxx | --seed=xxx' => 'What is the name of the seeder?',
+        '--env=xxx' => "the environment [cli, product, development] load accordingly config",
     ];
 
     protected $help = <<<EOT

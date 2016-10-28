@@ -27,6 +27,7 @@ class Status extends AbstractCommand
 
     protected $options = [
         '--f=xxx | --format=xxx' => 'The output format: text or json. Defaults to text.',
+        '--env=xxx' => "the environment [cli, product, development] load accordingly config",
     ];
 
     protected $help = <<<EOT

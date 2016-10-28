@@ -24,7 +24,8 @@ class Breakpoint extends AbstractCommand
 
     protected $options = [
         '--t=xxx | --target=xxx' => 'The version number to set or clear a breakpoint against',
-        '-r | --remove-all' => 'Remove all breakpoints'
+        '-r | --remove-all' => 'Remove all breakpoints',
+        '--env=xxx' => "the environment [cli, product, development] load accordingly config",
     ];
 
     protected $help = <<<EOT

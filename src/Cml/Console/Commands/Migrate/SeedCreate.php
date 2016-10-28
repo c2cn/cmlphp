@@ -30,6 +30,7 @@ class SeedCreate extends AbstractCommand
     ];
 
     protected $options = [
+        '--env=xxx' => "the environment [cli, product, development] load accordingly config",
     ];
 
     /**

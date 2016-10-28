@@ -28,7 +28,8 @@ class Rollback extends AbstractCommand
     protected $options = [
         '--t=xxx | --target=xxx' => 'The version number to rollback to',
         '--d=xxx | --date=xxx' => 'The date to rollback to',
-        '-f | --force' =>'Force rollback to ignore breakpoints'
+        '-f | --force' =>'Force rollback to ignore breakpoints',
+        '--env=xxx' => "the environment [cli, product, development] load accordingly config",
     ];
 
     protected $help = <<<EOF
