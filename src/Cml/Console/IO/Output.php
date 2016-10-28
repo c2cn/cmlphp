@@ -47,10 +47,10 @@ class Output
      *
      * @param mixed $e
      */
-    public static function writeException( $e)
+    public static function writeException($e)
     {
         if ($e instanceof \Exception) {
-            $text = sprintf("\n[%s]\n%s\n", get_class($e), $e->getMessage());
+            $text = sprintf("%s\n[%s]\n%s", $e->getFile() . ':' . $e->getLine(), get_class($e), $e->getMessage());
         } else {
             $text = $e;
         }

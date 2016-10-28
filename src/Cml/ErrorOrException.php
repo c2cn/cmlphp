@@ -37,7 +37,7 @@ class ErrorOrException implements ErrorOrExceptionInterface
         }
 
         if (Request::isCli()) {
-            Output::writeException(sprintf("\n%s\n%s", $error['message'], isset($error['files']) ? implode($error['files'][0], ':') : ''));
+            Output::writeException(sprintf("%s\n[%s]\n%s", isset($error['files']) ? implode($error['files'][0], ':') : '', 'Fatal Error', $error['message']));
         } else {
             header('HTTP/1.1 500 Internal Server Error');
             View::getEngine('html')->reset()->assign('error', $error);
@@ -74,7 +74,7 @@ class ErrorOrException implements ErrorOrExceptionInterface
         }
 
         if (Request::isCli()) {
-            Output::writeException(sprintf("\n%s\n%s", $error['message'], isset($error['files']) ? implode($error['files'][0], ':') : ''));
+            Output::writeException(sprintf("%s\n[%s]\n%s", isset($error['files']) ? implode($error['files'][0], ':') : '', get_class($e), $error['message']));
         } else {
             header('HTTP/1.1 500 Internal Server Error');
             View::getEngine('html')->reset()->assign('error', $error);

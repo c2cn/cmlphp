@@ -37,11 +37,18 @@ class Input
             if (substr($arg, 0, 2) === '--') {
                 $key = substr($arg, 2);
                 $value = true;
-                if (false !== ($hadValue = strpos($arg, '='))) {
+                if (($hadValue = strpos($arg, '=')) !== false) {
                     $key = substr($arg, 2, $hadValue - 2);
                     $value = substr($arg, $hadValue + 1);
                 }
-                $options[$key] = $value;
+                if (array_key_exists($key, $options)) {
+                    if (!is_array($options[$key])) {
+                        $options[$key] = [$options[$key]];
+                    }
+                    $options[$key][] = $value;
+                } else {
+                    $options[$key] = $value;
+                }
             } else if (substr($arg, 0, 1) === '-') {
                 foreach (str_split(substr($arg, 1)) as $key) {
                     $options[$key] = true;

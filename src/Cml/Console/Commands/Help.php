@@ -44,15 +44,16 @@ class Help extends Command
         $echoDefaultOptions = function ($command = '') use ($format) {
             $this->writeln("Options:");
             $this->writeln($format->format(Colour::colour('-h | --help', Colour::GREEN) . str_repeat(' ', 5) . "display {$command}command help info"));
-            $this->writeln($format->format(Colour::colour('--no-ansi', Colour::GREEN) . str_repeat(' ', 7) . "disable ansi output\n"));
+            $this->writeln($format->format(Colour::colour('--no-ansi', Colour::GREEN) . str_repeat(' ', 7) . "disable ansi output"));
         };
 
         if (empty($args)) {
             $this->writeln("Usage:");
-            $this->writeln($format->format("input 'command [options] [args]' to run command or input 'help command ' to display command help info!\n"));
+            $this->writeln($format->format("input 'command [options] [args]' to run command or input 'help command ' to display command help info\n"));
 
             $echoDefaultOptions();
 
+            $this->writeln('');
             $this->writeln('Available commands:');
 
             $cmdGroup = [
@@ -92,6 +93,7 @@ class Help extends Command
             $class = new \ReflectionClass($this->console->getCommand($args[0]));
             $property = $class->getDefaultProperties();
             $description = isset($property['description']) ? $property['description'] : '';
+            $help = isset($property['help']) ? $property['help'] : false;
             $arguments = isset($property['arguments']) ? $property['arguments'] : [];
             $options = isset($property['options']) ? $property['options'] : [];
 
@@ -118,7 +120,7 @@ class Help extends Command
                 }
             }
             $this->writeln("\nHelp:");
-            $this->writeln($format->format($description));
+            $this->writeln($format->format($help ? $help : $description));
         }
         $this->write("\n");
     }

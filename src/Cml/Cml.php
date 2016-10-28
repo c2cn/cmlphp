@@ -229,6 +229,14 @@ class Cml
                     'worker:stop' => 'Cml\Console\Commands\DaemonProcessManage\Stop',
                     'worker:add-task' => 'Cml\Console\Commands\DaemonProcessManage\AddTask',
                     'worker:rm-task' => 'Cml\Console\Commands\DaemonProcessManage\RmTask',
+                    //migrate
+                    'migrate:create' => 'Cml\Console\Commands\Migrate\Create',
+                    'migrate:run' => 'Cml\Console\Commands\Migrate\Migrate',
+                    'migrate:rollback' => 'Cml\Console\Commands\Migrate\Rollback',
+                    'migrate:status' => 'Cml\Console\Commands\Migrate\Status',
+                    'migrate:break-point' => 'Cml\Console\Commands\Migrate\Breakpoint',
+                    'seed:create' => 'Cml\Console\Commands\Migrate\SeedCreate',
+                    'seed:run' => 'Cml\Console\Commands\Migrate\SeedRun',
                 ]);
                 $commandList = Config::get('command_list');
                 if (is_array($commandList) && count($commandList) > 0) {
