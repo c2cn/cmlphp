@@ -836,7 +836,7 @@ abstract class Base implements Db
     /**
      * SQL语句条件组装
      *
-     * @param array $arr; 要组装的数组
+     * @param array $arr 要组装的数组
      *
      * @return string
      */
@@ -846,7 +846,7 @@ abstract class Base implements Db
         $params = [];
         foreach ($arr as $k => $v) {
             if (is_array($v)) { //自增或自减
-                switch(key($v)) {
+                switch (key($v)) {
                     case 'inc':
                         $p = "`{$k}`= `{$k}`+" . abs(intval(current($v)));
                         break;
@@ -856,13 +856,13 @@ abstract class Base implements Db
                     case 'func':
                         $func = strtoupper(key(current($v)));
                         $funcParams = current(current($v));
-                        foreach($funcParams as $key => $val) {
+                        foreach ($funcParams as $key => $val) {
                             if (!isset($dbFields[$val])) {
                                 $funcParams[$key] = '%s';
                                 $params[] = $val;
                             }
                         }
-                        $p =  "`{$k}`= {$func}(" . implode($funcParams, ','). ')';
+                        $p = "`{$k}`= {$func}(" . implode($funcParams, ',') . ')';
                         break;
                     default ://计算类型
                         $conkey = key($v);
@@ -878,7 +878,7 @@ abstract class Base implements Db
                 $params[] = $v;
             }
 
-            $s .= (empty($s) ? '' : ',').$p;
+            $s .= (empty($s) ? '' : ',') . $p;
         }
         $this->bindParams = array_merge($params, $this->bindParams);
         return $s;
@@ -900,7 +900,7 @@ abstract class Base implements Db
         $arr = explode('-', $key);
         $len = count($arr);
         for ($i = 1; $i < $len; $i += 2) {
-            isset($arr[$i + 1]) &&  $condition .= ($condition ? ($and ? ' AND ' : ' OR ') : '')."`{$arr[$i]}` = %s";
+            isset($arr[$i + 1]) && $condition .= ($condition ? ($and ? ' AND ' : ' OR ') : '') . "`{$arr[$i]}` = %s";
             $this->bindParams[] = $arr[$i + 1];
         }
         $table = strtolower($arr[0]);
@@ -949,5 +949,4 @@ abstract class Base implements Db
 
         Model::getInstance()->cache()->set($this->conf['mark'] . '_db_cache_version_' . $table, microtime(true), $this->conf['cache_expire']);
     }
-
 }

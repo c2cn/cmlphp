@@ -209,12 +209,14 @@ class Debug implements DebugInterfaces
      *
      * @param string $msg 调试消息字符串
      * @param int $type 消息的类型
+     * @param string $color 是否要添加字体颜色
      *
      * @return void
      */
-    public static function addTipInfo($msg, $type = self::TIP_INFO_TYPE_INFO)
+    public static function addTipInfo($msg, $type = self::TIP_INFO_TYPE_INFO, $color = '')
     {
         if (Cml::$debug) {
+            $color && $msg = "<span style='color:{$color}'>" . $msg . '</span>';
             switch ($type) {
                 case self::TIP_INFO_TYPE_INFO:
                     self::$tipInfo[] = $msg;

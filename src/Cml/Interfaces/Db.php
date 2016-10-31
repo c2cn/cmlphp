@@ -109,6 +109,17 @@ interface Db
     public function truncate($tableName);
 
     /**
+     * 构建sql
+     *
+     * @param null $offset 偏移量
+     * @param null $limit 返回的条数
+     * @param bool $isSelect 是否为select调用， 是则不重置查询参数并返回cacheKey/否则直接返回sql并重置查询参数
+     *
+     * @return string|array
+     */
+    public function buildSql($offset = null, $limit = null, $isSelect = false);
+
+    /**
      * 获取多条数据
      *
      * @param int $offset 偏移量

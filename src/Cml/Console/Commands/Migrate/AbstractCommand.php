@@ -59,6 +59,10 @@ abstract class AbstractCommand extends Command
      */
     public function bootstrap(array $args, array $options = [])
     {
+        if (false === class_exists('\Phinx\Config\Config')) {
+            throw new \RuntimeException('please use `composer require linhecheng/cmlphp-ext-phinx` cmd to install phinx.');
+        }
+
         if (!$this->getConfig()) {
             $this->loadConfig($options);
         }

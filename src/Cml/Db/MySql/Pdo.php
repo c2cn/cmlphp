@@ -64,7 +64,7 @@ class Pdo extends Base
 
         $tables = [];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $tables[] = $row['Tables_in_'.$this->conf['master']['dbname']];
+            $tables[] = $row['Tables_in_' . $this->conf['master']['dbname']];
         }
         return $tables;
     }
@@ -76,7 +76,7 @@ class Pdo extends Base
      */
     public function getAllTableStatus()
     {
-        $stmt = $this->prepare('SHOW TABLE STATUS FROM '.$this->conf['master']['dbname'], $this->rlink);
+        $stmt = $this->prepare('SHOW TABLE STATUS FROM ' . $this->conf['master']['dbname'], $this->rlink);
         $this->execute($stmt);
         $res = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $return = [];
@@ -107,23 +107,23 @@ class Pdo extends Base
         if (isset($dbFieldCache[$table])) {
             $info = $dbFieldCache[$table];
         } else {
-            Config::get('db_fields_cache') && $info = \Cml\simpleFileCache($this->conf['master']['dbname'].'.'.$table);
+            Config::get('db_fields_cache') && $info = \Cml\simpleFileCache($this->conf['master']['dbname'] . '.' . $table);
             if (!$info || Cml::$debug) {
                 $stmt = $this->prepare("SHOW COLUMNS FROM $table", $this->rlink, false);
                 $this->execute($stmt, false);
                 $info = [];
                 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                     $info[$row['Field']] = [
-                        'name'    => $row['Field'],
-                        'type'    => $row['Type'],
-                        'notnull' => (bool) ($row['Null'] === ''), // not null is empty, null is yes
+                        'name' => $row['Field'],
+                        'type' => $row['Type'],
+                        'notnull' => (bool)($row['Null'] === ''), // not null is empty, null is yes
                         'default' => $row['Default'],
                         'primary' => (strtolower($row['Key']) == 'pri'),
                         'autoinc' => (strtolower($row['Extra']) == 'auto_increment'),
                     ];
                 }
 
-                count($info) > 0 && \Cml\simpleFileCache($this->conf['master']['dbname'].'.'.$table, $info);
+                count($info) > 0 && \Cml\simpleFileCache($this->conf['master']['dbname'] . '.' . $table, $info);
             }
             $dbFieldCache[$table] = $info;
         }
@@ -131,7 +131,7 @@ class Pdo extends Base
         if ($filter) {
             if (count($info) > 0) {
                 $info = implode('`,`', array_keys($info));
-                $info = '`'.$info.'`';
+                $info = '`' . $info . '`';
             } else {
                 return '*';
             }
@@ -158,10 +158,10 @@ class Pdo extends Base
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
 
         list($tableName, $condition) = $this->parseKey($key, $and);
-        $tableName = $tablePrefix.$tableName;
+        $tableName = $tablePrefix . $tableName;
         $sql = "SELECT * FROM {$tableName} WHERE {$condition} LIMIT 0, 1000";
 
-        $cacheKey = md5($sql.json_encode($this->bindParams)).$this->getCacheVer($tableName);
+        $cacheKey = md5($sql . json_encode($this->bindParams)) . $this->getCacheVer($tableName);
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) { //cache中不存在这条记录
             $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
@@ -232,7 +232,7 @@ class Pdo extends Base
             $tableName = $tableAndCacheKey[0];
             $upCacheTables = $tableAndCacheKey[1];
         } else {
-            $tableName = $tablePrefix.$tableName;
+            $tableName = $tablePrefix . $tableName;
             $upCacheTables = [$tableName];
         }
 
@@ -241,14 +241,14 @@ class Pdo extends Base
         }
         $s = $this->arrToCondition($data);
         $whereCondition = $this->sql['where'];
-        $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;
+        $whereCondition .= empty($condition) ? '' : (empty($whereCondition) ? 'WHERE ' : '') . $condition;
         if (empty($whereCondition)) {
             throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'update'));
         }
         $stmt = $this->prepare("UPDATE {$tableName} SET {$s} {$whereCondition}", $this->wlink);
         $this->execute($stmt);
 
-        foreach($upCacheTables as $tb) {
+        foreach ($upCacheTables as $tb) {
             $this->setCacheVer($tb);
         }
         return $stmt->rowCount();
@@ -275,7 +275,7 @@ class Pdo extends Base
             $tableName = $tableAndCacheKey[0];
             $upCacheTables = $tableAndCacheKey[1];
         } else {
-            $tableName = $tablePrefix.$tableName;
+            $tableName = $tablePrefix . $tableName;
             $upCacheTables = [$tableName];
         }
 
@@ -283,14 +283,14 @@ class Pdo extends Base
             throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'delete'));
         }
         $whereCondition = $this->sql['where'];
-        $whereCondition .= empty($condition) ?  '' : (empty($whereCondition) ? 'WHERE ' : '').$condition;
+        $whereCondition .= empty($condition) ? '' : (empty($whereCondition) ? 'WHERE ' : '') . $condition;
         if (empty($whereCondition)) {
             throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'delete'));
         }
         $stmt = $this->prepare("DELETE FROM {$tableName} {$whereCondition}", $this->wlink);
         $this->execute($stmt);
 
-        foreach($upCacheTables as $tb) {
+        foreach ($upCacheTables as $tb) {
             $this->setCacheVer($tb);
         }
         return $stmt->rowCount();
@@ -316,7 +316,7 @@ class Pdo extends Base
      */
     public function truncate($tableName)
     {
-        $tableName = $this->tablePrefix.$tableName;
+        $tableName = $this->tablePrefix . $tableName;
         $stmt = $this->prepare("TRUNCATE {$tableName}");
 
         $this->setCacheVer($tableName);
@@ -409,7 +409,7 @@ class Pdo extends Base
         $count = $this->columns(["{$operation}({$field})" => '__res__'])->select(null, null, $useMaster);
         if ($isMulti) {
             $return = [];
-            foreach($count as $val) {
+            foreach ($count as $val) {
                 $return[] = $operation === 'COUNT' ? intval($val['__res__']) : floatval($val['__res__']);
             }
             return $return;
@@ -440,18 +440,18 @@ class Pdo extends Base
             } elseif (isset($this->leftJoin[$key])) {
                 $operator = ' LEFT JOIN';
                 $on = $this->leftJoin[$key];
-            }  elseif (isset($this->rightJoin[$key])) {
+            } elseif (isset($this->rightJoin[$key])) {
                 $operator = ' RIGHT JOIN';
                 $on = $this->rightJoin[$key];
             } else {
                 empty($table) || $operator = ' ,';
             }
             if (is_null($val)) {
-                $table .= "{$operator} `{$realTable}`";
+                $table .= "{$operator} {$realTable}";
             } else {
-                $table .= "{$operator} `{$realTable}` AS `{$val}`";
+                $table .= "{$operator} {$realTable} AS `{$val}`";
             }
-            isset($this->forceIndex[$realTable]) && $table .= ' force index('.$this->forceIndex[$realTable].') ';
+            isset($this->forceIndex[$realTable]) && $table .= ' force index(' . $this->forceIndex[$realTable] . ') ';
             is_null($on) || $table .= " ON {$on}";
         }
 
@@ -473,20 +473,20 @@ class Pdo extends Base
     public function forceIndex($table, $index, $tablePrefix = null)
     {
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        $this->forceIndex[$tablePrefix.$table] = $index;
+        $this->forceIndex[$tablePrefix . $table] = $index;
         return $this;
     }
 
     /**
-     * 获取多条数据
+     * 构建sql
      *
-     * @param int $offset 偏移量
-     * @param int $limit 返回的条数
-     * @param bool $useMaster 是否使用主库 默认读取从库
+     * @param null $offset 偏移量
+     * @param null $limit 返回的条数
+     * @param bool $isSelect 是否为select调用， 是则不重置查询参数并返回cacheKey/否则直接返回sql并重置查询参数
      *
-     * @return array
+     * @return string|array
      */
-    public function select($offset = null, $limit = null,  $useMaster = false)
+    public function buildSql($offset = null, $limit = null, $isSelect = false)
     {
         is_null($offset) || $this->limit($offset, $limit);
 
@@ -498,10 +498,34 @@ class Pdo extends Base
 
         empty($this->sql['limit']) && ($this->sql['limit'] = "LIMIT 0, 100");
 
-        $sql = "SELECT $columns FROM {$tableAndCacheKey[0]} ".$this->sql['where'].$this->sql['groupBy'].$this->sql['having']
-            .$this->sql['orderBy'].$this->union.$this->sql['limit'];
+        $sql = "SELECT $columns FROM {$tableAndCacheKey[0]} " . $this->sql['where'] . $this->sql['groupBy'] . $this->sql['having']
+            . $this->sql['orderBy'] . $this->union . $this->sql['limit'];
+        if ($isSelect) {
+            return [$sql, $tableAndCacheKey[1]];
+        } else {
+            $this->currentSql = $sql;
+            $sql = $this->buildDebugSql();
+            $this->reset();
+            $this->clearBindParams();
+            $this->currentSql = '';
+            return " ({$sql}) ";
+        }
+    }
 
-        $cacheKey = md5($sql.json_encode($this->bindParams)).implode('', $tableAndCacheKey[1]);
+    /**
+     * 获取多条数据
+     *
+     * @param int $offset 偏移量
+     * @param int $limit 返回的条数
+     * @param bool $useMaster 是否使用主库 默认读取从库
+     *
+     * @return array
+     */
+    public function select($offset = null, $limit = null, $useMaster = false)
+    {
+        list($sql, $cacheKey) = $this->buildSql($offset, $limit, true);
+
+        $cacheKey = md5($sql . json_encode($this->bindParams)) . implode('', $cacheKey);
         $return = Model::getInstance()->cache()->get($cacheKey);
         if ($return === false) {
             $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
@@ -565,15 +589,15 @@ class Pdo extends Base
         $link = '';
         try {
             $host = explode(':', $host);
-            $dsn = "mysql:host={$host[0]};".(isset($host[1]) ? "port={$host[1]};" : '')."dbname={$dbName}";
+            $dsn = "mysql:host={$host[0]};" . (isset($host[1]) ? "port={$host[1]};" : '') . "dbname={$dbName}";
             if ($pConnect) {
                 $link = new \PDO($dsn, $username, $password, [
                     \PDO::ATTR_PERSISTENT => true,
-                    \PDO::ATTR_EMULATE_PREPARES=> false
+                    \PDO::ATTR_EMULATE_PREPARES => false
                 ]);
             } else {
                 $link = new \PDO($dsn, $username, $password, [
-                    \PDO::ATTR_EMULATE_PREPARES=> false
+                    \PDO::ATTR_EMULATE_PREPARES => false
                 ]);
             }
         } catch (\PDOException $e) {
@@ -612,9 +636,9 @@ class Pdo extends Base
         }
         $val = abs(intval($val));
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        $tableName = $tablePrefix.$tableName;
+        $tableName = $tablePrefix . $tableName;
 
-        $stmt = $this->prepare('UPDATE  `'.$tableName."` SET  `{$field}` =  `{$field}` + {$val}  WHERE  $condition");
+        $stmt = $this->prepare('UPDATE  `' . $tableName . "` SET  `{$field}` =  `{$field}` + {$val}  WHERE  $condition");
 
         $this->execute($stmt);
         $this->setCacheVer($tableName);
@@ -641,8 +665,8 @@ class Pdo extends Base
         $val = abs(intval($val));
 
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        $tableName = $tablePrefix.$tableName;
-        $stmt = $this->prepare('UPDATE  `'.$tableName."` SET  `$field` =  `$field` - $val  WHERE  $condition");
+        $tableName = $tablePrefix . $tableName;
+        $stmt = $this->prepare('UPDATE  `' . $tableName . "` SET  `$field` =  `$field` - $val  WHERE  $condition");
 
         $this->execute($stmt);
         $this->setCacheVer($tableName);
@@ -666,7 +690,7 @@ class Pdo extends Base
 
         $sqlParams = [];
         foreach ($this->bindParams as $key => $val) {
-            $sqlParams[] = ':param'.$key;
+            $sqlParams[] = ':param' . $key;
         }
 
         $this->currentSql = $sql;
@@ -676,11 +700,11 @@ class Pdo extends Base
         if ($stmt === false) {
             $error = $link->errorInfo();
             throw new \InvalidArgumentException(
-                'Pdo Prepare Sql error! ,【Sql : '.$this->buildDebugSql().'】,【Code:'.$link->errorCode ().'】, 【ErrorInfo!:'.$error[2].'】 '
+                'Pdo Prepare Sql error! ,【Sql : ' . $this->buildDebugSql() . '】,【Code:' . $link->errorCode() . '】, 【ErrorInfo!:' . $error[2] . '】 '
             );
         } else {
-            foreach($this->bindParams as $key => $val) {
-                is_int($val) ? $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_INT) : $stmt->bindValue(':param'.$key, $val, \PDO::PARAM_STR);
+            foreach ($this->bindParams as $key => $val) {
+                is_int($val) ? $stmt->bindValue(':param' . $key, $val, \PDO::PARAM_INT) : $stmt->bindValue(':param' . $key, $val, \PDO::PARAM_STR);
             }
             return $stmt;
         }
@@ -701,7 +725,7 @@ class Pdo extends Base
         $this->conf['log_slow_sql'] && $startQueryTimeStamp = microtime(true);
         if (!$stmt->execute()) {
             $error = $stmt->errorInfo();
-            throw new \InvalidArgumentException('Pdo execute Sql error!,【Sql : '.$this->buildDebugSql().'】,【Error:'.$error[2].'】');
+            throw new \InvalidArgumentException('Pdo execute Sql error!,【Sql : ' . $this->buildDebugSql() . '】,【Error:' . $error[2] . '】');
         }
 
         $slow = 0;
@@ -777,9 +801,9 @@ class Pdo extends Base
     /**
      *获取mysql 版本
      *
-     *@param \PDO $link
+     * @param \PDO $link
      *
-     *@return string
+     * @return string
      */
     public function version($link = null)
     {
@@ -792,7 +816,7 @@ class Pdo extends Base
      *
      * @return bool
      */
-    public function  startTransAction()
+    public function startTransAction()
     {
         return $this->wlink->beginTransaction();
     }
@@ -852,7 +876,7 @@ class Pdo extends Base
         if ($isSelect) {
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } else {
-            return  $stmt->rowCount();
+            return $stmt->rowCount();
         }
     }
 }
