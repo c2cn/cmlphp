@@ -45,7 +45,7 @@ class Memcache extends namespace\Base
     /**
      * 使用的缓存配置 默认为使用default_cache配置的参数
      *
-     * @param bool｜array $conf
+     * @param bool ｜array $conf
      *
      * @throws CacheConnectFailException | PhpExtendNotInstall
      */
@@ -67,13 +67,13 @@ class Memcache extends namespace\Base
             throw new PhpExtendNotInstall(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Memcache'));
         }
 
-        $singleNodeDownFunction = function($host, $port) {
+        $singleNodeDownFunction = function ($host, $port) {
             //这边挂掉调用此回调在几s内只会调用一次。其它情况使用memcache方法均返回flase不报错
             Plugin::hook('cml.cache_server_down', ['host' => $host, 'port' => $port]);
             Log::emergency('memcache server down', ['downServer' => ['host' => $host, 'port' => $port]]);
         };
 
-        $allNodeDownFunction = function($serverList) {
+        $allNodeDownFunction = function ($serverList) {
             Plugin::hook('cml.cache_server_down', $this->conf['server'], $serverList);//全挂
 
             throw new CacheConnectFailException(Lang::get('_CACHE_CONNECT_FAIL_', 'Memcache',
@@ -119,11 +119,11 @@ class Memcache extends namespace\Base
                 \Memcached::OPT_REMOVE_FAILED_SERVERS => true
             ]);
 
-            \Memcached::HAVE_JSON  && $this->memcache->setOption(\Memcached::OPT_SERIALIZER, \Memcached::SERIALIZER_JSON_ARRAY);
+            \Memcached::HAVE_JSON && $this->memcache->setOption(\Memcached::OPT_SERIALIZER, \Memcached::SERIALIZER_JSON_ARRAY);
         }
 
         $serverStatus = $this->memcache->getStats();
-        foreach($serverStatus as $server => $status) {
+        foreach ($serverStatus as $server => $status) {
             if ($status['pid'] < 1) {
                 $downServer++;
                 $server = explode(':', $server);

@@ -1,4 +1,5 @@
 <?php namespace Cml\Queue;
+
 /* * *********************************************************
  * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>

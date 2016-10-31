@@ -81,31 +81,31 @@ class Cml
     private static function handleConfigLang()
     {
         //引入框架惯例配置文件
-        $cmlConfig = Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'config.php');
+        $cmlConfig = Cml::requireFile(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'config.php');
         Config::init();
 
         //应用正式配置文件
-        $appConfig =  Cml::getApplicationDir('global_config_path').DIRECTORY_SEPARATOR.Config::$isLocal.DIRECTORY_SEPARATOR.'normal.php';
+        $appConfig = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . Config::$isLocal . DIRECTORY_SEPARATOR . 'normal.php';
 
         is_file($appConfig) ? $appConfig = Cml::requireFile($appConfig)
-            : exit('Config File ['.Config::$isLocal.'/normal.php] Not Found Please Check！');
+            : exit('Config File [' . Config::$isLocal . '/normal.php] Not Found Please Check！');
         is_array($appConfig) || $appConfig = [];
 
-        $commonConfig =  Cml::getApplicationDir('global_config_path').DIRECTORY_SEPARATOR.'common.php';
-        $commonConfig = is_file($commonConfig) ? Cml::requireFile($commonConfig)  : [];
+        $commonConfig = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'common.php';
+        $commonConfig = is_file($commonConfig) ? Cml::requireFile($commonConfig) : [];
 
         Config::set(array_merge($cmlConfig, $commonConfig, $appConfig));//合并配置
 
-        if (Config::get('debug')){
+        if (Config::get('debug')) {
             self::$debug = true;
             $GLOBALS['debug'] = true;//开启debug
-            Debug::addTipInfo(CML_CORE_PATH.DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'config.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
-            Debug::addTipInfo(Cml::getApplicationDir('global_config_path').DIRECTORY_SEPARATOR.Config::$isLocal.DIRECTORY_SEPARATOR.'normal.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
-            empty($commonConfig) || Debug::addTipInfo(Cml::getApplicationDir('global_config_path').DIRECTORY_SEPARATOR.'common.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+            Debug::addTipInfo(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'config.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+            Debug::addTipInfo(Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . Config::$isLocal . DIRECTORY_SEPARATOR . 'normal.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+            empty($commonConfig) || Debug::addTipInfo(Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'common.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
         }
 
         //引入系统语言包
-        Lang::set(Cml::requireFile((CML_CORE_PATH.DIRECTORY_SEPARATOR.'Lang'.DIRECTORY_SEPARATOR.Config::get('lang').'.php')));
+        Lang::set(Cml::requireFile((CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Lang' . DIRECTORY_SEPARATOR . Config::get('lang') . '.php')));
     }
 
     /**
@@ -116,8 +116,8 @@ class Cml
     private static function init($initDi)
     {
         define('CML_PATH', dirname(__DIR__)); //框架的路径
-        define('CML_CORE_PATH', CML_PATH.DIRECTORY_SEPARATOR.'Cml');// 系统核心类库目录
-        define('CML_EXTEND_PATH', CML_PATH.DIRECTORY_SEPARATOR.'Vendor');// 系统扩展类库目录
+        define('CML_CORE_PATH', CML_PATH . DIRECTORY_SEPARATOR . 'Cml');// 系统核心类库目录
+        define('CML_EXTEND_PATH', CML_PATH . DIRECTORY_SEPARATOR . 'Vendor');// 系统扩展类库目录
 
         self::handleConfigLang();
 
@@ -128,11 +128,11 @@ class Cml
         $initDi();
 
         //包含框架中的框架函数库文件
-        Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.'Tools'.DIRECTORY_SEPARATOR.'functions.php');
+        Cml::requireFile(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Tools' . DIRECTORY_SEPARATOR . 'functions.php');
 
         //设置自定义捕获致命异常函数
         //普通错误由Cml\Debug::catcher捕获 php默认在display_errors为On时致命错误直接输出 为off时 直接显示服务器错误或空白页,体验不好
-        register_shutdown_function(function() {
+        register_shutdown_function(function () {
             if ($error = error_get_last()) {//获取最后一个发生的错误的信息。 包括提醒、警告、致命错误
                 if (in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING])) { //当捕获到的错误为致命错误时 报告
                     if (Plugin::hook('cml.before_fatal_error', $error) == 'jump') {
@@ -149,7 +149,7 @@ class Cml
         }); //捕获致命异常
 
         //设置自定义的异常处理函数。
-        set_exception_handler(function($e) {
+        set_exception_handler(function ($e) {
             if (Plugin::hook('cml.before_throw_exception', $e) === 'resume') {
                 return;
             }
@@ -171,7 +171,7 @@ class Cml
         self::$nowMicroTime = microtime(true);
 
         //全局的自定义语言包
-        $globalLang = Cml::getApplicationDir('global_lang_path') . DIRECTORY_SEPARATOR.Config::get('lang').'.php';
+        $globalLang = Cml::getApplicationDir('global_lang_path') . DIRECTORY_SEPARATOR . Config::get('lang') . '.php';
         is_file($globalLang) && Lang::set(Cml::requireFile($globalLang));
 
         //设置调试模式
@@ -196,16 +196,16 @@ class Cml
             }
 
             //线上模式包含runtime.php
-            $runTimeFile = Cml::getApplicationDir('global_store_path') . DIRECTORY_SEPARATOR.'_runtime_.php';
+            $runTimeFile = Cml::getApplicationDir('global_store_path') . DIRECTORY_SEPARATOR . '_runtime_.php';
             if (!is_file($runTimeFile)) {
                 //程序运行必须的类
                 $runTimeClassList = [
-                    CML_CORE_PATH.DIRECTORY_SEPARATOR.'Controller.php',
-                    CML_CORE_PATH.DIRECTORY_SEPARATOR.'Http'.DIRECTORY_SEPARATOR.'Response.php',
-                    CML_CORE_PATH.DIRECTORY_SEPARATOR.'Route.php',
-                    CML_CORE_PATH.DIRECTORY_SEPARATOR.'Secure.php',
+                    CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Controller.php',
+                    CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Http' . DIRECTORY_SEPARATOR . 'Response.php',
+                    CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Route.php',
+                    CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Secure.php',
                 ];
-                Config::get('session_user') && $runTimeClassList[] = CML_CORE_PATH.DIRECTORY_SEPARATOR.'Session.php';
+                Config::get('session_user') && $runTimeClassList[] = CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Session.php';
 
                 $runTimeContent = '<?php';
                 foreach ($runTimeClassList as $file) {
@@ -265,7 +265,7 @@ class Cml
         Plugin::hook('cml.before_parse_url');
 
         //载入路由
-        $routeConfigFile =  Cml::getApplicationDir('global_config_path').DIRECTORY_SEPARATOR.'route.php';
+        $routeConfigFile = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'route.php';
         is_file($routeConfigFile) && Cml::requireFile($routeConfigFile);
 
         Cml::getContainer()->make('cml_route')->parseUrl();//解析处理URL
@@ -274,14 +274,14 @@ class Cml
 
         //载入模块配置
         $modulesConfig = Cml::getApplicationDir('apps_path')
-            . '/' . Cml::getContainer()->make('cml_route')->getAppName().'/'
+            . '/' . Cml::getContainer()->make('cml_route')->getAppName() . '/'
             . Cml::getApplicationDir('app_config_path_name') . '/' . 'normal.php';
         is_file($modulesConfig) && Config::set(Cml::requireFile($modulesConfig));
 
         //载入模块语言包
         $appLang = Cml::getApplicationDir('apps_path')
-            . '/' . Cml::getContainer()->make('cml_route')->getAppName().'/'
-            . Cml::getApplicationDir('app_lang_path_name').'/'.Config::get('lang').'.php';
+            . '/' . Cml::getContainer()->make('cml_route')->getAppName() . '/'
+            . Cml::getApplicationDir('app_lang_path_name') . '/' . Config::get('lang') . '.php';
         is_file($appLang) && Lang::set(Cml::requireFile($appLang));
     }
 
@@ -325,7 +325,7 @@ class Cml
         if ($controllerAction) {
             Cml::$debug && Debug::addTipInfo(Lang::get('_CML_ACTION_CONTROLLER_', $controllerAction['class']));
             $controller = new $controllerAction['class']();
-            call_user_func([$controller ,  "runAppController"], $controllerAction['action']);//运行
+            call_user_func([$controller, "runAppController"], $controllerAction['action']);//运行
         } else {
             self::montFor404Page();
             if (self::$debug) {
@@ -345,7 +345,7 @@ class Cml
     public static function montFor404Page()
     {
         Plugin::mount('cml.before_show_404_page', [
-            function() {
+            function () {
                 $cmdLists = Config::get('cmlframework_system_command');
                 $cmd = strtolower(trim(Cml::getContainer()->make('cml_route')->getAppName(), '/'));
                 if (isset($cmdLists[$cmd])) {
@@ -364,12 +364,12 @@ class Cml
     {
         //输出Debug模式的信息
         if (self::$debug) {
-            header('Content-Type:text/html; charset='.Config::get('default_charset'));
+            header('Content-Type:text/html; charset=' . Config::get('default_charset'));
             Debug::stop();
         } else {
             $deBugLogData = dump('', 1);
             if (!empty($deBugLogData)) {
-                Config::get('dump_use_php_console') ? dumpUsePHPConsole($deBugLogData) : Cml::requireFile(CML_CORE_PATH.DIRECTORY_SEPARATOR.'ConsoleLog.php', ['deBugLogData' => $deBugLogData]);
+                Config::get('dump_use_php_console') ? dumpUsePHPConsole($deBugLogData) : Cml::requireFile(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'ConsoleLog.php', ['deBugLogData' => $deBugLogData]);
             };
             CML_OB_START && ob_end_flush();
         }
@@ -429,10 +429,10 @@ class Cml
      */
     public static function showSystemTemplate($tpl)
     {
-        $configSubFix =  Config::get('html_template_suffix');
+        $configSubFix = Config::get('html_template_suffix');
         Config::set('html_template_suffix', '');
         echo View::getEngine('html')
-            ->setHtmlEngineOptions('templateDir', dirname($tpl).DIRECTORY_SEPARATOR)
+            ->setHtmlEngineOptions('templateDir', dirname($tpl) . DIRECTORY_SEPARATOR)
             ->fetch(basename($tpl), false, true, true);
         Config::set('html_template_suffix', $configSubFix);
     }
@@ -445,7 +445,7 @@ class Cml
     public static function setApplicationDir(array $dir)
     {
         if (DIRECTORY_SEPARATOR == '\\') {//windows
-            array_walk($dir, function(&$val) {
+            array_walk($dir, function (&$val) {
                 $val = str_replace('/', DIRECTORY_SEPARATOR, $val);
             });
         }

@@ -37,5 +37,4 @@ class Start extends Command
     {
         ProcessManage::start();
     }
-
 }

@@ -17,10 +17,10 @@ class Lang extends Config
 {
     /**
      * 存放了所有语言信息
-     * 
+     *
      * @var array
      */
-    protected  static $_content= [
+    protected static $_content = [
         'normal' => []
     ];
 
@@ -36,7 +36,7 @@ class Lang extends Config
      */
     public static function get($key = null, $default = '')
     {
-        if(empty($key)) {
+        if (empty($key)) {
             return '';
         }
 

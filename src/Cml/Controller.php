@@ -45,15 +45,15 @@ class Controller
             ini_get('session.auto_start') || session_start(); //自动开启session
         }
 
-        header('Cache-control: '.Config::get('http_cache_control'));  // 页面缓存控制
+        header('Cache-control: ' . Config::get('http_cache_control'));  // 页面缓存控制
 
         //如果有子类中有init()方法 执行Init() eg:做权限控制
-        if (method_exists($this, "init")){
+        if (method_exists($this, "init")) {
             $this->init();
         }
 
         //根据动作去找对应的方法
-        if (method_exists($this, $method)){
+        if (method_exists($this, $method)) {
             $this->$method();
         } elseif (Cml::$debug) {
             Cml::montFor404Page();

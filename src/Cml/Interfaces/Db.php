@@ -128,7 +128,7 @@ interface Db
      *
      * @return array
      */
-    public function select($offset = null, $limit = null,  $useMaster = false);
+    public function select($offset = null, $limit = null, $useMaster = false);
 
     /**
      * 分页获取数据
@@ -504,9 +504,9 @@ interface Db
     /**
      *获取上一INSERT的主键值
      *
-     *@param resource $link
+     * @param resource $link
      *
-     *@return int
+     * @return int
      */
     public function insertId($link = null);
 
@@ -558,9 +558,9 @@ interface Db
     /**
      *获取数据库 版本
      *
-     *@param resource $link
+     * @param resource $link
      *
-     *@return string
+     * @return string
      */
     public function version($link = null);
 
@@ -569,7 +569,7 @@ interface Db
      *
      * @return bool
      */
-    public function  startTransAction();
+    public function startTransAction();
 
     /**
      * 提交事务

@@ -1,4 +1,5 @@
 <?php namespace Cml\Logger;
+
 /* * *********************************************************
  * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
@@ -29,7 +30,7 @@ class Redis extends Base
     public function log($level, $message, array $context = [])
     {
         return Model::getInstance()->cache(Config::get('redis_log_use_cache'))->getInstance()->lPush(
-            Config::get('log_prefix') . '_' . $level ,
+            Config::get('log_prefix') . '_' . $level,
             $this->format($message, $context)
         );
     }

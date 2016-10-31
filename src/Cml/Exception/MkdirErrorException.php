@@ -1,4 +1,4 @@
-<?php namespace Cml\Exception;
+<?php
 /* * *********************************************************
  * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
@@ -6,6 +6,8 @@
  * @version  @see \Cml\Cml::VERSION
  * cmlphp框架 MkdirErrorException
  * *********************************************************** */
+
+namespace Cml\Exception;
 
 /**
  * 创建目录失败异常类

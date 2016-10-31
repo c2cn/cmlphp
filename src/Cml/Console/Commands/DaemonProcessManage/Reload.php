@@ -14,7 +14,7 @@ use Cml\Tools\Daemon\ProcessManage;
 
 /**
  * reload
- * 
+ *
  * @package Cml\Console\Commands\DaemonProcessManage
  */
 class Reload extends Command
@@ -39,5 +39,4 @@ class Reload extends Command
     {
         ProcessManage::reload();
     }
-
 }

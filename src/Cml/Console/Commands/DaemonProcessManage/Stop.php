@@ -14,7 +14,7 @@ use Cml\Tools\Daemon\ProcessManage;
 
 /**
  * 终止后台进程
- * 
+ *
  * @package Cml\Console\Commands\DaemonProcessManage
  */
 class Stop extends Command
@@ -39,5 +39,4 @@ class Stop extends Command
     {
         ProcessManage::stop();
     }
-
 }

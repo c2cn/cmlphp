@@ -14,7 +14,7 @@ use Cml\Tools\Daemon\ProcessManage;
 
 /**
  * 删除一个后台任务
- * 
+ *
  * @package Cml\Console\Commands\DaemonProcessManage
  */
 class RmTask extends Command
@@ -48,5 +48,4 @@ class RmTask extends Command
 
         ProcessManage::rmTask($action);
     }
-
 }

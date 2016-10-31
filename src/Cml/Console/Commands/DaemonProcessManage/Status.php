@@ -14,7 +14,7 @@ use Cml\Tools\Daemon\ProcessManage;
 
 /**
  * 查看守护进程运行状态
- * 
+ *
  * @package Cml\Console\Commands\DaemonProcessManage
  */
 class Status extends Command
@@ -39,5 +39,4 @@ class Status extends Command
     {
         ProcessManage::getStatus(true);
     }
-
 }

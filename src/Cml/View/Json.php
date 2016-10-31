@@ -24,8 +24,9 @@ class Json extends Base
      * 输出数据
      *
      */
-    public function display() {
-        header('Content-Type: application/json;charset='.Config::get('default_charset'));
+    public function display()
+    {
+        header('Content-Type: application/json;charset=' . Config::get('default_charset'));
         if (Cml::$debug) {
             $sql = Debug::getSqls();
             if (Config::get('dump_use_php_console')) {
@@ -46,5 +47,4 @@ class Json extends Base
 
         exit(json_encode($this->args, JSON_UNESCAPED_UNICODE));
     }
-
 }

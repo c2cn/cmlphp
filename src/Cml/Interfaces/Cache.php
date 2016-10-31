@@ -19,7 +19,7 @@ interface Cache
     /**
      * 使用的缓存配置 默认为使用default_cache配置的参数
      *
-     * @param bool｜array $conf
+     * @param bool ｜array $conf
      */
     public function __construct($conf = false);
 
@@ -98,5 +98,4 @@ interface Cache
      * @return \Redis | \Memcache | \Memcached
      */
     public function getInstance($key = '');
-
 }

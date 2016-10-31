@@ -1,4 +1,5 @@
 <?php namespace Cml\Tools;
+
 /* * *********************************************************
  * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
@@ -79,14 +80,14 @@ class StaticResource
         $isDir = strpos($resource, '.') === false ? true : false;
         if (Cml::$debug) {
             $file = Response::url("cmlframeworkstaticparse/{$resource}", false);
-            if (Config::get('url_model') == 2 ) {
+            if (Config::get('url_model') == 2) {
                 $file = rtrim($file, Config::get('url_html_suffix'));
             }
 
-            $isDir || $file .= ( Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Cml::$nowTime;
+            $isDir || $file .= (Config::get("url_model") == 3 ? "&v=" : "?v=") . Cml::$nowTime;
         } else {
-            $file = Config::get("static__path", Cml::getContainer()->make('cml_route')->getSubDirName()."public/").$resource;
-            $isDir || $file .= ( Config::get("url_model") == 3 ? "&v=" : "?v=" ) . Config::get('static_file_version');
+            $file = Config::get("static__path", Cml::getContainer()->make('cml_route')->getSubDirName() . "public/") . $resource;
+            $isDir || $file .= (Config::get("url_model") == 3 ? "&v=" : "?v=") . Config::get('static_file_version');
         }
         echo $file;
     }
@@ -107,11 +108,11 @@ class StaticResource
 
             while (true) {
                 $resource = ltrim($resource, '/');
-                $pos = strpos ($resource, '/');
+                $pos = strpos($resource, '/');
                 $appName = ($appName == '' ? '' : $appName . DIRECTORY_SEPARATOR) . substr($resource, 0, $pos);
                 $resource = substr($resource, $pos);
-                $file = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR.$appName.DIRECTORY_SEPARATOR
-                    .Cml::getApplicationDir('app_static_path_name') . $resource;
+                $file = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR
+                    . Cml::getApplicationDir('app_static_path_name') . $resource;
 
                 if (is_file($file) || ++$i >= 3) {
                     break;

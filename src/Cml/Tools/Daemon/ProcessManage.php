@@ -1,4 +1,5 @@
 <?php namespace Cml\Tools\Daemon;
+
 /* * *********************************************************
  * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
@@ -29,12 +30,12 @@ class ProcessManage
      */
     private static function checkExtension()
     {
-        if(!extension_loaded('posix')) {
+        if (!extension_loaded('posix')) {
             throw new PhpExtendNotInstall('please install PHP posix extension!');
         }
 
         // 检查扩展
-        if(!extension_loaded('pcntl')) {
+        if (!extension_loaded('pcntl')) {
             throw new PhpExtendNotInstall('please install PHP pcntl extension!');
         }
 
@@ -76,7 +77,7 @@ class ProcessManage
         $title = "cmlphp_daemon_{$title}";
         if (function_exists('cli_set_process_title')) {
             cli_set_process_title($title);
-        } elseif(extension_loaded('proctitle') && function_exists('setproctitle')) {
+        } elseif (extension_loaded('proctitle') && function_exists('setproctitle')) {
             setproctitle($title);
         }
     }
@@ -91,7 +92,7 @@ class ProcessManage
 
         umask(0);
         $pid = pcntl_fork();
-        if($pid < 0) {
+        if ($pid < 0) {
             die("can't Fork!");
         } else if ($pid > 0) {
             exit();
@@ -106,13 +107,14 @@ class ProcessManage
         if ($pid === -1) {
             die("can't fork2!");
         } elseif ($pid > 0) {
-            self::message('start success!');exit;
+            self::message('start success!');
+            exit;
         }
 
         defined('STDIN') && fclose(STDIN);
         defined('STDOUT') && fclose(STDOUT);
         defined('STDERR') && fclose(STDERR);
-        $stdin  = fopen(self::$log, 'r');
+        $stdin = fopen(self::$log, 'r');
         $stdout = fopen(self::$log, 'a');
         $stderr = fopen(self::$log, 'a');
 
@@ -121,10 +123,10 @@ class ProcessManage
         file_put_contents(self::$pidFile, posix_getpid()) || die("can't create pid file");
         self::setProcessName('master');
 
-        pcntl_signal(SIGINT,  ['\\'.__CLASS__, 'signalHandler'], false);
-        pcntl_signal(SIGUSR1, ['\\'.__CLASS__, 'signalHandler'], false);
+        pcntl_signal(SIGINT, ['\\' . __CLASS__, 'signalHandler'], false);
+        pcntl_signal(SIGUSR1, ['\\' . __CLASS__, 'signalHandler'], false);
 
-        file_put_contents(self::$status, '<?php return '.var_export([], true).';', LOCK_EX );
+        file_put_contents(self::$status, '<?php return ' . var_export([], true) . ';', LOCK_EX);
         self::createChildrenProcess();
 
         while (true) {
@@ -136,14 +138,14 @@ class ProcessManage
                 $status = self::getStatus();
                 if (isset($status['pid'][$pid])) {
                     unset($status['pid'][$pid]);
-                    file_put_contents(self::$status, '<?php return '.var_export($status, true).';', LOCK_EX );
+                    file_put_contents(self::$status, '<?php return ' . var_export($status, true) . ';', LOCK_EX);
                 }
                 self::createChildrenProcess();
             }
             sleep(1);
         }
 
-        return ;
+        return;
     }
 
     /**
@@ -156,7 +158,7 @@ class ProcessManage
     private static function setUser($name)
     {
         $result = false;
-        if (empty($name)){
+        if (empty($name)) {
             return true;
         }
         $user = posix_getpwnam($name);
@@ -178,7 +180,7 @@ class ProcessManage
      */
     private static function signalHandler($sigNo)
     {
-        switch($sigNo) {
+        switch ($sigNo) {
             // stop
             case SIGINT:
                 self::signStop();
@@ -199,13 +201,13 @@ class ProcessManage
         $pid = self::getPid();
         if ($pid == posix_getpid()) {
             $status = self::getStatus();
-            foreach($status['pid'] as $cid) {
+            foreach ($status['pid'] as $cid) {
                 posix_kill($cid, SIGUSR1);
             }
             $status['pid'] = [];
-            file_put_contents(self::$status, '<?php return '.var_export($status, true).';', LOCK_EX );
+            file_put_contents(self::$status, '<?php return ' . var_export($status, true) . ';', LOCK_EX);
         } else {
-            exit(posix_getpid().'reload...');
+            exit(posix_getpid() . 'reload...');
         }
     }
 
@@ -218,13 +220,13 @@ class ProcessManage
         $pid = self::getPid();
         if ($pid == posix_getpid()) {
             $status = self::getStatus();
-            foreach($status['pid'] as $cid) {
+            foreach ($status['pid'] as $cid) {
                 posix_kill($cid, SIGINT);
             }
             sleep(3);
             unlink(self::$pidFile);
             unlink(self::$status);
-            echo 'stoped'.PHP_EOL;
+            echo 'stoped' . PHP_EOL;
         }
         exit(posix_getpid() . 'exit...');
     }
@@ -255,9 +257,9 @@ class ProcessManage
             'frequency' => $frequency,//执行的频率
             'task' => $task
         ];
-        file_put_contents(self::$status, '<?php return '.var_export($status, true).';', LOCK_EX );
+        file_put_contents(self::$status, '<?php return ' . var_export($status, true) . ';', LOCK_EX);
 
-        self::message('task nums (' . count($status['task']) . ') list  ['.json_encode($status['task'], JSON_UNESCAPED_UNICODE).']');
+        self::message('task nums (' . count($status['task']) . ') list  [' . json_encode($status['task'], JSON_UNESCAPED_UNICODE) . ']');
     }
 
     /**
@@ -289,9 +291,9 @@ class ProcessManage
         }
 
         self::message("rm task [{$task}] success");
-        file_put_contents(self::$status, '<?php return '.var_export($status, true).';', LOCK_EX );
+        file_put_contents(self::$status, '<?php return ' . var_export($status, true) . ';', LOCK_EX);
 
-        self::message('task nums (' . count($status['task']) . ') list  ['.json_encode($status['task'], JSON_UNESCAPED_UNICODE).']');
+        self::message('task nums (' . count($status['task']) . ') list  [' . json_encode($status['task'], JSON_UNESCAPED_UNICODE) . ']');
     }
 
     /**
@@ -327,11 +329,11 @@ class ProcessManage
 
         if (self::getPid() > 0) {
             self::message('is running');
-            self::message('master pid is '.self::getPid());
-            self::message('worker pid is ['.implode($status['pid'], ',').']');
-            self::message('task nums (' . count($status['task']) . ') list  ['.json_encode($status['task'], JSON_UNESCAPED_UNICODE).']');
+            self::message('master pid is ' . self::getPid());
+            self::message('worker pid is [' . implode($status['pid'], ',') . ']');
+            self::message('task nums (' . count($status['task']) . ') list  [' . json_encode($status['task'], JSON_UNESCAPED_UNICODE) . ']');
         } else {
-            echo 'not running' .PHP_EOL;
+            echo 'not running' . PHP_EOL;
         }
         return null;
     }
@@ -365,9 +367,9 @@ class ProcessManage
     private static function initEvn()
     {
         if (!self::$pidFile) {
-            self::$pidFile = Cml::getApplicationDir('global_store_path').DIRECTORY_SEPARATOR.'DaemonProcess_.pid';
-            self::$log = Cml::getApplicationDir('global_store_path').DIRECTORY_SEPARATOR.'DaemonProcess_.log';
-            self::$status = Cml::getApplicationDir('global_store_path').DIRECTORY_SEPARATOR.'DaemonProcessStatus.php';
+            self::$pidFile = Cml::getApplicationDir('global_store_path') . DIRECTORY_SEPARATOR . 'DaemonProcess_.pid';
+            self::$log = Cml::getApplicationDir('global_store_path') . DIRECTORY_SEPARATOR . 'DaemonProcess_.log';
+            self::$status = Cml::getApplicationDir('global_store_path') . DIRECTORY_SEPARATOR . 'DaemonProcessStatus.php';
             self::checkExtension();
         }
     }
@@ -426,21 +428,21 @@ class ProcessManage
     {
         $pid = pcntl_fork();
 
-        if($pid > 0) {
+        if ($pid > 0) {
             $status = self::getStatus();
             $status['pid'][$pid] = $pid;
             isset($status['task']) || $status['task'] = [];
-            file_put_contents(self::$status, '<?php return '.var_export($status, true).';', LOCK_EX );
-        } elseif($pid === 0) {
+            file_put_contents(self::$status, '<?php return ' . var_export($status, true) . ';', LOCK_EX);
+        } elseif ($pid === 0) {
             self::setProcessName('worker');
             while (true) {
                 pcntl_signal_dispatch();
                 $status = self::getStatus();
                 if ($status['task']) {
-                    foreach($status['task'] as $key => $task) {
-                        if (time() > ($task['last_runtime'] + $task['frequency']) ) {
+                    foreach ($status['task'] as $key => $task) {
+                        if (time() > ($task['last_runtime'] + $task['frequency'])) {
                             $status['task'][$key]['last_runtime'] = time();
-                            file_put_contents(self::$status, '<?php return '.var_export($status, true).';', LOCK_EX );
+                            file_put_contents(self::$status, '<?php return ' . var_export($status, true) . ';', LOCK_EX);
                             call_user_func($task['task']);
                         }
                     }
@@ -449,7 +451,7 @@ class ProcessManage
                     sleep(5);
                 }
             }
-        }  else {
+        } else {
             exit('create process error');
         }
     }

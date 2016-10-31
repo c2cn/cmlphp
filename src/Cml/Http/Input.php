@@ -26,7 +26,7 @@ class Input
      */
     public static function getString($name, $default = null)
     {
-        if (isset($_GET[$name]) && $_GET[$name] !== '' ) return trim(htmlspecialchars($_GET[$name], ENT_QUOTES, 'UTF-8'));
+        if (isset($_GET[$name]) && $_GET[$name] !== '') return trim(htmlspecialchars($_GET[$name], ENT_QUOTES, 'UTF-8'));
         return $default;
     }
 
@@ -40,7 +40,7 @@ class Input
      */
     public static function postString($name, $default = null)
     {
-        if (isset($_POST[$name]) && $_POST[$name] !== '' ) return trim(htmlspecialchars($_POST[$name], ENT_QUOTES, 'UTF-8'));
+        if (isset($_POST[$name]) && $_POST[$name] !== '') return trim(htmlspecialchars($_POST[$name], ENT_QUOTES, 'UTF-8'));
         return $default;
     }
 
@@ -54,7 +54,7 @@ class Input
      */
     public static function requestString($name, $default = null)
     {
-        if (isset($_REQUEST[$name]) && $_REQUEST[$name] !== '' ) return trim(htmlspecialchars($_REQUEST[$name], ENT_QUOTES, 'UTF-8'));
+        if (isset($_REQUEST[$name]) && $_REQUEST[$name] !== '') return trim(htmlspecialchars($_REQUEST[$name], ENT_QUOTES, 'UTF-8'));
         return $default;
     }
 
@@ -68,7 +68,7 @@ class Input
      */
     public static function getInt($name, $default = null)
     {
-        if (isset($_GET[$name]) && $_GET[$name] !== '' ) return intval($_GET[$name]);
+        if (isset($_GET[$name]) && $_GET[$name] !== '') return intval($_GET[$name]);
         return (is_null($default) ? null : intval($default));
     }
 
@@ -82,7 +82,7 @@ class Input
      */
     public static function postInt($name, $default = null)
     {
-        if (isset($_POST[$name]) && $_POST[$name] !== '' ) return intval($_POST[$name]);
+        if (isset($_POST[$name]) && $_POST[$name] !== '') return intval($_POST[$name]);
         return (is_null($default) ? null : intval($default));
     }
 
@@ -96,7 +96,7 @@ class Input
      */
     public static function requestInt($name, $default = null)
     {
-        if (isset($_REQUEST[$name]) && $_REQUEST[$name] !== '' ) return intval($_REQUEST[$name]);
+        if (isset($_REQUEST[$name]) && $_REQUEST[$name] !== '') return intval($_REQUEST[$name]);
         return (is_null($default) ? null : intval($default));
     }
 
@@ -110,7 +110,7 @@ class Input
      */
     public static function getBool($name, $default = null)
     {
-        if (isset($_GET[$name]) && $_GET[$name] !== '' ) return ((bool)$_GET[$name]);
+        if (isset($_GET[$name]) && $_GET[$name] !== '') return ((bool)$_GET[$name]);
         return (is_null($default) ? null : ((bool)$default));
     }
 
@@ -124,7 +124,7 @@ class Input
      */
     public static function postBool($name, $default = null)
     {
-        if (isset($_POST[$name]) && $_POST[$name] !== '' ) return ((bool)$_POST[$name]);
+        if (isset($_POST[$name]) && $_POST[$name] !== '') return ((bool)$_POST[$name]);
         return (is_null($default) ? null : ((bool)$default));
     }
 
@@ -138,7 +138,7 @@ class Input
      */
     public static function requestBool($name, $default = null)
     {
-        if (isset($_REQUEST[$name]) && $_REQUEST[$name] !== '' ) return ((bool)$_REQUEST[$name]);
+        if (isset($_REQUEST[$name]) && $_REQUEST[$name] !== '') return ((bool)$_REQUEST[$name]);
         return (is_null($default) ? null : ((bool)$default));
     }
 }

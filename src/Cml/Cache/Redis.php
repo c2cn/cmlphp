@@ -30,13 +30,13 @@ class Redis extends namespace\Base
     /**
      * 使用的缓存配置 默认为使用default_cache配置的参数
      *
-     * @param bool｜array $conf
+     * @param bool ｜array $conf
      */
     public function __construct($conf = false)
     {
         $this->conf = $conf ? $conf : Config::get('default_cache');
 
-        if (!extension_loaded('redis') ) {
+        if (!extension_loaded('redis')) {
             throw new PhpExtendNotInstall(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Redis'));
         }
     }
@@ -58,7 +58,7 @@ class Redis extends namespace\Base
         if (!isset($this->redis[$success]) || !is_object($this->redis[$success])) {
             $instance = new \Redis();
 
-            $connectToRedisFunction = function($host, $port, $isPersistentConnect) use ($instance) {
+            $connectToRedisFunction = function ($host, $port, $isPersistentConnect) use ($instance) {
                 if ($isPersistentConnect) {
                     return $instance->pconnect($host, $port, 1.5);
                 } else {
@@ -191,9 +191,9 @@ class Redis extends namespace\Base
     public function truncate()
     {
         foreach ($this->conf['server'] as $key => $val) {
-            if(!isset($this->redis[$key]) || !is_object($this->redis[$key])) {
+            if (!isset($this->redis[$key]) || !is_object($this->redis[$key])) {
                 $instance = new \Redis();
-                if($instance->pconnect($val['host'], $val['port'], 1.5)) {
+                if ($instance->pconnect($val['host'], $val['port'], 1.5)) {
                     $this->redis[$key] = $instance;
                 } else {
                     throw new \RuntimeException(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Redis'));
@@ -260,9 +260,8 @@ class Redis extends namespace\Base
      */
     public function __destruct()
     {
-        foreach ($this->redis  as $instance) {
+        foreach ($this->redis as $instance) {
             $instance->close();
         }
     }
-
 }

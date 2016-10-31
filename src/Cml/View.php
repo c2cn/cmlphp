@@ -23,8 +23,9 @@ class View
      *
      * @return \Cml\View\Html
      */
-    public static function getEngine($engine = null) {
+    public static function getEngine($engine = null)
+    {
         is_null($engine) && $engine = Config::get('view_render_engine');
-        return Cml::getContainer()->make('view_'.strtolower($engine));
+        return Cml::getContainer()->make('view_' . strtolower($engine));
     }
 }

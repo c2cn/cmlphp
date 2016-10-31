@@ -29,7 +29,7 @@ class Redis extends Base
      */
     public function lock($key, $wouldBlock = false)
     {
-        if(empty($key)) {
+        if (empty($key)) {
             return false;
         }
         $key = $this->getKey($key);
@@ -45,7 +45,8 @@ class Redis extends Base
             $key,
             Cml::$nowMicroTime,
             ['nx', 'ex' => $this->expire]
-        )) {
+        )
+        ) {
             $this->lockCache[$key] = (string)Cml::$nowMicroTime;
             return true;
         }

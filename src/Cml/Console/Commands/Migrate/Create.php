@@ -116,7 +116,7 @@ class Create extends AbstractCommand
             }
 
             // Does the class implement the required interface?
-            if ( !is_subclass_of($creationClassName, self::CREATION_INTERFACE)) {
+            if (!is_subclass_of($creationClassName, self::CREATION_INTERFACE)) {
                 throw new \InvalidArgumentException(sprintf(
                     'The class "%s" does not implement the required interface "%s"',
                     $creationClassName,

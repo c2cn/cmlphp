@@ -155,5 +155,4 @@ interface Route
      * @param callable $func 闭包
      */
     public function group($namespace, callable $func);
-
 }

@@ -7,6 +7,7 @@
  * cmlphp框架 命令行工具-对话框组件
  * *********************************************************** */
 namespace Cml\Console\Component;
+
 use Cml\Console\IO\Output;
 
 /**
@@ -58,11 +59,11 @@ class Dialog
     private function askHidden()
     {
         if ('\\' === DIRECTORY_SEPARATOR) {
-            $exe = __DIR__.'/bin/hiddeninput.exe';
+            $exe = __DIR__ . '/bin/hiddeninput.exe';
 
             // handle code running from a phar
             if ('phar:' === substr(__FILE__, 0, 5)) {
-                $tmpExe = sys_get_temp_dir().'/hiddeninput.exe';
+                $tmpExe = sys_get_temp_dir() . '/hiddeninput.exe';
                 copy($exe, $tmpExe);
                 $exe = $tmpExe;
             }

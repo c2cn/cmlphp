@@ -1,4 +1,5 @@
 <?php namespace Cml\Logger;
+
 /* * *********************************************************
  * [cmlphp] (C)2012 - 3000 http://cmlphp.com
  * @Author  linhecheng<linhechengbush@live.com>
@@ -42,6 +43,6 @@ class File extends Base
      */
     public function log($level, $message, array $context = [])
     {
-        return error_log ( $this->format($message, $context) . "\r\n" ,  3 ,  $this->logDir . $level . '.log');
+        return error_log($this->format($message, $context) . "\r\n", 3, $this->logDir . $level . '.log');
     }
 }

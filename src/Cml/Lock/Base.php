@@ -26,7 +26,8 @@ abstract class Base implements Lock
      */
     protected $useCache = '';
 
-    public function __construct($useCache) {
+    public function __construct($useCache)
+    {
         $useCache || $useCache = Config::get('locker_use_cache', 'default_cache');
         $this->useCache = $useCache;
     }
@@ -69,7 +70,7 @@ abstract class Base implements Lock
      */
     protected function getKey($key)
     {
-        return Config::get('lock_prefix').$key;
+        return Config::get('lock_prefix') . $key;
     }
 
     /**

@@ -10,6 +10,7 @@ namespace Cml\Service;
 
 use Cml\Cml;
 use Cml\Config;
+use Cml\Console\IO\Output;
 use Cml\Http\Request;
 use Cml\Interfaces\ErrorOrException;
 use Cml\Lang;
@@ -45,7 +46,7 @@ class Whoops implements ErrorOrException
             $error['message'] = Lang::get('_CML_ERROR_');
 
             if (Request::isCli()) {
-                \Cml\pd($error);
+                Output::writeException(sprintf("[%s]\n%s", 'Fatal Error', $error['message']));
             } else {
                 header('HTTP/1.1 500 Internal Server Error');
                 View::getEngine('html')->reset()->assign('error', $error);

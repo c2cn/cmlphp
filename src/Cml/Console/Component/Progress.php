@@ -73,7 +73,7 @@ class Progress
     {
         $this->percent += $value;
 
-        $percentage = (double) ($this->percent / 100);
+        $percentage = (double)($this->percent / 100);
 
         $progress = floor($percentage * 50);
         $output = "\r[" . str_repeat('>', $progress);

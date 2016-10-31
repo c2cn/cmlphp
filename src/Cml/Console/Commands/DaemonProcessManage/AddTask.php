@@ -14,7 +14,7 @@ use Cml\Tools\Daemon\ProcessManage;
 
 /**
  * 添加一个后台任务
- * 
+ *
  * @package Cml\Console\Commands\DaemonProcessManage
  */
 class AddTask extends Command
@@ -54,5 +54,4 @@ class AddTask extends Command
         }
         ProcessManage::addTask($action, $frequency);
     }
-
 }

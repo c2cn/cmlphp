@@ -46,7 +46,7 @@ class Route
                         $param = $_GET[Config::get('var_pathinfo')];
                     } else {
                         $param = preg_replace('/(.*)\/(.*)\.php(.*)/i', '\\1\\3', $_SERVER['REQUEST_URI']);
-                        $scriptName =  preg_replace('/(.*)\/(.*)\.php(.*)/i', '\\1', $_SERVER['SCRIPT_NAME']);
+                        $scriptName = preg_replace('/(.*)\/(.*)\.php(.*)/i', '\\1', $_SERVER['SCRIPT_NAME']);
 
                         if (!empty($scriptName)) {
                             $param = substr($param, strpos($param, $scriptName) + strlen($scriptName));
@@ -58,7 +58,7 @@ class Route
                         //获取参数
                         $pathInfo = explode(Config::get('url_pathinfo_depr'), trim(preg_replace(
                             [
-                                '/\\'.Config::get('url_html_suffix').'/',
+                                '/\\' . Config::get('url_html_suffix') . '/',
                                 '/\&.*/', '/\?.*/'
                             ],
                             '',
@@ -244,12 +244,12 @@ class Route
     public static function loadAppRoute($app = 'web')
     {
         static $loaded = [];
-        if (isset($loaded[$app]) ) {
+        if (isset($loaded[$app])) {
             return;
         }
-        $appRoute = Cml::getApplicationDir('apps_path').DIRECTORY_SEPARATOR.$app.DIRECTORY_SEPARATOR.Cml::getApplicationDir('app_config_path_name').DIRECTORY_SEPARATOR.'route.php';
+        $appRoute = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_config_path_name') . DIRECTORY_SEPARATOR . 'route.php';
         if (!is_file($appRoute)) {
-            throw new \InvalidArgumentException(Lang::get('_NOT_FOUND_', $app.DIRECTORY_SEPARATOR.Cml::getApplicationDir('app_config_path_name').DIRECTORY_SEPARATOR.'route.php'));
+            throw new \InvalidArgumentException(Lang::get('_NOT_FOUND_', $app . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_config_path_name') . DIRECTORY_SEPARATOR . 'route.php'));
         }
 
         $loaded[$app] = 1;

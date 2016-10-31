@@ -15,14 +15,14 @@ namespace Cml\Interfaces;
  */
 interface Logger
 {
-   /**
-    * 系统不可用
-    *
-    * @param string $message 要记录到log的信息
-    * @param array $context 上下文信息
-    *
-    * @return null
-    */
+    /**
+     * 系统不可用
+     *
+     * @param string $message 要记录到log的信息
+     * @param array $context 上下文信息
+     *
+     * @return null
+     */
     public function emergency($message, array $context = []);
 
     /**

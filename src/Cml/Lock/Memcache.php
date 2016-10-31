@@ -30,7 +30,7 @@ class Memcache extends Base
      */
     public function lock($key, $wouldBlock = false)
     {
-        if(empty($key)) {
+        if (empty($key)) {
             return false;
         }
         $key = $this->getKey($key);

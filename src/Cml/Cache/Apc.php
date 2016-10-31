@@ -22,7 +22,7 @@ class Apc extends namespace\Base
     /**
      * 使用的缓存配置 默认为使用default_cache配置的参数
      *
-     * @param bool｜array $conf
+     * @param bool ｜array $conf
      *
      * @throws PhpExtendNotInstall
      */
@@ -122,7 +122,7 @@ class Apc extends namespace\Base
      *
      * @return bool
      */
-    public function decrement($key, $val =1)
+    public function decrement($key, $val = 1)
     {
         return apc_dec($this->conf['prefix'] . $key, abs(intval($val)));
     }
@@ -134,5 +134,7 @@ class Apc extends namespace\Base
      *
      * @return void
      */
-    public function getInstance($key = '') {}
+    public function getInstance($key = '')
+    {
+    }
 }
