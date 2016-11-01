@@ -53,6 +53,6 @@ EOT;
             Output::writeln('using format ' . $format);
         }
 
-        echo $this->getManager()->printStatus($format);
+        $this->getManager()->printStatus($format);
     }
 }
