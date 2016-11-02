@@ -210,6 +210,23 @@ abstract class Base implements Db
     }
 
     /**
+     * 获取多条数据
+     *
+     * @param bool $useMaster 是否使用主库 默认读取从库
+     *
+     * @return array | bool
+     */
+    public function getOne($useMaster = false)
+    {
+        $result = $this->select(0, 1, $useMaster);
+        if (isset($result[0])) {
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * where条件组装 相等
      *
      * @param string|array $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名) 当$column为数组时 批量设置
