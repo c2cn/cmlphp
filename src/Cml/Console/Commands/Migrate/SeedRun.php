@@ -37,7 +37,7 @@ The seed:run command runs all available or individual seeders
 phinx seed:run
 phinx seed:run --seed=UserSeeder
 phinx seed:run --s=UserSeeder
-phinx seed:run  --s=UserSeeder --s=PermissionSeeder --s=LogSeeder
+phinx seed:run --s=UserSeeder --s=PermissionSeeder --s=LogSeeder
 
 EOT;
 
