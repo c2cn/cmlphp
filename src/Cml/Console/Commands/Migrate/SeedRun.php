@@ -37,7 +37,7 @@ The seed:run command runs all available or individual seeders
 php index.php seed:run
 php index.php seed:run --seed=UserSeeder
 php index.php seed:run --s=UserSeeder
-php index.php seed:run  --s=UserSeeder --s=PermissionSeeder --s=LogSeeder
+php index.php seed:run --s=UserSeeder --s=PermissionSeeder --s=LogSeeder
 
 EOT;
 
