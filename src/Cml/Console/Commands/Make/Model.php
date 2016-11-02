@@ -21,7 +21,7 @@ use Cml\Console\IO\Output;
  */
 class Model extends Command
 {
-    protected $description = "Create a new controller class";
+    protected $description = "Create a new model class";
 
     protected $arguments = [
         'name' => 'The name of the class'
