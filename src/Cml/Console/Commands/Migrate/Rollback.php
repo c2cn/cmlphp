@@ -35,15 +35,15 @@ class Rollback extends AbstractCommand
     protected $help = <<<EOF
 The rollback command reverts the last migration, or optionally up to a specific version
 
-phinx rollback
-phinx rollback --target=20111018185412
-phinx rollback --t=20111018185412
-phinx rollback --date=20111018
-phinx rollback --d=20111018
-phinx rollback --target=20111018185412 -f
+php index.php migrate:rollback
+php index.php migrate:rollback --target=20111018185412
+php index.php migrate:rollback --t=20111018185412
+php index.php migrate:rollback --date=20111018
+php index.php migrate:rollback --d=20111018
+php index.php migrate:rollback --target=20111018185412 -f
 
 If you have a breakpoint set, then you can rollback to target 0 and the rollbacks will stop at the breakpoint.
-phinx rollback --target=0
+php index.php migrate:rollback --target=0
 EOF;
 
 

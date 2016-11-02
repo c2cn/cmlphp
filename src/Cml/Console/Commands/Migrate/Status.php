@@ -33,8 +33,8 @@ class Status extends AbstractCommand
     protected $help = <<<EOT
 The status command prints a list of all migrations, along with their current status
 
-phinx status
-phinx status --f=json
+php index.php migrate:status
+php index.php migrate:status --f=json
 EOT;
 
     /**

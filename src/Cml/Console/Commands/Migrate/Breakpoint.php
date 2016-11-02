@@ -33,10 +33,10 @@ The breakpoint command allows you to set or clear a breakpoint against a specifi
 If no target is supplied then the most recent migration will be used.
 You cannot specify un-migrated targets
 
-phinx breakpoint 
-phinx breakpoint --target=20110103081132
-phinx breakpoint --t=20110103081132
-phinx breakpoint -r
+php index.php migrate:breakpoint
+php index.php migrate:breakpoint --target=20110103081132
+php index.php migrate:breakpoint --t=20110103081132
+php index.php migrate:breakpoint -r
 EOT;
 
     /**

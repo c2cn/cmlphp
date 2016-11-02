@@ -35,11 +35,11 @@ class Migrate extends AbstractCommand
     protected $help = <<<EOT
 The migrate command runs all available migrations, optionally up to a specific version
 
-phinx migrate
-phinx migrate --target=20110103081132
-phinx migrate --t=20110103081132
-phinx migrate --date=20110103
-phinx migrate --d=20110103
+php index.php migrate:run
+php index.php migrate:run --target=20110103081132
+php index.php migrate:run --t=20110103081132
+php index.php migrate:run --date=20110103
+php index.php migrate:run --d=20110103
 EOT;
 
     /**

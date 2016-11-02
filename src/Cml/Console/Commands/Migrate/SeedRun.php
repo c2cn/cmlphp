@@ -34,10 +34,10 @@ class SeedRun extends AbstractCommand
     protected $help = <<<EOT
 The seed:run command runs all available or individual seeders
 
-phinx seed:run
-phinx seed:run --seed=UserSeeder
-phinx seed:run --s=UserSeeder
-phinx seed:run --s=UserSeeder --s=PermissionSeeder --s=LogSeeder
+php index.php seed:run
+php index.php seed:run --seed=UserSeeder
+php index.php seed:run --s=UserSeeder
+php index.php seed:run  --s=UserSeeder --s=PermissionSeeder --s=LogSeeder
 
 EOT;
 

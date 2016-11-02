@@ -221,8 +221,12 @@ class Cml
             //兼容旧版直接运行方法
             if ($_SERVER['argc'] != 2 || strpos($_SERVER['argv'][1], '/') < 1) {
                 $console = new Console([
-                    'symlink' => 'Cml\Console\Commands\CreateSymbolicLink',
                     'run-action' => 'Cml\Console\Commands\RunAction',
+                    //make
+                    'make:symlink' => 'Cml\Console\Commands\CreateSymbolicLink',
+                    'make:controller' => 'Cml\Console\Commands\Make\Controller',
+                    'make:model' => 'Cml\Console\Commands\Make\Model',
+                    //worker
                     'worker:start' => 'Cml\Console\Commands\DaemonProcessManage\Start',
                     'worker:status' => 'Cml\Console\Commands\DaemonProcessManage\Status',
                     'worker:reload' => 'Cml\Console\Commands\DaemonProcessManage\Reload',
@@ -234,13 +238,17 @@ class Cml
                     'migrate:run' => 'Cml\Console\Commands\Migrate\Migrate',
                     'migrate:rollback' => 'Cml\Console\Commands\Migrate\Rollback',
                     'migrate:status' => 'Cml\Console\Commands\Migrate\Status',
-                    'migrate:break-point' => 'Cml\Console\Commands\Migrate\Breakpoint',
+                    'migrate:breakpoint' => 'Cml\Console\Commands\Migrate\Breakpoint',
+                    //seed
                     'seed:create' => 'Cml\Console\Commands\Migrate\SeedCreate',
                     'seed:run' => 'Cml\Console\Commands\Migrate\SeedRun',
                 ]);
-                $commandList = Config::get('command_list');
-                if (is_array($commandList) && count($commandList) > 0) {
-                    $console->addCommands($commandList);
+                $userCommand = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'command.php';
+                if (is_file($userCommand)) {
+                    $commandList = Cml::requireFile($userCommand);
+                    if (is_array($commandList) && count($commandList) > 0) {
+                        $console->addCommands($commandList);
+                    }
                 }
 
                 if ($console->run() !== 'don_not_exit') {
@@ -346,7 +354,7 @@ class Cml
     {
         Plugin::mount('cml.before_show_404_page', [
             function () {
-                $cmdLists = Config::get('cmlframework_system_command');
+                $cmdLists = Config::get('cmlframework_system_route');
                 $cmd = strtolower(trim(Cml::getContainer()->make('cml_route')->getAppName(), '/'));
                 if (isset($cmdLists[$cmd])) {
                     call_user_func($cmdLists[$cmd]);
