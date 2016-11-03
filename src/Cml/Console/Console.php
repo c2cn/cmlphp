@@ -16,7 +16,7 @@ use Cml\Console\IO\Output;
 /**
  * 注册可用的命令并执行
  */
-class Console
+class Console implements \Cml\Interfaces\Console
 {
     /**
      * 存放所有命令
@@ -121,6 +121,8 @@ class Console
     }
 
     /**
+     * 获取所有命令列表
+     *
      * @return array
      */
     public function getCommands()

@@ -8,7 +8,6 @@
  * *********************************************************** */
 namespace Cml;
 
-use Cml\Console\Console;
 use Cml\Exception\ControllerNotFoundException;
 use Cml\Http\Request;
 use Cml\Http\Response;
@@ -220,7 +219,7 @@ class Cml
         if (Request::isCli()) {
             //兼容旧版直接运行方法
             if ($_SERVER['argc'] != 2 || strpos($_SERVER['argv'][1], '/') < 1) {
-                $console = new Console([
+                $console = Cml::getContainer()->make('cml_console', [
                     'run-action' => 'Cml\Console\Commands\RunAction',
                     //make
                     'make:symlink' => 'Cml\Console\Commands\CreateSymbolicLink',
