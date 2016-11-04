@@ -29,6 +29,8 @@ class SeedRun extends AbstractCommand
     protected $options = [
         '--s=xxx | --seed=xxx' => 'What is the name of the seeder?',
         '--env=xxx' => "the environment [cli, product, development] load accordingly config",
+        '-e|--e=path|--export=path' => "do not execute sql but save sql to file",
+        '-m|--merge' => "merge multi migrate to one sql file",
     ];
 
     protected $help = <<<EOT

@@ -77,6 +77,24 @@ abstract class AbstractCommand extends Command
             'using seed path ' .
             Colour::colour(str_replace(Cml::getApplicationDir('secure_src'), '{secure_src}', $this->getConfig()->getSeedPath()), Colour::GREEN)
         );
+
+        $exportPath = false;
+        if (isset($options['e'])) {
+            $exportPath = $options['e'];
+        } else if (isset($options['export'])) {
+            $exportPath = $options['export'];
+        }
+        if ($exportPath) {
+            is_dir($exportPath) || $exportPath = $this->getConfig()->getExportPath();
+            is_dir($exportPath) || mkdir($exportPath, 0700, true);
+            Output::writeln(
+                'using export path:' .
+                Colour::colour(str_replace(Cml::getApplicationDir('secure_src'), '{secure_src}', $exportPath), Colour::GREEN)
+            );
+            $merge = (isset($options['m']) || isset($options['merge'])) ? 'merge_export_' . date('Y-m-d-H-i-s') . '.sql' : false;
+            $this->getManager()->getEnvironment()->setExportPath($exportPath, $merge);
+        }
+
         $this->getConfig()->echoAdapterInfo();
     }
 

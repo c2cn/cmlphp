@@ -30,6 +30,8 @@ class Rollback extends AbstractCommand
         '--d=xxx | --date=xxx' => 'The date to rollback to',
         '-f | --force' => 'Force rollback to ignore breakpoints',
         '--env=xxx' => "the environment [cli, product, development] load accordingly config",
+        '-e|--e=path|--export=path' => "do not execute sql but save sql to file",
+        '-m|--merge' => "merge multi migrate to one sql file",
     ];
 
     protected $help = <<<EOF
