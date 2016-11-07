@@ -22,7 +22,7 @@ class Cml
     /**
      * 版本
      */
-    const VERSION = 'v2.7.0';
+    const VERSION = 'v2.7.1';
 
     /**
      * 是否为debug模式
