@@ -39,17 +39,23 @@ class Lang extends Config
         if (empty($key)) {
             return '';
         }
-
-        $replace = func_get_args();
         $key = strtolower($key);
-
         $val = Cml::doteToArr($key, self::$_content['normal']);
 
         if (is_null($val)) {
-            return $default;
+            return is_array($default) ? '' : $default;
         } else {
-            $replace[0] = $val;
-            return call_user_func_array('sprintf', array_values($replace));
+            if (is_array($default)) {
+                $keys = array_keys($default);
+                $keys = array_map(function ($key) {
+                    return '{' . $key . '}';
+                }, $keys);
+                return str_replace($keys, array_values($default), $val);
+            } else {
+                $replace = func_get_args();
+                $replace[0] = $val;
+                return call_user_func_array('sprintf', array_values($replace));
+            }
         }
     }
 }
