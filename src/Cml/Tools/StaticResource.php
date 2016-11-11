@@ -98,13 +98,13 @@ class StaticResource
     public static function parseResourceFile()
     {
         if (Cml::$debug) {
-            $pathinfo = Route::getPathInfo();
-            array_shift($pathinfo);
-            $resource = implode('/', $pathinfo);
+            $pathInfo = Route::getPathInfo();
+            array_shift($pathInfo);
+            $resource = implode('/', $pathInfo);
 
             $appName = $file = '';
             $i = 0;
-
+            $routeAppHierarchy = Config::get('route_app_hierarchy', 1);
             while (true) {
                 $resource = ltrim($resource, '/');
                 $pos = strpos($resource, '/');
@@ -113,7 +113,7 @@ class StaticResource
                 $file = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR
                     . Cml::getApplicationDir('app_static_path_name') . $resource;
 
-                if (is_file($file) || ++$i >= 3) {
+                if (is_file($file) || ++$i >= $routeAppHierarchy) {
                     break;
                 }
             }

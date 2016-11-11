@@ -168,7 +168,7 @@ return [
 
     /*系统路由-统一用小写url*/
     'cmlframework_system_route' => [
-        'cmlframeworkstaticparse' => '\\Cml\\Tools\\StaticResource::parseResourceFile'
+        'cmlframeworkstaticparse' => '\\Cml\\Tools\\StaticResource::parseResourceFile',//解析静态资源
     ],
     'static_file_version' => 'v1', //开发模式会自动在静态文件后加时间缀，实时过期,线上模板版本号固定，如有需要在这里改版本号强制过期
 
