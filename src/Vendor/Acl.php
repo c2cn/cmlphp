@@ -221,9 +221,9 @@ class Acl
             $offset = $appPosition = 0;
             for ($i = 0; $i < Config::get('route_app_hierarchy', 1); $i++) {
                 $appPosition = strpos($controller, '\\', $offset);
-                $offset += $appPosition;
+                $offset = $appPosition + 1;
             }
-            $appPosition = $offset;
+            $appPosition = $offset - 1;
 
             $subString = substr($controller, 0, $appPosition) . '\\' . Cml::getApplicationDir('app_controller_path_name') . substr($controller, $appPosition, $actionPosition - $appPosition);
             $controller = "\\{$subString}" . Config::get('controller_suffix');
