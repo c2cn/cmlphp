@@ -20,35 +20,6 @@ use Cml\Http\Response;
 class Cml
 {
     /**
-     * 系统命令
-     *
-     * @var array
-     */
-    private static $systemCommands = [
-        'run-action' => 'Cml\Console\Commands\RunAction',
-        //make
-        'make:symlink' => 'Cml\Console\Commands\CreateSymbolicLink',
-        'make:controller' => 'Cml\Console\Commands\Make\Controller',
-        'make:model' => 'Cml\Console\Commands\Make\Model',
-        //worker
-        'worker:start' => 'Cml\Console\Commands\DaemonProcessManage\Start',
-        'worker:status' => 'Cml\Console\Commands\DaemonProcessManage\Status',
-        'worker:reload' => 'Cml\Console\Commands\DaemonProcessManage\Reload',
-        'worker:stop' => 'Cml\Console\Commands\DaemonProcessManage\Stop',
-        'worker:add-task' => 'Cml\Console\Commands\DaemonProcessManage\AddTask',
-        'worker:rm-task' => 'Cml\Console\Commands\DaemonProcessManage\RmTask',
-        //migrate
-        'migrate:create' => 'Cml\Console\Commands\Migrate\Create',
-        'migrate:run' => 'Cml\Console\Commands\Migrate\Migrate',
-        'migrate:rollback' => 'Cml\Console\Commands\Migrate\Rollback',
-        'migrate:status' => 'Cml\Console\Commands\Migrate\Status',
-        'migrate:breakpoint' => 'Cml\Console\Commands\Migrate\Breakpoint',
-        //seed
-        'seed:create' => 'Cml\Console\Commands\Migrate\SeedCreate',
-        'seed:run' => 'Cml\Console\Commands\Migrate\SeedRun',
-    ];
-
-    /**
      * 版本
      */
     const VERSION = 'v2.7.1';
@@ -252,7 +223,7 @@ class Cml
         if (Request::isCli()) {
             //兼容旧版直接运行方法
             if ($_SERVER['argc'] != 2 || strpos($_SERVER['argv'][1], '/') < 1) {
-                $console = Cml::getContainer()->make('cml_console', self::$systemCommands);
+                $console = Cml::getContainer()->make('cml_console');
                 $userCommand = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'command.php';
                 if (is_file($userCommand)) {
                     $commandList = Cml::requireFile($userCommand);
