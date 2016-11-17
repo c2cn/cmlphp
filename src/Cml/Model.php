@@ -152,14 +152,9 @@ class Model
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $tablePrefix);
-        $data = $this->db($this->getDbConf())->table($tableName, $tablePrefix)
+        return $this->db($this->getDbConf())->table($tableName, $tablePrefix)
             ->where($column, $val)
-            ->select(0, 1);
-        if (isset($data[0])) {
-            return $data[0];
-        } else {
-            return false;
-        }
+            ->getOne();
     }
 
     /**
