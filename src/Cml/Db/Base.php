@@ -881,7 +881,7 @@ abstract class Base implements Db
                         $func = strtoupper(key(current($v)));
                         $funcParams = current(current($v));
                         foreach ($funcParams as $key => $val) {
-                            if (!isset($dbFields[$val])) {
+                            if (substr($val, 0, 1) !== '`') {
                                 $funcParams[$key] = '%s';
                                 $params[] = $val;
                             }
@@ -889,12 +889,11 @@ abstract class Base implements Db
                         $p = "`{$k}`= {$func}(" . implode($funcParams, ',') . ')';
                         break;
                     default ://计算类型
-                        $conkey = key($v);
-                        if (!isset($dbFields[$conkey])) $conkey = $k;
+                        $conKey = key($v);
                         if (!in_array(key(current($v)), ['+', '-', '*', '/', '%', '^', '&', '|', '<<', '>>', '~'])) {
                             throw new \InvalidArgumentException(Lang::get('_PARSE_UPDATE_SQL_PARAMS_ERROR_'));
                         }
-                        $p = "`{$k}`= `{$conkey}`" . key(current($v)) . abs(intval(current(current($v))));
+                        $p = "`{$k}`= `{$conKey}`" . key(current($v)) . abs(intval(current(current($v))));
                         break;
                 }
             } else {
