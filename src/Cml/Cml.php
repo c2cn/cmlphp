@@ -20,16 +20,16 @@ use Cml\Http\Response;
 class Cml
 {
     /**
+     * 版本
+     */
+    const VERSION = 'v2.7.2';
+
+    /**
      * 执行app/只是初始化环境
      *
      * @var bool
      */
-    private static $run = true;
-
-    /**
-     * 版本
-     */
-    const VERSION = 'v2.7.2';
+    private static $run = false;
 
     /**
      * 是否为debug模式
@@ -288,8 +288,6 @@ class Cml
      */
     public static function onlyInitEnvironmentNotRunController(callable $initDi)
     {
-        self::$run = false;
-
         //初始化依赖
         $initDi();
 
@@ -317,6 +315,8 @@ class Cml
      */
     public static function runApp(callable $initDi)
     {
+        self::$run = true;
+
         self::onlyInitEnvironmentNotRunController($initDi);
 
         Plugin::hook('cml.before_run_controller');
