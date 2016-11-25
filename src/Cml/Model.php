@@ -111,7 +111,7 @@ class Model
     /**
      * 初始化一个Model实例
      *
-     * @return \Cml\Model
+     * @return \Cml\Model | \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base
      */
     public static function getInstance()
     {
@@ -323,11 +323,16 @@ class Model
      * @param $dbMethod
      * @param $arguments
      *
-     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB
+     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | $this
      */
     public function __call($dbMethod, $arguments)
     {
-        return call_user_func_array([$this->db($this->getDbConf()), $dbMethod], $arguments);
+        $res = call_user_func_array([$this->db($this->getDbConf()), $dbMethod], $arguments);
+        if ($res instanceof Interfaces\Db) {
+            return $this;//不是返回数据直接返回model实例
+        } else {
+            return $res;
+        }
     }
 
     /**
