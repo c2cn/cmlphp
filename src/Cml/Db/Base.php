@@ -266,6 +266,23 @@ abstract class Base implements Db
     }
 
     /**
+     * 组块结果集
+     *
+     * @param int $num 每次获取的条数
+     * @param callable $func 结果集处理函数
+     */
+    public function chunk($num = 100, callable $func)
+    {
+        $start = 0;
+        while (!empty($result = $this->select($start, $num))) {
+            if ($func($result) === false) {
+                break;
+            }
+            $start += $num;
+        }
+    }
+
+    /**
      * where条件组装 相等
      *
      * @param string|array $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名) 当$column为数组时 批量设置
