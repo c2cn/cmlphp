@@ -174,11 +174,12 @@ interface Db
      *
      * @param string $column 列名
      * @param null $key 返回数组中为列值指定自定义键（该自定义键必须是该表的其它字段列名）
+     * @param int $limit 返回的条数
      * @param bool $useMaster 是否使用主库 默认读取从库
      *
      * @return array
      */
-    public function plunk($column, $key = null, $useMaster = false);
+    public function plunk($column, $key = null, $limit = null, $useMaster = false);
 
     /**
      * 组块结果集

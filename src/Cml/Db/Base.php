@@ -251,13 +251,14 @@ abstract class Base implements Db
      *
      * @param string $column 列名
      * @param null $key 返回数组中为列值指定自定义键（该自定义键必须是该表的其它字段列名）
+     * @param int $limit 返回的条数
      * @param bool $useMaster 是否使用主库 默认读取从库
      *
      * @return array
      */
-    public function plunk($column, $key = null, $useMaster = false)
+    public function plunk($column, $key = null, $limit = null, $useMaster = false)
     {
-        $result = $this->select(0, 1, $useMaster);
+        $result = $this->select(0, $limit, $useMaster);
         $return = [];
         foreach ($result as $row) {
             is_null($key) ? $return[] = $row[$column] : $return[$row[$key]] = $row[$column];
@@ -274,12 +275,14 @@ abstract class Base implements Db
     public function chunk($num = 100, callable $func)
     {
         $start = 0;
+        $this->paramsAutoReset(false);
         while (!empty($result = $this->select($start, $num))) {
             if ($func($result) === false) {
                 break;
             }
             $start += $num;
         }
+        $this->paramsAutoReset(true);
     }
 
     /**
