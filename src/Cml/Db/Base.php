@@ -8,13 +8,11 @@
  * *********************************************************** */
 namespace Cml\Db;
 
-use Cml\Cml;
 use Cml\Config;
 use Cml\Http\Input;
 use Cml\Interfaces\Db;
 use Cml\Lang;
 use Cml\Model;
-use Cml\Route;
 
 /**
  * Orm 数据库抽象基类
