@@ -242,6 +242,7 @@ abstract class Base implements Db
      */
     public function getOneValue($column, $useMaster = false)
     {
+        $this->sql['columns'] == '' && $this->columns($column);
         $data = $this->getOne($useMaster);
         return isset($data[$column]) ? $data[$column] : false;
     }
@@ -258,6 +259,7 @@ abstract class Base implements Db
      */
     public function plunk($column, $key = null, $limit = null, $useMaster = false)
     {
+        $this->sql['columns'] == '' && $this->columns(is_null($key) ? $column : [$key, $column]);
         $result = $this->select(0, $limit, $useMaster);
         $return = [];
         foreach ($result as $row) {
