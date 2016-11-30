@@ -216,8 +216,9 @@ abstract class Base implements Db
         return false;
     }
 
+
     /**
-     * 获取多条数据
+     * 获取一条数据
      *
      * @param bool $useMaster 是否使用主库 默认读取从库
      *
@@ -231,6 +232,39 @@ abstract class Base implements Db
         } else {
             return false;
         }
+    }
+
+    /**
+     * 获取一列
+     *
+     * @param string $column 列名
+     * @param bool $useMaster 是否使用主库 默认读取从库
+     *
+     * @return bool|mixed
+     */
+    public function getOneValue($column, $useMaster = false)
+    {
+        $data = $this->getOne($useMaster);
+        return isset($data[$column]) ? $data[$column] : false;
+    }
+
+    /**
+     * 获取数据列值列表
+     *
+     * @param string $column 列名
+     * @param null $key 返回数组中为列值指定自定义键（该自定义键必须是该表的其它字段列名）
+     * @param bool $useMaster 是否使用主库 默认读取从库
+     *
+     * @return array
+     */
+    public function plunk($column, $key = null, $useMaster = false)
+    {
+        $result = $this->select(0, 1, $useMaster);
+        $return = [];
+        foreach ($result as $row) {
+            is_null($key) ? $return[] = $row[$column] : $return[$row[$key]] = $row[$column];
+        }
+        return $return;
     }
 
     /**
@@ -774,8 +808,8 @@ abstract class Base implements Db
     protected function filterUnionSql($sql)
     {
         return str_ireplace([
-                'insert', "update", "delete", "\/\*", "\.\.\/", "\.\/", "union", "into", "load_file", "outfile"
-            ],
+            'insert', "update", "delete", "\/\*", "\.\.\/", "\.\/", "union", "into", "load_file", "outfile"
+        ],
             ["", "", "", "", "", "", "", "", "", ""],
             $sql);
     }
