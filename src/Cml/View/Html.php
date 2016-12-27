@@ -92,8 +92,8 @@ class Html extends Base
             '#' . $this->options['leftDelimiter'] . '(elseif|elseif)\s+(.+?)' . $this->options['rightDelimiter'] . '#s', //替换 elseif
             '#' . $this->options['leftDelimiter'] . 'else' . $this->options['rightDelimiter'] . '#', //替换 else
             '#' . $this->options['leftDelimiter'] . '\/if' . $this->options['rightDelimiter'] . '#',//替换 /if
-            '#' . $this->options['leftDelimiter'] . '(loop|foreach)\s+(\S+)\s+(\S+)' . $this->options['rightDelimiter'] . '#s',//替换loop|foreach
-            '#' . $this->options['leftDelimiter'] . '(loop|foreach)\s+(\S+)\s+(\S+)\s+(\S+)' . $this->options['rightDelimiter'] . '#s',//替换loop|foreach
+            '#' . $this->options['leftDelimiter'] . '(loop|foreach)\s+(\S+)\s+(\S+)\s*?' . $this->options['rightDelimiter'] . '#s',//替换loop|foreach
+            '#' . $this->options['leftDelimiter'] . '(loop|foreach)\s+(\S+)\s+(\S+)\s+(\S+)\s*?' . $this->options['rightDelimiter'] . '#s',//替换loop|foreach
             '#' . $this->options['leftDelimiter'] . '\/(loop|foreach)' . $this->options['rightDelimiter'] . '#',//替换 /foreach|/loop
             '#' . $this->options['leftDelimiter'] . 'hook\s+(\w+?)\s*' . $this->options['rightDelimiter'] . '#i',//替换 hook
             '#' . $this->options['leftDelimiter'] . '(get|post|request)\s+(\w+?)\s*' . $this->options['rightDelimiter'] . '#i',//替换 get/post/request
@@ -492,7 +492,7 @@ class Html extends Base
      *
      * @param string $templateFile 模板文件
      * @param string $layout 布局文件
-     * @param bool|false $layoutInOtherApp 面部是否在其它应用
+     * @param bool|false $layoutInOtherApp 布局文件是否在其它应用
      * @param bool|false $tplInOtherApp 模板是否在其它应用
      */
     public function displayWithLayout($templateFile = '', $layout = 'master', $layoutInOtherApp = false, $tplInOtherApp = false)

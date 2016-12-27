@@ -282,9 +282,11 @@ abstract class Base implements Db
             if ($func($result) === false) {
                 break;
             }
-            $start += $num;
+            $start += count($result);
         }
         $this->paramsAutoReset(true);
+        $this->reset();
+        $this->clearBindParams();
     }
 
     /**
@@ -1033,5 +1035,14 @@ abstract class Base implements Db
         }
 
         Model::getInstance()->cache()->set($this->conf['mark'] . '_db_cache_version_' . $table, microtime(true), $this->conf['cache_expire']);
+    }
+
+    /**
+     * 析构函数
+     *
+     */
+    public function __destruct()
+    {
+        $this->close();
     }
 }

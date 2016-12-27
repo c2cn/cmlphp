@@ -1129,7 +1129,7 @@ class MongoDB extends Base
      *
      * @param string $db 要连接的数据库类型
      *
-     * @return  resource MongoDB 连接标识
+     * @return  bool|Manager MongoDB 连接标识
      */
     public function __get($db)
     {
@@ -1247,15 +1247,6 @@ class MongoDB extends Base
         Cml::$debug && $this->debugLogSql('BulkWrite DEC', $tableName, $condition, ['$inc' => [$field => -$val]]);
 
         return $result->getModifiedCount();
-    }
-
-    /**
-     *析构函数
-     *
-     */
-    public function __destruct()
-    {
-        $this->close();
     }
 
     /**

@@ -43,20 +43,31 @@ class StaticResource
         // 递归遍历目录
         $dirIterator = new \DirectoryIterator(Cml::getApplicationDir('apps_path'));
 
+        $createFunc = function ($distDir, $resourceDir, $fileName) use ($isCli) {
+            $cmd = Request::operatingSystem() ? "mklink /d {$distDir} {$resourceDir}" : "ln -s {$resourceDir} {$distDir}";
+            is_dir($distDir) || exec($cmd, $result);
+            $tip = "  create link Application [{$fileName}] result : ["
+                . (is_dir($distDir) ? 'true' : 'false') . "]";
+            if ($isCli) {
+                Output::writeln(Colour::colour($tip, [Colour::WHITE, Colour::HIGHLIGHT]));
+            } else {
+                print_r('|<span style="color:blue">' . str_pad($tip, 64, ' ', STR_PAD_BOTH) . '</span>|');
+            }
+        };
+
+        //创建系统静态文件目录映射
+        $createFunc(
+            $rootDir . DIRECTORY_SEPARATOR . 'cmlphpstatic',
+            __DIR__ . DIRECTORY_SEPARATOR . 'Static',
+            'cmlphpstatic'
+        );
+
         foreach ($dirIterator as $file) {
             if (!$file->isDot() && $file->isDir()) {
                 $resourceDir = $file->getPathname() . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_static_path_name');
                 if (is_dir($resourceDir)) {
                     $distDir = $rootDir . DIRECTORY_SEPARATOR . $file->getFilename();
-                    $cmd = Request::operatingSystem() ? "mklink /d {$distDir} {$resourceDir}" : "ln -s {$resourceDir} {$distDir}";
-                    is_dir($distDir) || exec($cmd, $result);
-                    $tip = "  create link Application [{$file->getFilename()}] result : ["
-                        . (is_dir($distDir) ? 'true' : 'false') . "]";
-                    if ($isCli) {
-                        Output::writeln(Colour::colour($tip, [Colour::WHITE, Colour::HIGHLIGHT]));
-                    } else {
-                        print_r('|<span style="color:blue">' . str_pad($tip, 64, ' ', STR_PAD_BOTH) . '</span>|');
-                    }
+                    $createFunc($distDir, $resourceDir, $file->getFilename());
                 }
             }
         }
@@ -98,28 +109,35 @@ class StaticResource
     public static function parseResourceFile()
     {
         if (Cml::$debug) {
+            $file = '';
             $pathInfo = Route::getPathInfo();
             array_shift($pathInfo);
-            $resource = implode('/', $pathInfo);
 
-            $appName = $file = '';
-            $i = 0;
-            $routeAppHierarchy = Config::get('route_app_hierarchy', 1);
-            while (true) {
-                $resource = ltrim($resource, '/');
-                $pos = strpos($resource, '/');
-                $appName = ($appName == '' ? '' : $appName . DIRECTORY_SEPARATOR) . substr($resource, 0, $pos);
-                $resource = substr($resource, $pos);
-                $file = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR
-                    . Cml::getApplicationDir('app_static_path_name') . $resource;
+            if (isset($pathInfo[0]) && $pathInfo[0] == 'cmlphpstatic') {
+                array_shift($pathInfo);
+                $file = __DIR__ . DIRECTORY_SEPARATOR . 'Static' . DIRECTORY_SEPARATOR;
+                $file .= trim(implode('/', $pathInfo), '/');
+            } else {
+                $resource = implode('/', $pathInfo);
+                $appName = '';
+                $i = 0;
+                $routeAppHierarchy = Config::get('route_app_hierarchy', 1);
+                while (true) {
+                    $resource = ltrim($resource, '/');
+                    $pos = strpos($resource, '/');
+                    $appName = ($appName == '' ? '' : $appName . DIRECTORY_SEPARATOR) . substr($resource, 0, $pos);
+                    $resource = substr($resource, $pos);
+                    $file = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR
+                        . Cml::getApplicationDir('app_static_path_name') . $resource;
 
-                if (is_file($file) || ++$i >= $routeAppHierarchy) {
-                    break;
+                    if (is_file($file) || ++$i >= $routeAppHierarchy) {
+                        break;
+                    }
                 }
             }
 
             if (is_file($file)) {
-                Response::sendContentTypeBySubFix(substr($resource, strrpos($resource, '.') + 1));
+                Response::sendContentTypeBySubFix(substr($file, strrpos($file, '.') + 1));
                 exit(file_get_contents($file));
             } else {
                 Response::sendHttpStatus(404);
