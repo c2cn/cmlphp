@@ -33,7 +33,7 @@
             <ul class="nav navbar-nav">
                 <li style="width:80px;"><a href="javascript:">版本:</a></li>
                 {{loop $result $version $item}}
-                <li><a href="#{{echo str_replace('.', '_', $version);}}">{{$version}}</a></li>
+                    <li><a href="#{{echo str_replace('.', '_', $version);}}">{{$version}}</a></li>
                 {{/loop}}
             </ul>
         </div>
@@ -61,7 +61,7 @@
                         <a href="#{{echo str_replace('.', '_', $version);}}">{{$version}}版本接口</a>
                         <ul class="nav">
                             {{loop $item $method $api}}
-                            <li class=""><a href="#{{echo str_replace('.', '_', $version)."_{$method}";}}">{{$method}}{{$api['desc']}}</a></li>
+                                <li class=""><a href="#{{echo str_replace('.', '_', $version)."_{$method}";}}">{{$method}}{{$api['desc']}}</a></li>
                             {{/loop}}
                         </ul>
                     </li>
@@ -170,7 +170,7 @@
                     <h4 id="overview-other">其它约定:</h4>
                     <ol class="bs-callout bs-callout-info">
                         {{loop $config['convention_desc'] $ctitle $cdesc}}
-                        <li><b>{{$ctitle}}:</b> {{$cdesc}}</li>
+                            <li><b>{{$ctitle}}:</b> {{$cdesc}}</li>
                         {{/loop}}
                     </ol>
                     <hr>
@@ -185,16 +185,16 @@
                         </thead>
                         <tbody>
                         {{loop $systemCode $code $means }}
-                        <tr>
-                            <td>{{$code}}</td>
-                            <td>{{$means}}</td>
-                        </tr>
+                            <tr>
+                                <td>{{$code}}</td>
+                                <td>{{$means}}</td>
+                            </tr>
                         {{/loop}}
                         {{loop $config['code'] $code $means }}
-                        <tr>
-                            <td>{{$code}}</td>
-                            <td>{{$means}}</td>
-                        </tr>
+                            <tr>
+                                <td>{{$code}}</td>
+                                <td>{{$means}}</td>
+                            </tr>
                         {{/loop}}
                         </tbody>
                     </table>
@@ -204,55 +204,55 @@
                 <h1 id="interface_definition">接口定义</h1>
 
                 {{loop $result $version $item }}
-                <hr />
-                <h2 id="{{echo str_replace('.', '_', $version);}}">版本: {{$version}}</h2>
-                <hr />
-                {{loop $item $method $api }}
-                <div class="panel panel-default">
-                    <h3 id="{{echo str_replace('.', '_', $version)."_{$method}";}}">{{$method}}：{{$api['desc']}}</h3>
-                    <dl class="bs-callout bs-callout-info">
-                        <dt>接口定义：</dt>
-                        <dd>
-                            <table class="table table-bordered">
-                                <tr>
-                                    <th></th>
-                                    <th>字段名</th>
-                                    <th>格式</th>
-                                    <th>是否必填</th>
-                                    <th>说明</th>
-                                </tr>
-                                {{loop $api['params'] $pk $pv }}
-                                <tr>
-                                    {{if $pk == 0}} <td rowspan="{{echo count($api['params']);}}">params</td> {{/if}}
-                                    <td>{{$pv[1]}}</td>
-                                    <td>{{$pv[0]}}</td>
-                                    <td>{{$pv[3]}}</td>
-                                    <td>{{$pv[2]}}</td>
-                                </tr>
-                                {{/loop}}
-                                </tbody>
-                            </table>
-                        </dd>
+                    <hr />
+                    <h2 id="{{echo str_replace('.', '_', $version);}}">版本: {{$version}}</h2>
+                    <hr />
+                    {{loop $item $method $api }}
+                        <div class="panel panel-default">
+                            <h3 id="{{echo str_replace('.', '_', $version)."_{$method}";}}">{{$method}}：{{$api['desc']}}</h3>
+                            <dl class="bs-callout bs-callout-info">
+                                <dt>接口定义：</dt>
+                                <dd>
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th></th>
+                                            <th>字段名</th>
+                                            <th>格式</th>
+                                            <th>是否必填</th>
+                                            <th>说明</th>
+                                        </tr>
+                                        {{loop $api['params'] $pk $pv }}
+                                            <tr>
+                                                {{if $pk == 0}} <td rowspan="{{echo count($api['params']);}}">params</td> {{/if}}
+                                                <td>{{$pv[1]}}</td>
+                                                <td>{{$pv[0]}}</td>
+                                                <td>{{$pv[3]}}</td>
+                                                <td>{{$pv[2]}}</td>
+                                            </tr>
+                                        {{/loop}}
+                                        </tbody>
+                                    </table>
+                                </dd>
 
-                        <div class="panel-heading">
-                            <h3>代码示例:</h3>
-                        </div>
-                        <div class="panel-body">
-                            <h4>Request:</h4>
-                            <pre><code class="language-javascript">{{$api['req']}}</code></pre>
-                        </div>
+                                <div class="panel-heading">
+                                    <h3>代码示例:</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <h4>Request:</h4>
+                                    <pre><code class="language-javascript">{{$api['req']}}</code></pre>
+                                </div>
 
-                        <div class="panel-body">
-                            <h4>Response:</h4>
-                            <h5>成功</h5>
-                            <pre><code class="language-javascript">{{$api['success']}}</code></pre>
+                                <div class="panel-body">
+                                    <h4>Response:</h4>
+                                    <h5>成功</h5>
+                                    <pre><code class="language-javascript">{{$api['success']}}</code></pre>
 
-                            <h5>失败</h5>
-                            <pre><code class="language-javascript">{{$api['error']}}</code></pre>
+                                    <h5>失败</h5>
+                                    <pre><code class="language-javascript">{{$api['error']}}</code></pre>
+                                </div>
+                            </dl>
                         </div>
-                    </dl>
-                </div>
-                {{/loop}}
+                    {{/loop}}
                 {{/loop}}
             </div>
         </div>
