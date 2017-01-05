@@ -43,7 +43,7 @@ class Route
             } else {
                 if ($urlModel === 1 || $urlModel === 2) { //pathInfo模式(含显示、隐藏index.php两种)SCRIPT_NAME
                     if (isset($_GET[Config::get('var_pathinfo')])) {
-                        $param = $_GET[Config::get('var_pathinfo')];
+                        $param = str_replace(Config::get('url_html_suffix'), '', $_GET[Config::get('var_pathinfo')]);
                     } else {
                         $param = preg_replace('/(.*)\/(.+)\.php(.*)/i', '\\1\\3', preg_replace(
                             [
