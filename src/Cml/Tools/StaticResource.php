@@ -91,7 +91,7 @@ class StaticResource
         if (Cml::$debug) {
             $file = Response::url("cmlframeworkstaticparse/{$resource}", false);
             if (Config::get('url_model') == 2) {
-                $file = rtrim($file, Config::get('url_html_suffix'));
+                $file = str_replace(Config::get('url_html_suffix'), '', $file);
             }
 
             $isDir || $file .= (Config::get("url_model") == 3 ? "&v=" : "?v=") . Cml::$nowTime;
