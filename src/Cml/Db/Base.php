@@ -115,6 +115,13 @@ abstract class Base implements Db
      */
     protected $paramsAutoReset = true;
 
+    /**
+     * $paramsAutoReset = false 的时候是否清除table.避免快捷方法重复调用table();
+     *
+     * @var bool
+     */
+    protected $alwaysClearTable = false;
+
 
     /**
      * 定义操作的表
@@ -866,12 +873,14 @@ abstract class Base implements Db
      * orm参数是否自动重置, 默认在执行语句后会重置orm参数
      *
      * @param bool $autoReset 是否自动重置
+     * @param bool $alwaysClearTable 用来控制在$paramsAutoReset = false 的时候是否清除table.避免快捷方法重复调用table();
      *
      * @return $this
      */
-    public function paramsAutoReset($autoReset = true)
+    public function paramsAutoReset($autoReset = true, $alwaysClearTable = false)
     {
         $this->paramsAutoReset = $autoReset;
+        $this->alwaysClearTable = $alwaysClearTable;
         return $this;
     }
 
@@ -883,6 +892,12 @@ abstract class Base implements Db
     {
         if (!$this->paramsAutoReset) {
             $this->sql['columns'] = '';
+            if ($this->alwaysClearTable) {
+                $this->table = []; //操作的表
+                $this->join = []; //是否内联
+                $this->leftJoin = []; //是否左联结
+                $this->rightJoin = []; //是否右联
+            }
             return;
         }
 
