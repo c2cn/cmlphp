@@ -257,10 +257,12 @@ class MongoDB extends Base
     {
         if (!$this->paramsAutoReset) {
             $this->sql['columns'] = [];
-            $this->table = []; //操作的表
-            $this->join = []; //是否内联
-            $this->leftJoin = []; //是否左联结
-            $this->rightJoin = []; //是否右联
+            if ($this->alwaysClearTable) {
+                $this->table = []; //操作的表
+                $this->join = []; //是否内联
+                $this->leftJoin = []; //是否左联结
+                $this->rightJoin = []; //是否右联
+            }
             return;
         }
 
