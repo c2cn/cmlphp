@@ -113,6 +113,7 @@ class Html extends Base
             '#' . $this->options['leftDelimiter'] . 'comment\s+(.+?)\s*' . $this->options['rightDelimiter'] . '#i',//替换 comment 模板注释
             '#' . $this->options['leftDelimiter'] . 'acl\s+(.+?)\s*' . $this->options['rightDelimiter'] . '#i',//替换 acl权限判断标识
             '#' . $this->options['leftDelimiter'] . '\/acl' . $this->options['rightDelimiter'] . '#i',//替换 /acl
+            '#' . $this->options['leftDelimiter'] . 'datetime\s+(\S+?)\s*?\|(.*?)' . $this->options['rightDelimiter'] . '#i',//替换 /datetime
         ];
 
         //替换后的内容
@@ -156,6 +157,7 @@ class Html extends Base
             '',
             '<?php if (\Cml\Vendor\Acl::checkAcl("${1}")) { ?>',//替换 acl权限判断标识
             '<?php } ?>',// /acl
+            '<?php echo date("${2}", trim(${1})); ?>',// /datetime
         ];
     }
 
