@@ -157,7 +157,7 @@ class Html extends Base
             '',
             '<?php if (\Cml\Vendor\Acl::checkAcl("${1}")) { ?>',//替换 acl权限判断标识
             '<?php } ?>',// /acl
-            '<?php echo date("${2}", trim(${1})); ?>',// /datetime
+            '<?php echo date(trim("${2}"), ${1}); ?>',// /datetime
         ];
     }
 
