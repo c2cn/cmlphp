@@ -506,4 +506,14 @@ class Html extends Base
             . 'layout' . DIRECTORY_SEPARATOR . $layout . Config::get('html_template_suffix');
         $this->display($templateFile, $tplInOtherApp);
     }
+
+    /**
+     * 正常情况布局文件直接通过displayWithLayout方法指定，会自动从主题目录/layout里寻找。但是一些特殊情况要单独设置布局。
+     *
+     * @param string $layout 必须为绝对路径
+     */
+    public function setLayout($layout = '')
+    {
+        $layout && $this->layout = $layout;
+    }
 }
