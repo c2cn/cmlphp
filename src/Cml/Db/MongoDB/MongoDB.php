@@ -256,7 +256,7 @@ class MongoDB extends Base
     protected function reset()
     {
         if (!$this->paramsAutoReset) {
-            $this->sql['columns'] = [];
+            $this->alwaysClearColumns && $this->sql['columns'] = [];
             if ($this->alwaysClearTable) {
                 $this->table = []; //操作的表
                 $this->join = []; //是否内联
