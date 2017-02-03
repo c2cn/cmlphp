@@ -83,8 +83,11 @@ class StaticResource
      * 解析一个静态资源的地址
      *
      * @param string $resource 文件地址
+     * @param bool $echo 是否输出  true输出 false return
+     *
+     * @return mixed
      */
-    public static function parseResourceUrl($resource = '')
+    public static function parseResourceUrl($resource = '', $echo = true)
     {
         //简单判断没有.的时候当作是目录不加版本号
         $isDir = strpos($resource, '.') === false ? true : false;
@@ -99,7 +102,12 @@ class StaticResource
             $file = Config::get("static__path", Cml::getContainer()->make('cml_route')->getSubDirName() . "public/") . $resource;
             $isDir || $file .= (Config::get("url_model") == 3 ? "&v=" : "?v=") . Config::get('static_file_version');
         }
-        echo $file;
+        if ($echo) {
+            echo $file;
+            return '';
+        } else {
+            return $file;
+        }
     }
 
     /**

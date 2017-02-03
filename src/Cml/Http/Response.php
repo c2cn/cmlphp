@@ -125,11 +125,11 @@ class Response
      * eg: \Cml\Http\Response::url('Home/Blog/cate/id/1')
      *
      * @param string $url URL表达式 路径/控制器/操作/参数1/参数1值/.....
-     * @param int $echo 是否输出  1输出 0 return
+     * @param bool $echo 是否输出  true输出 false return
      *
      * @return string
      */
-    public static function url($url = '', $echo = 1)
+    public static function url($url = '', $echo = true)
     {
         $return = '';
         // 解析URL
