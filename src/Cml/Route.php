@@ -41,6 +41,9 @@ class Route
             if ($isCli) {
                 isset($_SERVER['argv'][1]) && $pathInfo = explode('/', $_SERVER['argv'][1]);
             } else {
+                //修正可能由于nginx配置不当导致的子目录获取有误
+                $_SERVER['SCRIPT_NAME'] = preg_replace('/(.*)\/(.+)\.php(.*)/i', '\\1/\\2.php', $_SERVER['SCRIPT_NAME']);
+
                 if ($urlModel === 1 || $urlModel === 2) { //pathInfo模式(含显示、隐藏index.php两种)SCRIPT_NAME
                     if (isset($_GET[Config::get('var_pathinfo')])) {
                         $param = str_replace(Config::get('url_html_suffix'), '', $_GET[Config::get('var_pathinfo')]);
