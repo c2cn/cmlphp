@@ -322,7 +322,7 @@ class MongoDB extends Base
             }
             throw new \RuntimeException(var_export($errors, true), 0, $e);
         } catch (MongoDBDriverException $e) {
-            throw new \UnexpectedValueException("Other error: %s\n", $e->getMessage(), 0, $e);
+            throw new \UnexpectedValueException(sprintf("Other error: %s\n", $e->getMessage()), 0, $e);
         }
 
         return $return;
