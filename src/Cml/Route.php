@@ -255,4 +255,17 @@ class Route
         $loaded[$app] = 1;
         Cml::requireFile($appRoute);
     }
+
+    /**
+     * 执行闭包路由
+     *
+     * @param callable $call 闭包
+     * @param string $route 路由string
+     */
+    public static function executeCallableRoute(callable $call, $route = '')
+    {
+        call_user_func($call);
+        Cml::$debug && Debug::addTipInfo(Lang::get('_CML_EXECUTION_ROUTE_IS_', "callable route:{{$route}}", Config::get('url_model')));
+        Cml::cmlStop();
+    }
 }
