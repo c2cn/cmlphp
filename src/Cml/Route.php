@@ -57,10 +57,10 @@ class Route
                             ],
                             '',
                             $_SERVER['REQUEST_URI']
-                        ));
+                        ));//这边替换的结果是带index.php的情况。不带index.php在以下处理
                         $scriptName = dirname($_SERVER['SCRIPT_NAME']);
                         if ($scriptName && $scriptName != '/') {//假如项目在子目录这边去除子目录含模式1和模式2两种情况(伪静态到子目录)
-                            $param = substr($param, strpos($param, $scriptName) + strlen($scriptName));
+                            $param = substr($param, strpos($param, $scriptName) + strlen($scriptName));//之所以要strpos是因为子目录或请求string里可能会有多个/而SCRIPT_NAME里只会有1个
                         }
                     }
                     $param = trim($param, '/' . Config::get('url_pathinfo_depr'));
