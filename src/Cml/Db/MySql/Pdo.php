@@ -247,6 +247,7 @@ class Pdo extends Base
         } else {
             $tableName = $tablePrefix . $tableName;
             $upCacheTables = [$tableName];
+            isset($this->forceIndex[$tableName]) && $tableName .= ' force index(' . $this->forceIndex[$tableName] . ') ';
         }
 
         if (empty($tableName)) {
@@ -290,6 +291,7 @@ class Pdo extends Base
         } else {
             $tableName = $tablePrefix . $tableName;
             $upCacheTables = [$tableName];
+            isset($this->forceIndex[$tableName]) && $tableName .= ' force index(' . $this->forceIndex[$tableName] . ') ';
         }
 
         if (empty($tableName)) {
