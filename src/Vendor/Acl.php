@@ -24,7 +24,7 @@ use Cml\Model;
  * 'administratorid'=>'1', //超管理员id
  *
  * 建库语句
- * CREATE TABLE `hadm_access` (
+ * CREATE TABLE `hadm_admin_access` (
  * `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '权限ID',
  * `userid` int(11) DEFAULT '0' COMMENT '所属用户权限ID',
  * `groupid` smallint(3) DEFAULT '0' COMMENT '所属群组权限ID',
@@ -33,16 +33,16 @@ use Cml\Model;
  * KEY `idx_userid` (`userid`) USING BTREE,
  * KEY `idx_groupid` (`groupid`) USING BTREE,
  * KEY `idx_menuid` (`menuid`) USING BTREE
- * ) ENGINE=MyISAM AUTO_INCREMENT=1038 DEFAULT CHARSET=utf8 COMMENT='用户或者用户组权限记录';
+ * ) ENGINE=InnoDB AUTO_INCREMENT=1038 DEFAULT CHARSET=utf8 COMMENT='用户或者用户组权限记录';
  *
- * CREATE TABLE `hadm_group` (
+ * CREATE TABLE `hadm_admin_groups` (
  * `id` smallint(3) unsigned NOT NULL AUTO_INCREMENT,
  * `name` varchar(150) DEFAULT NULL,
  * `status` tinyint(1) unsigned DEFAULT '1' COMMENT '1正常，0删除',
  * PRIMARY KEY (`id`)
  * ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
  *
- * CREATE TABLE `hadm_menu` (
+ * CREATE TABLE `hadm_admin_menus` (
  * `id` int(11) NOT NULL AUTO_INCREMENT,
  * `pid` int(11) NOT NULL DEFAULT '0' COMMENT '父模块ID编号 0则为顶级模块',
  * `title` char(64) NOT NULL COMMENT '标题',
@@ -53,9 +53,9 @@ use Cml\Model;
  * KEY `idex_pid` (`pid`) USING BTREE,
  * KEY `idex_order` (`order`) USING BTREE,
  * KEY `idx_action` (`url`)
- * ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='权限模块信息表';
+ * ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='权限模块信息表';
  *
- * CREATE TABLE `hadm_users` (
+ * CREATE TABLE `hadm_admin_users` (
  * `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
  * `groupid` varchar(255) NOT NULL DEFAULT '',
  * `username` varchar(40) NOT NULL DEFAULT '',
@@ -66,7 +66,7 @@ use Cml\Model;
  * `status` tinyint(1) unsigned DEFAULT '1' COMMENT '1正常，0删除',
  * PRIMARY KEY (`id`),
  * UNIQUE KEY `username` (`username`)
- * ) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
+ * ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
  *
  * @package Cml\Vendor
  */
@@ -78,6 +78,18 @@ class Acl
      * @var string
      */
     private static $encryptKey = 'pnnle-oienngls-llentne-lnegxe';
+
+    /**
+     * 定义表名
+     *
+     * @var array
+     */
+    private static $tables = [
+        'access' => 'access',
+        'groups' => 'groups',
+        'menus' => 'menus',
+        'users' => 'users',
+    ];
 
     /**
      * 有权限的时候保存权限的显示名称用于记录log
@@ -94,6 +106,13 @@ class Acl
     public static $authUser = null;
 
     /**
+     * 单点登录标识
+     *
+     * @var string
+     */
+    private static $ssoSign = '';
+
+    /**
      * 设置加密用的混淆key Cookie::set本身有一重加密 这里再加一重
      *
      * @param string $key
@@ -104,12 +123,34 @@ class Acl
     }
 
     /**
-     * 单点登录标识
+     * 自定义表名
      *
-     * @var string
+     * @param string|array $type
+     * @param string $tableName
      */
-    private static $ssoSign = '';
+    public static function setTableName($type = 'access', $tableName = 'access')
+    {
+        if (is_array($type)) {
+            self::$tables = array_merge(self::$tables, $type);
+        } else {
+            self::$tables[$type] = $tableName;
+        }
+    }
 
+    /**
+     * 获取表名
+     * @param string $type
+     *
+     * @return mixed
+     */
+    public static function getTableName($type = 'access')
+    {
+        if (isset(self::$tables[$type])) {
+            return self::$tables[$type];
+        } else {
+            throw new \InvalidArgumentException($type);
+        }
+    }
 
     /**
      * 保存当前登录用户的信息
@@ -153,7 +194,7 @@ class Acl
             } else {
                 self::$ssoSign = self::$authUser['ssosign'];
 
-                $user = Model::getInstance()->db()->get('users-id-' . self::$authUser['uid'] . '-status-1');
+                $user = Model::getInstance()->db()->get(self::$tables['users'] . '-id-' . self::$authUser['uid'] . '-status-1');
                 if (empty($user)) {
                     self::$authUser = false;
                 } else {
@@ -164,10 +205,9 @@ class Acl
                         'nickname' => $user['nickname'],
                         'groupid' => explode('|', trim($user['groupid'], '|'))
                     ];
-                    $groups = Model::getInstance()->db()->table('groups')
+                    $groups = Model::getInstance()->db()->table(self::$tables['groups'])
                         ->columns('name')
                         ->whereIn('id', $tmp['groupid'])
-                        ->_and()
                         ->where('status', 1)
                         ->select();
 
@@ -265,8 +305,8 @@ class Acl
 
         $acl = Model::getInstance()->db()
             ->columns('m.id')
-            ->table(['access' => 'a'])
-            ->join(['menus' => 'm'], 'a.menuid=m.id')
+            ->table([self::$tables['access'] => 'a'])
+            ->join([self::$tables['menus'] => 'm'], 'a.menuid=m.id')
             ->lBrackets()
             ->whereIn('a.groupid', $authInfo['groupid'])
             ->_or()
@@ -291,13 +331,13 @@ class Acl
             return $res;
         }
 
-        Model::getInstance()->db()->table(['menus' => 'm'])
+        Model::getInstance()->db()->table([self::$tables['menus'] => 'm'])
             ->columns(['distinct m.id', 'm.pid', 'm.title', 'm.url']);
 
         //当前登录用户是否为超级管理员
         if (!self::isSuperUser()) {
             Model::getInstance()->db()
-                ->join(['access' => 'a'], 'a.menuid=m.id')
+                ->join([self::$tables['access'] => 'a'], 'a.menuid=m.id')
                 ->lBrackets()
                 ->whereIn('a.groupid', $authInfo['groupid'])
                 ->_or()
