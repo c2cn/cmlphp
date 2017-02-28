@@ -278,6 +278,18 @@ class Validate
     }
 
     /**
+     * 数据基础验证-是否为字符串参数
+     *
+     * @param  string $value 需要验证的值
+     *
+     * @return bool
+     */
+    public static function isString($value)
+    {
+        return is_string($value);
+    }
+
+    /**
      * 数据基础验证-是否大于
      *
      * @param int $value 要比较的值
