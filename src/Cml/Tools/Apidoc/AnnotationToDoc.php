@@ -52,9 +52,9 @@ class AnnotationToDoc
             }
         }
 
-        $systemCode = Cml::requireFile(__DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR . 'code.php');
+        //$systemCode = Cml::requireFile(__DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR . 'code.php');
 
-        View::getEngine('Html')->assign(['config' => $config, 'result' => $result, 'systemCode' => $systemCode]);
+        View::getEngine('Html')->assign(['config' => $config, 'result' => $result]);
         Cml::showSystemTemplate(__DIR__ . DIRECTORY_SEPARATOR . 'resource' . DIRECTORY_SEPARATOR . $theme . '.html');
     }
 
