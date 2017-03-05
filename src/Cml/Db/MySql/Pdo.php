@@ -420,12 +420,12 @@ class Pdo extends Base
      */
     private function aggregation($field, $isMulti = false, $useMaster = false, $operation = 'COUNT')
     {
-        is_string($isMulti) && $this->groupBy($isMulti);
+        is_string($isMulti) && $this->groupBy($isMulti)->columns($isMulti);
         $count = $this->columns(["{$operation}({$field})" => '__res__'])->select(null, null, $useMaster);
         if ($isMulti) {
             $return = [];
             foreach ($count as $val) {
-                $return[] = $operation === 'COUNT' ? intval($val['__res__']) : floatval($val['__res__']);
+                $return[$val[$isMulti]] = $operation === 'COUNT' ? intval($val['__res__']) : floatval($val['__res__']);
             }
             return $return;
         } else {
