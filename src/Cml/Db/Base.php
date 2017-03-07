@@ -938,6 +938,18 @@ abstract class Base implements Db
     }
 
     /**
+     * 重置所有orm参数及绑定
+     *
+     * @return $this
+     */
+    public function resetAndClear()
+    {
+        $this->reset();
+        $this->clearBindParams();
+        return $this;
+    }
+
+    /**
      * SQL语句条件组装
      *
      * @param array $arr 要组装的数组
