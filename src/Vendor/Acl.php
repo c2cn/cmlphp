@@ -170,7 +170,12 @@ class Acl
         ];
 
         //Cookie::set本身有一重加密 这里再加一重
-        $sso && Model::getInstance()->cache()->set("SSOSingleSignOn{$uid}", (string)Cml::$nowMicroTime, 86400);
+        if ($sso) {
+            Model::getInstance()->cache()->set("SSOSingleSignOn{$uid}", $user['ssosign'], 86400);
+        } else {
+            //如果是刚刚从要单点切换成不要单点。这边要把ssosign置为cache中的
+            empty($user['ssosign']) && $user['ssosign'] = Model::getInstance()->cache()->get("SSOSingleSignOn{$uid}");
+        }
         Cookie::set(Config::get('userauthid'), Encry::encrypt(json_encode($user, JSON_UNESCAPED_UNICODE), self::$encryptKey), 0);
     }
 
