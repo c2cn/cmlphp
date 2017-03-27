@@ -269,16 +269,20 @@ class Cml
         Plugin::hook('cml.after_parse_url');
 
         //载入模块配置
-        $modulesConfig = Cml::getApplicationDir('apps_path')
+        $appConfig = Cml::getApplicationDir('apps_path')
             . '/' . Cml::getContainer()->make('cml_route')->getAppName() . '/'
             . Cml::getApplicationDir('app_config_path_name') . '/' . 'normal.php';
-        is_file($modulesConfig) && Config::set(Cml::requireFile($modulesConfig));
+        is_file($appConfig) && Config::set(Cml::requireFile($appConfig));
 
         //载入模块语言包
         $appLang = Cml::getApplicationDir('apps_path')
             . '/' . Cml::getContainer()->make('cml_route')->getAppName() . '/'
             . Cml::getApplicationDir('app_lang_path_name') . '/' . Config::get('lang') . '.php';
         is_file($appLang) && Lang::set(Cml::requireFile($appLang));
+
+        //载入模块插件
+        $appPlugin = dirname($appConfig) . '/' . 'plugin.php';
+        is_file($appPlugin) && Config::set(Cml::requireFile($appPlugin));
     }
 
     /**
