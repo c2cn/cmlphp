@@ -77,6 +77,7 @@ class Cml
      */
     public static function autoloadComposerAdditional($className)
     {
+        $className == 'Cml\Server' && class_alias('Cml\Service', 'Cml\Server');//兼容旧版本
         self::$debug && Debug::addTipInfo(Lang::get('_CML_DEBUG_ADD_CLASS_TIP_', $className), Debug::TIP_INFO_TYPE_INCLUDE_LIB);//在debug中显示包含的类
     }
 
