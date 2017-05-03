@@ -22,7 +22,7 @@ class Cml
     /**
      * 版本
      */
-    const VERSION = 'v2.7.6';
+    const VERSION = 'v2.7.7';
 
     /**
      * 执行app/只是初始化环境
