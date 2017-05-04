@@ -676,11 +676,7 @@ abstract class Base implements Db
                 $result .= ($result == '' ? '' : ', ') . (is_int($key) ? $val : ($key . " AS `{$val}`"));
             }
         } else {
-            $args = func_get_args();
-            while ($arg = current($args)) {
-                $result .= ($result == '' ? '' : ', ') . $arg;
-                next($args);
-            }
+            $result = implode(', ', func_get_args());
         }
         $this->sql['columns'] == '' || ($this->sql['columns'] .= ' ,');
         $this->sql['columns'] .= $result;
