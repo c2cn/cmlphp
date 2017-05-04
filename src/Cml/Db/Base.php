@@ -1075,6 +1075,17 @@ abstract class Base implements Db
     }
 
     /**
+     * 执行
+     * @param callable $query
+     */
+    public function transaction(callable $query)
+    {
+        $this->startTransAction();
+        $query();
+        $this->commit();
+    }
+
+    /**
      * 析构函数
      *
      */
