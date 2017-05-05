@@ -33,7 +33,7 @@ use Cml\Model;
  * PRIMARY KEY (`id`),
  * KEY `idx_userid` (`userid`),
  * KEY `idx_groupid` (`groupid`)
- * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='用户或者用户组权限记录';
+ * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户或者用户组权限记录';
  *
  * CREATE TABLE `pr_admin_groups` (
  * `id` smallint(3) unsigned NOT NULL AUTO_INCREMENT,
@@ -41,7 +41,7 @@ use Cml\Model;
  * `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1正常，0删除',
  * `remark` text NOT NULL COMMENT '备注',
  * PRIMARY KEY (`id`)
- * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+ * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
  *
  * CREATE TABLE `pr_admin_menus` (
  * `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
@@ -54,7 +54,7 @@ use Cml\Model;
  * KEY `idex_pid` (`pid`),
  * KEY `idex_order` (`sort`),
  * KEY `idx_action` (`url`)
- * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='权限模块信息表';
+ * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='权限模块信息表';
  *
  * CREATE TABLE `pr_admin_users` (
  * `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
@@ -70,7 +70,7 @@ use Cml\Model;
  * `from_type` tinyint(3) unsigned DEFAULT '1' COMMENT '用户类型。1为系统用户。2 99u',
  * PRIMARY KEY (`id`),
  * UNIQUE KEY `username` (`username`)
- * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+ * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
  *
  * @package Cml\Vendor
  */
