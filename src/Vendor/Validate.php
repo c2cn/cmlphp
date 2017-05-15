@@ -222,7 +222,7 @@ class Validate
     /**
      * 设置字段显示别名
      *
-     * @param string $label
+     * @param string|array $label
      *
      * @return $this
      */
