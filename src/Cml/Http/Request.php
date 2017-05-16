@@ -9,6 +9,8 @@
 
 namespace Cml\Http;
 
+use Cml\Cml;
+
 /**
  * 请求处理类，获取用户请求信息以发起curl请求
  *
@@ -182,15 +184,23 @@ class Request
     /**
      * 获取POST过来的二进制数据,与手机端交互
      *
-     * @return string
+     * @param bool $formatJson 获取的数据是否为json并格式化为数组
+     * @param string $jsonField 获取json格式化为数组的字段多维数组用.分隔  如top.son.son2
+     *
+     * @return bool|mixed|null|string
      */
-    public static function getBinaryData()
+    public static function getBinaryData($formatJson = false, $jsonField = '')
     {
         if (isset($GLOBALS['HTTP_RAW_POST_DATA']) && !empty($GLOBALS['HTTP_RAW_POST_DATA'])) {
-            return $GLOBALS['HTTP_RAW_POST_DATA'];
+            $data = $GLOBALS['HTTP_RAW_POST_DATA'];
         } else {
-            return file_get_contents('php://input');
+            $data = file_get_contents('php://input');
         }
+        if ($formatJson) {
+            $data = json_decode($data, true);
+            $jsonField && $data = Cml::doteToArr($jsonField, $data);
+        }
+        return $data;
     }
 
     /**
