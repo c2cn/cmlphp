@@ -16,6 +16,8 @@ return [
     'between' => '的值必须在%d, %d之间',
     'lengthGt' => "的长度必须大于%d个字符",
     'lengthLt' => "的长度必须小于%d个字符",
+    'lengthGte' => "的长度必须大于等于%d个字符",
+    'lengthLte' => "的长度必须小于等于%d个字符",
     'in' => "为无效的值",
     'notIn' => "为无效的值",
     'length' => "的长度为%d至%d个字",

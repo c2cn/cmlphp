@@ -16,6 +16,8 @@ return [
     'between' => 'The value of a must be between %d and %d',
     'lengthGt' => "must contain greater than %d characters",
     'lengthLt' => "must contain less than %d characters",
+    'lengthGte' => "must contain greater than or equal to %d characters",
+    'lengthLte' => "must contain less than or equal to %d characters",
     'in' => "contains invalid value",
     'notIn' => "contains invalid value",
     'length' => "string length must be between %d,%d",
