@@ -377,6 +377,11 @@ class Model
      */
     public static function __callStatic($dbMethod, $arguments)
     {
-        return call_user_func_array([static::getInstance()->db(static::getInstance()->getDbConf()), $dbMethod], $arguments);
+        $res = call_user_func_array([static::getInstance()->db(static::getInstance()->getDbConf()), $dbMethod], $arguments);
+        if ($res instanceof Interfaces\Db) {
+            return self::getInstance();//不是返回数据直接返回model实例
+        } else {
+            return $res;
+        }
     }
 }
