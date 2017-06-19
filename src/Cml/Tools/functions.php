@@ -187,10 +187,29 @@ function createUnique()
     return sha1($data);
 }
 
+/**
+ * 驼峰转成下划线
+ *
+ * @param string $str
+ *
+ * @return string
+ */
 function humpToLine($str)
 {
     $str = preg_replace_callback('/([A-Z]{1})/', function ($matches) {
         return '_' . strtolower($matches[0]);
     }, $str);
     return $str;
+}
+
+/**
+ * 下划线转驼峰
+ *
+ * @param  string $value
+ *
+ * @return string
+ */
+function studlyCase($value)
+{
+    return str_replace(' ', '', ucwords(str_replace(array('-', '_'), ' ', $value)));
 }
