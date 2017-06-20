@@ -67,14 +67,18 @@ class FastRoute implements Route
     /**
      * 修改解析得到的请求信息 含应用名、控制器、操作
      *
-     * @param string $key path|controller|action|root
+     * @param string|array $key path|controller|action|root
      * @param string $val
      *
      * @return void
      */
     public function setUrlParams($key = 'path', $val = '')
     {
-        self::$urlParams[$key] = $val;
+        if (is_array($key)) {
+            self::$urlParams = array_merge(self::$urlParams, $key);
+        } else {
+            self::$urlParams[$key] = $val;
+        }
     }
 
     /**
