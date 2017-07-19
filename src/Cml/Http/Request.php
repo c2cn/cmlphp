@@ -49,14 +49,16 @@ class Request
 
     /**
      * 获取主机名称
+     *
+     * @param bool $joinPort 是否带上端口
+     *
      * @return string
      */
-    public static function host()
+    public static function host($joinPort = true)
     {
-        if ($_SERVER['SERVER_NAME']) {
-            return strip_tags($_SERVER['SERVER_NAME'] . ($_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']));
-        }
-        return strip_tags($_SERVER['HTTP_HOST']);
+        $host = strip_tags(isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST']);
+        $joinPort && $host =  $host . ($_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']);
+        return $host;
     }
 
     /**
