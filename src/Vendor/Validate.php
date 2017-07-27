@@ -402,7 +402,7 @@ class Validate
         if (!is_string($value)) {
             return false;
         }
-        $length = function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
+        $length = function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
         is_array($max) && $max = $max[0];
 
         if ($max != 0 && $length <= $max) return false;
@@ -424,7 +424,7 @@ class Validate
         if (!is_string($value)) {
             return false;
         }
-        $length = function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
+        $length = function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
         is_array($min) && $min = $min[0];
 
         if ($min != 0 && $length >= $min) return false;
@@ -503,7 +503,7 @@ class Validate
         if (!is_string($value)) {
             return false;
         }
-        $length = function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
+        $length = function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
 
         if (is_array($min)) {
             $max = $min[1];
