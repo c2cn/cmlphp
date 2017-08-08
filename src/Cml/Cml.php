@@ -460,7 +460,7 @@ class Cml
                 $val = str_replace('/', DIRECTORY_SEPARATOR, $val);
             });
         }
-        self::$appDir += $dir;
+        self::$appDir = array_merge(self::$appDir, $dir);
     }
 
     /**
