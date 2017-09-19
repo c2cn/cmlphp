@@ -35,6 +35,7 @@ use Cml\Interfaces\Db;
  * @method Db|Model groupBy(string $column) 分组
  * @method Db|Model having(string $column, $operator = '=', $value) 分组
  * @method Db|Model paramsAutoReset(bool $autoReset = true, bool $alwaysClearTable = false, bool $alwaysClearColumns = true) orm参数是否自动重置,默认在执行语句后会重置orm参数,包含查询的表、字段信息、条件等信息
+ * @method Db|Model noCache() 标记本次查询不使用缓存
  *
  * @package Cml
  */

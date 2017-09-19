@@ -30,6 +30,13 @@ abstract class Base implements Db
     protected $openCache = false;
 
     /**
+     * 单独标记当前的query使不使用缓存
+     *
+     * @var bool
+     */
+    protected $currentQueryUseCache = true;
+
+    /**
      * where操作需要加上and/or
      * 0 : 初始化两个都不加
      * 1 : 要加and
@@ -1085,6 +1092,17 @@ abstract class Base implements Db
             Model::getInstance()->cache()->set($this->conf['mark'] . '_db_cache_version_' . $table, $version, $this->conf['cache_expire']);
         }
         return $version;
+    }
+
+    /**
+     * 标记本次查询不使用缓存
+     *
+     * @return $this
+     */
+    public function noCache()
+    {
+        $this->currentQueryUseCache = false;
+        return $this;
     }
 
     /**

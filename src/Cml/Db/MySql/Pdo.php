@@ -6,6 +6,7 @@
  * @version  @see \Cml\Cml::VERSION
  * cmlphp框架 MySql数据库 Pdo驱动类
  * *********************************************************** */
+
 namespace Cml\Db\MySql;
 
 use Cml\Cml;
@@ -169,7 +170,7 @@ class Pdo extends Base
         $tableName = $tablePrefix . $tableName;
         $sql = "SELECT * FROM {$tableName} WHERE {$condition} LIMIT 0, 1000";
 
-        if ($this->openCache) {
+        if ($this->openCache && $this->currentQueryUseCache) {
             $cacheKey = md5($sql . json_encode($this->bindParams)) . $this->getCacheVer($tableName);
             $return = Model::getInstance()->cache()->get($cacheKey);
         } else {
@@ -180,7 +181,8 @@ class Pdo extends Base
             $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
             $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            $this->openCache && Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
+            $this->openCache && $this->currentQueryUseCache && Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
+            $this->currentQueryUseCache = true;
         } else {
             if (Cml::$debug) {
                 $this->currentSql = $sql;
@@ -540,7 +542,7 @@ class Pdo extends Base
     {
         list($sql, $cacheKey) = $this->buildSql($offset, $limit, true);
 
-        if ($this->openCache) {
+        if ($this->openCache && $this->currentQueryUseCache) {
             $cacheKey = md5($sql . json_encode($this->bindParams)) . implode('', $cacheKey);
             $return = Model::getInstance()->cache()->get($cacheKey);
         } else {
@@ -551,7 +553,8 @@ class Pdo extends Base
             $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
             $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            $this->openCache && Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
+            $this->openCache && $this->currentQueryUseCache && Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
+            $this->currentQueryUseCache = true;
         } else {
             if (Cml::$debug) {
                 $this->currentSql = $sql;
