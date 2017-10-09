@@ -16,9 +16,9 @@ namespace Cml\Vendor;
  */
 class Excel
 {
-    private $header = "<?xml version=\"1.0\" encoding=\"%s\"?\>\n<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\" xmlns:x=\"urn:schemas-microsoft-com:office:excel\" xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\" xmlns:html=\"http://www.w3.org/TR/REC-html40\">";
+    private $header = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="[url=http://www.w3.org/TR/REC-html40]http://www.w3.org/TR/REC-html40[/url]"><head><meta http-equiv="expires" content="Mon, 06 Jan 1999 00:00:01 GMT"><meta http-equiv=Content-Type content="text/html; charset=%s"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>%s</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+
     private $coding;
-    private $type;
     private $tWorksheetTitle;
     private $filename;
     private $titleRow = [];
@@ -27,22 +27,20 @@ class Excel
      * Excel基础配置
      *
      * @param string $enCoding 编码
-     * @param boolean $boolean 转换类型
+     * @param bool|string $boolean 转换类型
      * @param string $title 表标题
      * @param string $filename Excel文件名
      *
      * @return void
      */
-    public function config($enCoding, $boolean, $title, $filename)
+    public function config($enCoding, $boolean, $title, $filename = '')
     {
+        if (func_num_args() == 3) {
+            $filename = $title;
+            $title = $boolean;
+        }
         //编码
         $this->coding = $enCoding;
-        //转换类型
-        if ($boolean == true) {
-            $this->type = 'Number';
-        } else {
-            $this->type = 'String';
-        }
         //表标题
         $title = preg_replace('/[\\\|:|\/|\?|\*|\[|\]]/', '', $title);
         $title = substr($title, 0, 30);
@@ -73,10 +71,9 @@ class Excel
     {
         $cells = '';
         foreach ($data as $val) {
-            $type = $this->type;
             //字符转换为 HTML 实体
             $val = htmlentities($val, ENT_COMPAT, $this->coding);
-            $cells .= "<Cell><Data ss:Type=\"$type\">" . $val . "</Data></Cell>\n";
+            $cells .= "<td align=\"left\">{$val}</td>";
         }
         return $cells;
     }
@@ -92,19 +89,18 @@ class Excel
     {
         header("Content-Type: application/vnd.ms-excel; charset=" . $this->coding);
         header('Content-Disposition: attachment; filename="' . rawurlencode($this->filename . ".xls") . '"');
-        /*打印*/
-        echo stripslashes(sprintf($this->header, $this->coding));
-        echo "\n<Worksheet ss:Name=\"" . $this->tWorksheetTitle . "\">\n<Table>\n";
+        echo sprintf($this->header, $this->coding, $this->tWorksheetTitle);
+        echo '<body link=blue vlink=purple ><table width="100%" border="0" cellspacing="0" cellpadding="0">';
 
         if (is_array($this->titleRow)) {
-            echo "<Row>\n" . $this->addRow($this->titleRow) . "</Row>\n";
+            echo "<thead><tr>\n" . $this->addRow($this->titleRow) . "</tr></thead>\n";
         }
+        echo '<tbody>';
         foreach ($data as $val) {
             $rows = $this->addRow($val);
-            echo "<Row>\n" . $rows . "</Row>\n";
+            echo "<tr>\n" . $rows . "</tr>\n";
         }
-        echo "</Table>\n</Worksheet>\n";
-        echo "</Workbook>";
+        echo "</tbody></table></body></html>";
         exit();
     }
 }
