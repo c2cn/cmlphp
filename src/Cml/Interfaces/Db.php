@@ -84,7 +84,7 @@ interface Db
     /**
      * 根据key更新一条数据
      *
-     * @param string $key eg 'user-uid-$uid' 如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组
+     * @param string|array $key eg 'user-uid-$uid' 如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组
      * @param array | null $data eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
      * @param bool $and 多个条件之间是否为and  true为and false为or
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
