@@ -41,9 +41,8 @@ class StaticResource
         is_dir($rootDir) || mkdir($rootDir, true, 0700);
         //modules_static_path_name
         // 递归遍历目录
-        $dirIterator = new \DirectoryIterator(Cml::getApplicationDir('apps_path'));
 
-        $createFunc = function ($distDir, $resourceDir, $fileName) use ($isCli) {
+        $createDirFunc = function ($distDir, $resourceDir, $fileName) use ($isCli) {
             $cmd = Request::operatingSystem() ? "mklink /d {$distDir} {$resourceDir}" : "ln -s {$resourceDir} {$distDir}";
             is_dir($distDir) || exec($cmd, $result);
             $tip = "  create link Application [{$fileName}] result : ["
@@ -56,21 +55,33 @@ class StaticResource
         };
 
         //创建系统静态文件目录映射
-        $createFunc(
-            $rootDir . DIRECTORY_SEPARATOR . 'cmlphpstatic',
-            __DIR__ . DIRECTORY_SEPARATOR . 'Static',
-            'cmlphpstatic'
-        );
+        /* $createDirFunc(
+             $rootDir . DIRECTORY_SEPARATOR . 'cmlphpstatic',
+             __DIR__ . DIRECTORY_SEPARATOR . 'Static',
+             'cmlphpstatic'
+         );*/
 
-        foreach ($dirIterator as $file) {
-            if (!$file->isDot() && $file->isDir()) {
-                $resourceDir = $file->getPathname() . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_static_path_name');
-                if (is_dir($resourceDir)) {
-                    $distDir = $rootDir . DIRECTORY_SEPARATOR . $file->getFilename();
-                    $createFunc($distDir, $resourceDir, $file->getFilename());
+        $dirIteratorFunc = function ($dir, $parentDirName = '') use ($rootDir, $createDirFunc, &$dirIteratorFunc) {
+            $dirIterator = new \DirectoryIterator($dir);
+
+            foreach ($dirIterator as $file) {
+                if (!$file->isDot() && $file->isDir()) {
+                    $resourceDir = $file->getPathname() . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_static_path_name');
+
+                    $currentDirName = ltrim($parentDirName, DIRECTORY_SEPARATOR);
+                    $currentDirName .= ($currentDirName ? DIRECTORY_SEPARATOR : '') . $file->getFilename();
+
+                    if (is_dir($resourceDir)) {
+                        $distDir = $rootDir . DIRECTORY_SEPARATOR . $file->getFilename();
+                        $createDirFunc($distDir, $resourceDir, $currentDirName);
+                    } else if (!is_dir($file->getPathname() . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_controller_path_name'))) {
+                        $dirIteratorFunc($file->getPathname(), $currentDirName);
+                    }
                 }
             }
-        }
+        };
+
+        $dirIteratorFunc(Cml::getApplicationDir('apps_path'));
 
         if ($isCli) {
             Output::writeln(Colour::colour('create link end!', [Colour::GREEN, Colour::HIGHLIGHT]));
