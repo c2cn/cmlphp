@@ -236,7 +236,7 @@ class Pdo extends Base
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         $tableName = $tablePrefix . $table;
         if (is_array($data) && is_array($field)) {
-            $field = array_flip($field);
+            $field = array_flip(array_values($field));
             foreach($field as $key => $val) {
                 $field[$key] = $data[0][$val];
             }
@@ -245,7 +245,7 @@ class Pdo extends Base
             $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
             $idArray = [];
             foreach($data as $row) {
-                $this->bindParams = $row;
+                $this->bindParams = array_values($row);
                 $this->execute($stmt);
                 $idArray[] = $this->insertId();
             }
