@@ -410,6 +410,25 @@ class MongoDB extends Base
     }
 
     /**
+     * 新增多条数据
+     *
+     * @param string $table
+     * @param array $field mongodb中本字段无效
+     * @param array $data eg: 多条数据的值 [['标题1', '内容1', 1, '2017'], ['标题2', '内容2', 1, '2017']]
+     * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
+     *
+     * @return bool|array
+     */
+    public function setMulti($table, $field, $data, $tablePrefix = null)
+    {
+        $idArray = [];
+        foreach ($data as $row) {
+            $idArray[] = $this->set($table, $row, $tablePrefix);
+        }
+        return $idArray;
+    }
+
+    /**
      * 根据key更新一条数据
      *
      * @param string|array $key eg 'user-uid-$uid' 如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组

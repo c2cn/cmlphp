@@ -197,7 +197,7 @@ class Pdo extends Base
     }
 
     /**
-     * 根据key 新增 一条数据
+     * 新增 一条数据
      *
      * @param string $table
      * @param array $data eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
@@ -216,6 +216,41 @@ class Pdo extends Base
 
             $this->setCacheVer($tableName);
             return $this->insertId();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 新增多条数据
+     *
+     * @param string $table
+     * @param array $field 字段 eg: ['title', 'msg', 'status', 'ctime‘]
+     * @param array $data eg: 多条数据的值 [['标题1', '内容1', 1, '2017'], ['标题2', '内容2', 1, '2017']]
+     * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
+     *
+     * @return bool|array
+     */
+    public function setMulti($table, $field, $data, $tablePrefix = null)
+    {
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        $tableName = $tablePrefix . $table;
+        if (is_array($data) && is_array($field)) {
+            $field = array_flip($field);
+            foreach($field as $key => $val) {
+                $field[$key] = $data[0][$val];
+            }
+            $s = $this->arrToCondition($field);
+
+            $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
+            $idArray = [];
+            foreach($data as $row) {
+                $this->bindParams = $row;
+                $this->execute($stmt);
+                $idArray[] = $this->insertId();
+            }
+            $this->setCacheVer($tableName);
+            return $idArray;
         } else {
             return false;
         }
@@ -727,13 +762,8 @@ class Pdo extends Base
             throw new \InvalidArgumentException(
                 'Pdo Prepare Sql error! ,【Sql : ' . $this->buildDebugSql() . '】,【Code:' . $link->errorCode() . '】, 【ErrorInfo!:' . $error[2] . '】 '
             );
-        } else {
-            foreach ($this->bindParams as $key => $val) {
-                is_int($val) ? $stmt->bindValue(':param' . $key, $val, \PDO::PARAM_INT) : $stmt->bindValue(':param' . $key, $val, \PDO::PARAM_STR);
-            }
-            return $stmt;
         }
-        return false;
+        return $stmt;
     }
 
     /**
@@ -746,6 +776,10 @@ class Pdo extends Base
      */
     public function execute($stmt, $clearBindParams = true)
     {
+        foreach ($this->bindParams as $key => $val) {
+            is_int($val) ? $stmt->bindValue(':param' . $key, $val, \PDO::PARAM_INT) : $stmt->bindValue(':param' . $key, $val, \PDO::PARAM_STR);
+        }
+
         //empty($param) && $param = $this->bindParams;
         $this->conf['log_slow_sql'] && $startQueryTimeStamp = microtime(true);
         if (!$stmt->execute()) {
