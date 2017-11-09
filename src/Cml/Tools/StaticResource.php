@@ -136,6 +136,7 @@ class StaticResource
                 array_shift($pathInfo);
                 $file = __DIR__ . DIRECTORY_SEPARATOR . 'Static' . DIRECTORY_SEPARATOR;
                 $file .= trim(implode('/', $pathInfo), '/');
+                strpos($file, '.') || $file .= Config::get('url_html_suffix');
             } else {
                 $resource = implode('/', $pathInfo);
                 $appName = '';
@@ -148,7 +149,7 @@ class StaticResource
                     $resource = substr($resource, $pos);
                     $file = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR
                         . Cml::getApplicationDir('app_static_path_name') . $resource;
-
+                    strpos($file, '.') || $file .= Config::get('url_html_suffix');
                     if (is_file($file) || ++$i >= $routeAppHierarchy) {
                         break;
                     }
