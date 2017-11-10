@@ -242,13 +242,21 @@ class Pdo extends Base
             }
             $s = $this->arrToCondition($field);
 
-            $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
-            $idArray = [];
-            foreach($data as $row) {
-                $this->bindParams = array_values($row);
-                $this->execute($stmt);
-                $idArray[] = $this->insertId();
+            try {
+                $this->startTransAction();
+                $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
+                $idArray = [];
+                foreach ($data as $row) {
+                    $this->bindParams = array_values($row);
+                    $this->execute($stmt);
+                    $idArray[] = $this->insertId();
+                }
+                $this->commit();
+            } catch (\InvalidArgumentException $e) {
+                $this->rollBack();
+                return false;
             }
+
             $this->setCacheVer($tableName);
             return $idArray;
         } else {
