@@ -72,7 +72,11 @@ class StaticResource
                     $currentDirName .= ($currentDirName ? DIRECTORY_SEPARATOR : '') . $file->getFilename();
 
                     if (is_dir($resourceDir)) {
-                        $distDir = $rootDir . DIRECTORY_SEPARATOR . $file->getFilename();
+                        if ($file->getFilename() != $currentDirName) {
+                            $parentDir = trim(substr($currentDirName, 0, strpos($currentDirName, $file->getFilename())), DIRECTORY_SEPARATOR);
+                            mkdir($rootDir . DIRECTORY_SEPARATOR . $parentDir, 0700, true);
+                        }
+                        $distDir = $rootDir . DIRECTORY_SEPARATOR . $currentDirName;
                         $createDirFunc($distDir, $resourceDir, $currentDirName);
                     } else if (!is_dir($file->getPathname() . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_controller_path_name'))) {
                         $dirIteratorFunc($file->getPathname(), $currentDirName);
@@ -108,7 +112,7 @@ class StaticResource
                 $file = str_replace(Config::get('url_html_suffix'), '', $file);
             }
 
-            $isDir || $file .= (Config::get("url_model") == 3 ? "&v=" : "?v=") . Cml::$nowTime;
+            $isDir || $file .= (Config::get("url_model") == 3 ? "&v=" : "?v=") . 0;//Cml::$nowTime;
         } else {
             $file = Config::get("static__path", Cml::getContainer()->make('cml_route')->getSubDirName()) . $resource;
             $isDir || $file .= "?v=" . Config::get('static_file_version');
