@@ -6,6 +6,7 @@
  * @version  @see \Cml\Cml::VERSION
  * cmlphp框架 配置处理类
  * *********************************************************** */
+
 namespace Cml;
 
 use Cml\Exception\ConfigNotFoundException;
@@ -108,8 +109,8 @@ class Config
      */
     public static function load($file, $global = true)
     {
-        if (isset(static::$_content[$file])) {
-            return static::$_content[$file];
+        if (isset(static::$_content[$global . $file])) {
+            return static::$_content[$global . $file];
         } else {
             $file =
                 (
@@ -124,8 +125,8 @@ class Config
             if (!is_file($file)) {
                 throw new ConfigNotFoundException(Lang::get('_NOT_FOUND_', $file));
             }
-            static::$_content[$file] = Cml::requireFile($file);
-            return static::$_content[$file];
+            static::$_content[$global . $file] = Cml::requireFile($file);
+            return static::$_content[$global . $file];
         }
     }
 }
