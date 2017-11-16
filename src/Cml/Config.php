@@ -112,7 +112,7 @@ class Config
         if (isset(static::$_content[$global . $file])) {
             return static::$_content[$global . $file];
         } else {
-            $file =
+            $filePath =
                 (
                 $global === true
                     ? Cml::getApplicationDir('global_config_path')
@@ -122,10 +122,10 @@ class Config
                 )
                 . '/' . ($global === true ? self::$isLocal . DIRECTORY_SEPARATOR : '') . $file . '.php';
 
-            if (!is_file($file)) {
-                throw new ConfigNotFoundException(Lang::get('_NOT_FOUND_', $file));
+            if (!is_file($filePath)) {
+                throw new ConfigNotFoundException(Lang::get('_NOT_FOUND_', $filePath));
             }
-            static::$_content[$global . $file] = Cml::requireFile($file);
+            static::$_content[$global . $file] = Cml::requireFile($filePath);
             return static::$_content[$global . $file];
         }
     }
