@@ -146,9 +146,11 @@ class Request
     /**
      * 判断是否为AJAX请求
      *
+     * @param bool $checkAccess 是否检测HTTP_ACCESS头
+     *
      * @return bool
      */
-    public static function isAjax()
+    public static function isAjax($checkAccess = false)
     {
         if (
             self::getService('HTTP_X_REQUESTED_WITH')
@@ -156,6 +158,14 @@ class Request
         ) {
             return true;
         }
+
+        if ($checkAccess) {
+            $accept = self::getService('HTTP_ACCEPT');
+            if (false !== strpos($accept, 'json') || false !== strpos($accept, 'javascript')) {
+                return true;
+            }
+        }
+
         return false;
     }
 
