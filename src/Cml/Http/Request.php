@@ -57,7 +57,7 @@ class Request
     public static function host($joinPort = true)
     {
         $host = strip_tags(isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST']);
-        $joinPort && $host =  $host . ($_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']);
+        $joinPort && $host = $host . ($_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']);
         return $host;
     }
 
@@ -87,7 +87,7 @@ class Request
      *
      * @return bool
      */
-    public function isMobile()
+    public static function isMobile()
     {
         if ($_GET['mobile'] === 'yes') {
             setcookie('ismobile', 'yes', 3600);

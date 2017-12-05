@@ -43,6 +43,8 @@ class StaticResource
         // 递归遍历目录
 
         $createDirFunc = function ($distDir, $resourceDir, $fileName) use ($isCli) {
+            $cmd = Request::operatingSystem() ? "rd /Q {$distDir}" : "rm -rf {$distDir}";
+            exec($cmd);
             $cmd = Request::operatingSystem() ? "mklink /d {$distDir} {$resourceDir}" : "ln -s {$resourceDir} {$distDir}";
             is_dir($distDir) || exec($cmd, $result);
             $tip = "  create link Application [{$fileName}] result : ["
@@ -74,7 +76,7 @@ class StaticResource
                     if (is_dir($resourceDir)) {
                         if ($file->getFilename() != $currentDirName) {
                             $parentDir = trim(substr($currentDirName, 0, strpos($currentDirName, $file->getFilename())), DIRECTORY_SEPARATOR);
-                            mkdir($rootDir . DIRECTORY_SEPARATOR . $parentDir, 0700, true);
+                            is_dir($rootDir . DIRECTORY_SEPARATOR . $parentDir) || mkdir($rootDir . DIRECTORY_SEPARATOR . $parentDir, 0700, true);
                         }
                         $distDir = $rootDir . DIRECTORY_SEPARATOR . $currentDirName;
                         $createDirFunc($distDir, $resourceDir, $currentDirName);
