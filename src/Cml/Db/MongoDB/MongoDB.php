@@ -152,7 +152,7 @@ class MongoDB extends Base
      * 获取表字段-因为mongodb中collection对字段是没有做强制一制的。这边默认获取第一条数据的所有字段返回
      *
      * @param string $table 表名
-     * @param mixed $tablePrefix 表前缀 为null时代表table已经带了前缀
+     * @param mixed $tablePrefix 表前缀，不传则获取配置中配置的前缀
      * @param int $filter 在MongoDB中此选项无效
      *
      * @return mixed

@@ -50,7 +50,7 @@ interface Db
      * 获取表字段
      *
      * @param string $table 表名
-     * @param mixed $tablePrefix 表前缀 为null时代表table已经带了前缀
+     * @param mixed $tablePrefix 表前缀，不传则获取配置中配置的前缀
      * @param int $filter 0 获取表字段详细信息数组 1获取字段以,号相隔组成的字符串
      *
      * @return mixed
@@ -66,7 +66,7 @@ interface Db
      * @param bool|string $useMaster 是否使用主库 默认读取从库 此选项为字符串时为表前缀$tablePrefix
      * @param null|string $tablePrefix 表前缀
      *
-     * @return
+     * @return array
      */
     public function get($key, $and = true, $useMaster = false, $tablePrefix = null);
 

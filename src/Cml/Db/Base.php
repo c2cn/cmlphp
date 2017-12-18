@@ -222,13 +222,13 @@ abstract class Base implements Db
      * 获取表主键
      *
      * @param string $table 要获取主键的表名
-     * @param string $tablePrefix 表前缀
+     * @param string $tablePrefix 表前缀，不传则获取配置中配置的前缀
      *
      * @return string || false
      */
     public function getPk($table, $tablePrefix = null)
     {
-        $rows = $this->getDbFields($table, is_null($tablePrefix) ? $this->tablePrefix : $tablePrefix);
+        $rows = $this->getDbFields($table, $tablePrefix);
         foreach ($rows as $val) {
             if ($val['primary']) {
                 return $val['name'];
@@ -301,7 +301,7 @@ abstract class Base implements Db
     {
         $start = 0;
         $this->paramsAutoReset(false, false, false);
-        while (!empty($result = $this->select($start, $num))) {
+        while ($result = $this->select($start, $num)) {
             if ($func($result) === false) {
                 break;
             }
@@ -589,7 +589,6 @@ abstract class Base implements Db
      * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param array|int|string $value 值
      * @param string $operator 操作符
-     * @throws \Exception
      */
     public function conditionFactory($column, $value, $operator = '=')
     {

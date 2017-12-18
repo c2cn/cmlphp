@@ -99,7 +99,7 @@ class Pdo extends Base
      * 获取表字段
      *
      * @param string $table 表名
-     * @param mixed $tablePrefix 表前缀 为null时代表table已经带了前缀
+     * @param mixed $tablePrefix 表前缀，不传则获取配置中配置的前缀
      * @param int $filter 0 获取表字段详细信息数组 1获取字段以,号相隔组成的字符串
      *
      * @return mixed
@@ -108,8 +108,9 @@ class Pdo extends Base
     {
         static $dbFieldCache = [];
 
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         if ($filter == 1 && Cml::$debug) return '*'; //debug模式时直接返回*
-        $table = is_null($tablePrefix) ? strtolower($table) : strtolower($tablePrefix . $table);
+        $table = strtolower($tablePrefix . $table);
 
         $info = false;
 
@@ -237,7 +238,7 @@ class Pdo extends Base
         $tableName = $tablePrefix . $table;
         if (is_array($data) && is_array($field)) {
             $field = array_flip(array_values($field));
-            foreach($field as $key => $val) {
+            foreach ($field as $key => $val) {
                 $field[$key] = $data[0][$val];
             }
             $s = $this->arrToCondition($field);
