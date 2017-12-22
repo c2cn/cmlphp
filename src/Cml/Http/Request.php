@@ -57,19 +57,21 @@ class Request
     public static function host($joinPort = true)
     {
         $host = strip_tags(isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST']);
-        $joinPort && $host = $host . ($_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']);
+        $joinPort && $host = $host . (in_array($_SERVER['SERVER_PORT'], [80, 443]) ? '' : ':' . $_SERVER['SERVER_PORT']);
         return $host;
     }
 
     /**
      * 获取基本URL地址
      *
+     * @param bool $joinPort 是否带上端口
+     *
      * @return string
      */
-    public static function baseUrl()
+    public static function baseUrl($joinPort = true)
     {
         $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
-        return $protocol . self::host();
+        return $protocol . self::host($joinPort);
     }
 
     /**
