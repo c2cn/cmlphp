@@ -742,7 +742,7 @@ abstract class Base implements Db
         $offset = intval($offset);
         $limit = intval($limit);
         $offset < 0 && $offset = 0;
-        ($limit < 1 || $limit > 5000) && $limit = 100;
+        $limit < 1 && $limit = 100;
         $this->sql['limit'] = "LIMIT {$offset}, {$limit}";
         return $this;
     }

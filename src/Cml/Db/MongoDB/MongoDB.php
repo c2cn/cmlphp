@@ -899,7 +899,7 @@ class MongoDB extends Base
      */
     public function limit($offset = 0, $limit = 10)
     {
-        ($limit < 1 || $limit > 5000) && $limit = 100;
+        $limit < 1 && $limit = 100;
         $this->sql['limit'] = [$offset, $limit];
         return $this;
     }
