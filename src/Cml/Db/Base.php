@@ -292,22 +292,36 @@ abstract class Base implements Db
     }
 
     /**
-     * 组块结果集
+     * 组块结果集-此方法前调用paramsAutoReset无效
      *
      * @param int $num 每次获取的条数
-     * @param callable $func 结果集处理函数
+     * @param callable $func 结果集处理函数。本回调函数内调用paramsAutoReset无效
      */
     public function chunk($num = 100, callable $func)
     {
+        $this->paramsAutoReset();
         $start = 0;
-        $this->paramsAutoReset(false, false, false);
+        $backComdition = $this->sql;//sql组装
+        $backTable = $this->table;//操作的表
+        $backJoin = $this->join;//是否内联
+        $backleftJoin = $this->leftJoin;//是否左联结
+        $backrightJoin = $this->rightJoin;//是否右联
+        $backBindParams = $this->bindParams;
+
         while ($result = $this->select($start, $num)) {
             if ($func($result) === false) {
                 break;
             }
             $start += count($result);
+
+            $this->sql = $backComdition;//sql组装
+            $this->table = $backTable;//操作的表
+            $this->join = $backJoin;//是否内联
+            $this->leftJoin = $backleftJoin;//是否左联结
+            $this->rightJoin = $backrightJoin;//是否右联
+            $this->bindParams = $backBindParams;
         }
-        $this->paramsAutoReset(true);
+        $this->paramsAutoReset();
         $this->reset();
         $this->clearBindParams();
     }
