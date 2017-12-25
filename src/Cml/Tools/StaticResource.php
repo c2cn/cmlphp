@@ -107,6 +107,7 @@ class StaticResource
     public static function parseResourceUrl($resource = '', $echo = true)
     {
         //简单判断没有.的时候当作是目录不加版本号
+        $resource = ltrim($resource, '/');
         $isDir = strpos($resource, '.') === false ? true : false;
         if (Cml::$debug) {
             $file = Response::url("cmlframeworkstaticparse/{$resource}", false);
@@ -116,7 +117,7 @@ class StaticResource
 
             $isDir || $file .= (Config::get("url_model") == 3 ? "&v=" : "?v=") . 0;//Cml::$nowTime;
         } else {
-            $file = Config::get("static__path", Cml::getContainer()->make('cml_route')->getSubDirName()) . $resource;
+            $file = rtrim(Config::get("static__path", Cml::getContainer()->make('cml_route')->getSubDirName()), '/') . '/' . $resource;
             $isDir || $file .= "?v=" . Config::get('static_file_version');
         }
         if ($echo) {
