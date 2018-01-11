@@ -103,7 +103,7 @@ class Validate
             throw new \InvalidArgumentException('param $callback must can callable');
         }
         self::$errorTip[strtolower($name)] = $message;
-        static::$rules[strtolower($name)] = $callback;
+        static::$rules[$name] = $callback;
     }
 
     /**
