@@ -181,8 +181,8 @@ class Validate
                     $values = isset($this->data[$field]) ? $this->data[$field] : null;
                 }
 
-                if (isset(static::$rules[$field])) {
-                    $callback = static::$rules[$field];
+                if (isset(static::$rules[$bind['rule']])) {
+                    $callback = static::$rules[$bind['rule']];
                 } else {
                     $callback = [$this, 'is' . ucfirst($bind['rule'])];
                 }
