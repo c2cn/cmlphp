@@ -230,6 +230,7 @@ class Pdo extends Base
      * @param array $data eg: 多条数据的值 [['标题1', '内容1', 1, '2017'], ['标题2', '内容2', 1, '2017']]
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      * @param bool $openTransAction 是否开启事务 默认开启
+     * @throws \InvalidArgumentException
      *
      * @return bool|array
      */
@@ -256,7 +257,8 @@ class Pdo extends Base
                 $openTransAction && $this->commit();
             } catch (\InvalidArgumentException $e) {
                 $openTransAction && $this->rollBack();
-                return false;
+
+                throw new \InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
             }
 
             $this->setCacheVer($tableName);
