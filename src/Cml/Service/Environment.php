@@ -30,15 +30,6 @@ class Environment implements EnvironmentInterface
             return 'cli';
         }
 
-        switch ($_SERVER['HTTP_HOST']) {
-            case $_SERVER['SERVER_ADDR'] :
-                // no break
-            case '127.0.0.1':
-                //no break
-            case 'localhost':
-                return 'development';
-        }
-
         if (isset($_SERVER['SERVER_NAME'])) {
             $host = $_SERVER['SERVER_NAME'];
         } else {
@@ -47,6 +38,15 @@ class Environment implements EnvironmentInterface
                 $host = explode(':', $host);
                 $host = $host[0];
             }
+        }
+
+        switch ($host) {
+            case $_SERVER['SERVER_ADDR'] :
+                // no break
+            case '127.0.0.1':
+                //no break
+            case 'localhost':
+                return 'development';
         }
 
         $domain = substr($host, strrpos($host, '.') + 1);
