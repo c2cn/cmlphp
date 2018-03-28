@@ -6,8 +6,10 @@
  * @version  @see \Cml\Cml::VERSION
  * cmlphp框架 系统默认控制器类
  * *********************************************************** */
+
 namespace Cml;
 
+use Cml\Http\Request;
 use Cml\Http\Response;
 
 /**
@@ -17,6 +19,13 @@ use Cml\Http\Response;
  */
 class Controller
 {
+
+    /**
+     * 当执行的控制器方法返回数组且http请求头HTTP_ACCEPT为html时。这边配置[请求的控制器方法=>对应渲染的模板]。默认为"控制器名/方法名"
+     *
+     * @var array
+     */
+    protected $htmlEngineRenderTplArray = [];
 
     /**
      * 运行对应的控制器
@@ -54,7 +63,14 @@ class Controller
 
         //根据动作去找对应的方法
         if (method_exists($this, $method)) {
-            $this->$method();
+            $response = $this->$method();
+            if ($response && is_array($response)) {
+                View::getEngine(Request::acceptJson() ? 'Json' : 'Html')
+                    ->assign($response)
+                    ->display(isset($this->htmlEngineRenderTplArray[$method])
+                        ? $this->htmlEngineRenderTplArray[$method]
+                        : Cml::getContainer()->make('cml_route')->getControllerName() . '/' . $method);
+            }
         } elseif (Cml::$debug) {
             Cml::montFor404Page();
             throw new \BadMethodCallException(Lang::get('_ACTION_NOT_FOUND_', $method));

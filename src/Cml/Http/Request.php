@@ -162,12 +162,23 @@ class Request
         }
 
         if ($checkAccess) {
-            $accept = self::getService('HTTP_ACCEPT');
-            if (false !== strpos($accept, 'json') || false !== strpos($accept, 'javascript')) {
-                return true;
-            }
+            return self::acceptJson();
         }
 
+        return false;
+    }
+
+    /**
+     * 判断请求类型是否为json
+     *
+     * @return bool
+     */
+    public static function acceptJson()
+    {
+        $accept = self::getService('HTTP_ACCEPT');
+        if (false !== strpos($accept, 'json') || false !== strpos($accept, 'javascript')) {
+            return true;
+        }
         return false;
     }
 
