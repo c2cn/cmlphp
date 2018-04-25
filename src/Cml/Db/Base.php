@@ -640,8 +640,12 @@ abstract class Base implements Db
             substr(trim($value), 0, 1) != '`' && $value = "`{$value}` ";
             $this->sql['where'] .= "{$column} = {$value} ";
         } else {
-            $this->bindParams[] = $value;
-            $this->sql['where'] .= "{$column} {$operator} %s ";
+            $this->sql['where'] .= "{$column} {$operator} ";
+            if ($operator) {//兼容类式find_in_set()这类的函数查询
+                $this->sql['where'] .= "%s ";
+                $this->bindParams[] = $value;
+            }
+
         }
         return $this;
     }
