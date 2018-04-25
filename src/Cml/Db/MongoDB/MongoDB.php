@@ -547,6 +547,8 @@ class MongoDB extends Base
      * @param array|int|string $value 值
      * @param string $operator 操作符
      * @throws \Exception
+     *
+     * @return $this
      */
     public function conditionFactory($column, $value, $operator = '=')
     {
@@ -686,6 +688,7 @@ class MongoDB extends Base
                 $this->sql['where']['$where'] = "this.{$column} = this.{$value}";
                 break;
         }
+        return $this;
     }
 
     /**

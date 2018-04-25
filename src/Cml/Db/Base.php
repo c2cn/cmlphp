@@ -603,6 +603,8 @@ abstract class Base implements Db
      * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
      * @param array|int|string $value 值
      * @param string $operator 操作符
+     *
+     * @return $this
      */
     public function conditionFactory($column, $value, $operator = '=')
     {
@@ -641,6 +643,7 @@ abstract class Base implements Db
             $this->bindParams[] = $value;
             $this->sql['where'] .= "{$column} {$operator} %s ";
         }
+        return $this;
     }
 
     /**
