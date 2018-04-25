@@ -630,12 +630,12 @@ abstract class Base implements Db
             $betweenValue = '%s AND %s ';
             $this->bindParams[] = $value[0];
             $this->bindParams[] = $value[1];
-            $this->sql['where'] .= "{$column} {$operator} {$betweenValue}";
+            $this->sql['where'] .= "{$column} {$operator} {$betweenValue} ";
         } else if ($operator == 'IS NULL' || $operator == 'IS NOT NULL') {
-            $this->sql['where'] .= "{$column} {$operator}";
+            $this->sql['where'] .= "{$column} {$operator} ";
         } else if ($operator == 'column') {
-            substr(trim($column), 0, 1) != '`' && $column = "`{$column}`";
-            substr(trim($value), 0, 1) != '`' && $value = "`{$value}`";
+            substr(trim($column), 0, 1) != '`' && $column = "`{$column}` ";
+            substr(trim($value), 0, 1) != '`' && $value = "`{$value}` ";
             $this->sql['where'] .= "{$column} = {$value} ";
         } else {
             $this->bindParams[] = $value;
