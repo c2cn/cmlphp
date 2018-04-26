@@ -55,7 +55,7 @@ class Environment implements EnvironmentInterface
             return 'development';
         }
 
-        if (substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], '.')) == '192') {
+        if (substr($_SERVER['HTTP_HOST'], 0, 7) == '192.168') {
             return 'development';
         }
         return 'product';
