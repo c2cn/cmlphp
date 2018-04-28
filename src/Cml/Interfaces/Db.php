@@ -97,6 +97,18 @@ interface Db
     public function setMulti($table, $field, $data, $tablePrefix = null, $openTransAction = true);
 
     /**
+     * 插入或更新一条记录
+     *
+     * @param string $table 表名
+     * @param array $data 插入的值 eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
+     * @param array $up 更新的值-会自动merge $data中的数据
+     * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
+     *
+     * @return int
+     */
+    public function upSet($table, array $data, array $up = [], $tablePrefix = null);
+
+    /**
      * 根据key更新一条数据
      *
      * @param string|array $key eg 'user-uid-$uid' 如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组

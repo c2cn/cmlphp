@@ -1044,6 +1044,9 @@ abstract class Base implements Db
                         }
                         $p = "`{$k}`= {$func}(" . implode($funcParams, ',') . ')';
                         break;
+                    case 'column':
+                        $p = "`{$k}`= `" . current($v) . "`";
+                        break;
                     default ://计算类型
                         $conKey = key($v);
                         if (!in_array(key(current($v)), ['+', '-', '*', '/', '%', '^', '&', '|', '<<', '>>', '~'])) {
