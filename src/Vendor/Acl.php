@@ -127,6 +127,33 @@ class Acl
     private static $ssoSign = '';
 
     /**
+     * 单个用户归属多个用户组时多个id在mysql中的分隔符
+     *
+     * @var string
+     */
+    private static $multiGroupDeper = '|';
+
+    /**
+     * 设置单个用户归属多个用户组时多个id在mysql中的分隔符
+     *
+     * @param string $deper 分隔符
+     */
+    public static function setMultiGroupDeper($deper = '|')
+    {
+        self::$multiGroupDeper = $deper;
+    }
+
+    /**
+     * 获取单个用户归属多个用户组时多个id在mysql中的分隔符
+     *
+     * @return string
+     */
+    public static function getMultiGroupDeper()
+    {
+        return self::$multiGroupDeper;
+    }
+
+    /**
      * 设置加密用的混淆key Cookie::set本身有一重加密 这里再加一重
      *
      * @param string $key
@@ -226,7 +253,7 @@ class Acl
                         'id' => $user['id'],
                         'username' => $user['username'],
                         'nickname' => $user['nickname'],
-                        'groupid' => explode('|', trim($user['groupid'], '|')),
+                        'groupid' => explode(self::$multiGroupDeper, trim($user['groupid'], self::$multiGroupDeper)),
                         'from_type' => $user['from_type']
                     ];
                     $groups = Model::getInstance()->db()->table(self::$tables['groups'])
