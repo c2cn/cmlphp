@@ -379,6 +379,16 @@ class Model
     }
 
     /**
+     * 获取model实例并同时执行mapDbAndTable
+     *
+     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base
+     */
+    public static function getInstanceAndRunMapDbAndTable()
+    {
+        return self::getInstance()->mapDbAndTable();
+    }
+
+    /**
      * 当访问model中不存在的方法时直接调用$this->db()的相关方法
      *
      * @param $dbMethod
