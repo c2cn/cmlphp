@@ -89,12 +89,13 @@ class Tree
     /**
      * 获取树--返回数组
      *
-     * @param  array $list 数据列表数组
-     * @param  int   $pid  初始化树时候，代表获取pid下的所有子集
+     * @param array $list 数据列表数组
+     * @param int$pid 初始化树时候，代表获取pid下的所有子集
+     * @param string $sonNodeName 子级的key
      *
      * @return string|array
      */
-    public static function getTreeNoFormat(&$list, $pid = 0)
+    public static function getTreeNoFormat(&$list, $pid = 0, $sonNodeName = 'sonNode')
     {
         $res = [];
         if (!is_array($list)) { //遍历结束
@@ -103,7 +104,7 @@ class Tree
 
         foreach ($list as $v) {
             if (isset($v[self::$config['pid']]) && $v[self::$config['pid']] == $pid) { //获取pid下的子集
-                $v['sonNode'] =  self::getTreeNoFormat($list, $v[self::$config['id']]);
+                $v[$sonNodeName] =  self::getTreeNoFormat($list, $v[self::$config['id']], $sonNodeName);
                 $res[$v[self::$config['id']]] = $v;
             }
         }
