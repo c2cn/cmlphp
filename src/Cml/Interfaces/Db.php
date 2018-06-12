@@ -214,7 +214,7 @@ interface Db
     public function plunk($column, $key = null, $limit = null, $useMaster = false);
 
     /**
-     * 组块结果集
+     * 组块结果集-此方法前调用paramsAutoReset无效
      *
      * @param int $num 每次获取的条数
      * @param callable $func 结果集处理函数
