@@ -232,7 +232,7 @@ interface Db
     public function where($column, $value = '');
 
     /**
-     * here条件组装 两个列相等
+     * where条件组装 两个列相等
      *
      * @param string $column eg：username | `user`.`username`
      * @param string $column2 eg: nickname | `user`.`nickname`
