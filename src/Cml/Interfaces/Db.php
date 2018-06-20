@@ -232,6 +232,16 @@ interface Db
     public function where($column, $value = '');
 
     /**
+     * here条件组装 两个列相等
+     *
+     * @param string $column eg：username | `user`.`username`
+     * @param string $column2 eg: nickname | `user`.`nickname`
+     *
+     * @return $this
+     */
+    public function whereColumn($column, $column2);
+
+    /**
      * where条件组装 不等
      *
      * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)
