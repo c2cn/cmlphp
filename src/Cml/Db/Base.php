@@ -348,7 +348,7 @@ abstract class Base implements Db
     }
 
     /**
-     * here条件组装 两个列相等
+     * where条件组装 两个列相等
      *
      * @param string $column eg：username | `user`.`username`
      * @param string $column2 eg: nickname | `user`.`nickname`
@@ -358,6 +358,39 @@ abstract class Base implements Db
     public function whereColumn($column, $column2)
     {
         $this->conditionFactory($column, $column2, 'column');
+        return $this;
+    }
+
+    /**
+     * where条件原生条件
+     *
+     * @param string $where eg：utime > ctime + ?
+     * @param array $params eg: [10]
+     *
+     * @return $this
+     */
+    public function whereRaw($where, $params)
+    {
+        $this->conditionFactory($where, $params, 'raw');
+        return $this;
+    }
+
+    /**
+     * 根据条件是否成立执行对应的闭包
+     *
+     * @param bool $condition 条件
+     * @param callable $trueCallback 条件成立执行的闭包
+     * @param callable|null $falseCallback 条件不成立执行的闭包
+     *
+     * @return $this
+     */
+    public function when($condition, callable $trueCallback, callable $falseCallback = null)
+    {
+        if ($condition) {
+            call_user_func($trueCallback, $this);
+        } else {
+            is_callable($falseCallback) && call_user_func($falseCallback, $this);
+        }
         return $this;
     }
 
@@ -639,6 +672,9 @@ abstract class Base implements Db
             substr(trim($column), 0, 1) != '`' && $column = "`{$column}` ";
             substr(trim($value), 0, 1) != '`' && $value = "`{$value}` ";
             $this->sql['where'] .= "{$column} = {$value} ";
+        } else if ($operator == 'raw') {
+            $this->sql['where'] .= str_replace('?', '%s', $column) . ' ';
+            $value && $this->bindParams = array_merge($this->bindParams, $value);
         } else {
             $this->sql['where'] .= "{$column} {$operator} ";
             if ($operator) {//兼容类式find_in_set()这类的函数查询

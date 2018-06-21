@@ -242,6 +242,27 @@ interface Db
     public function whereColumn($column, $column2);
 
     /**
+     * where条件原生条件
+     *
+     * @param string $where eg：utime > ctime + ?
+     * @param array $params eg: [10]
+     *
+     * @return $this
+     */
+    public function whereRaw($where, $params);
+
+    /**
+     * 根据条件是否成立执行对应的闭包
+     *
+     * @param bool $condition 条件
+     * @param callable $trueCallback 条件成立执行的闭包
+     * @param callable|null $falseCallback 条件不成立执行的闭包
+     *
+     * @return $this
+     */
+    public function when($condition, callable $trueCallback, callable $falseCallback = null);
+
+    /**
      * where条件组装 不等
      *
      * @param string $column 如 id  user.id (这边的user为表别名如表pre_user as user 这边用user而非带前缀的原表名)

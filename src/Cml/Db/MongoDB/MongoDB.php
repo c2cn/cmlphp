@@ -721,6 +721,9 @@ class MongoDB extends Base
             case 'column':
                 $this->sql['where']['$where'] = "this.{$column} = this.{$value}";
                 break;
+            case 'raw':
+                $this->sql['where']['$where'] = $column;
+                break;
         }
         return $this;
     }

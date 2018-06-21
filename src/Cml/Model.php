@@ -17,6 +17,8 @@ use Cml\Interfaces\Db;
  * 以下方法只是为了方便配合Model中的快捷方法(http://doc.cmlphp.com/devintro/model/mysql/fastmethod/readme.html)使用
  * 并没有列出db中的所有方法。其它未列出的方法建议还是通过$this->db()->xxx使用
  * @method Db|Model where(string | array $column, string | int $value = '')  where条件组装-相等
+ * @method Db|Model whereColumn(string $column, string $column2 = '')  where条件组装-两个列相等
+ * @method Db|Model whereRaw(string $where, array $params = [])  where条件组装-原生条件
  * @method Db|Model whereNot(string $column, string | int $value)  where条件组装-不等
  * @method Db|Model whereGt(string $column, string | int $value = '')  where条件组装-大于
  * @method Db|Model whereLt(string $column, string | int $value = '')  where条件组装-小于
@@ -425,5 +427,24 @@ class Model
         } else {
             return $res;
         }
+    }
+
+    /**
+     * 根据条件是否成立执行对应的闭包
+     *
+     * @param bool $condition 条件
+     * @param callable $trueCallback 条件成立执行的闭包
+     * @param callable|null $falseCallback 条件不成立执行的闭包
+     *
+     * @return Db | \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | $this
+     */
+    public function when($condition, callable $trueCallback, callable $falseCallback = null)
+    {
+        if ($condition) {
+            call_user_func($trueCallback, $this);
+        } else {
+            is_callable($falseCallback) && call_user_func($falseCallback, $this);
+        }
+        return $this;
     }
 }
