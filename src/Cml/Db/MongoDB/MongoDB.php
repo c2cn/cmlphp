@@ -890,22 +890,44 @@ class MongoDB extends Base
     /**
      * 设置后面的where以and连接
      *
+     * @param callable $callable 如果传入函数则函数内执行的条件会被()包围
+     *
      * @return $this
      */
-    public function _and()
+    public function _and(callable $callable = null)
     {
+        $history = $this->opIsAnd;
         $this->opIsAnd = true;
+
+        if (is_callable($callable)) {
+            $this->lBrackets();
+            $callable();
+            $this->rBrackets();
+            $this->opIsAnd = $history;
+        }
+
         return $this;
     }
 
     /**
      * 设置后面的where以or连接
      *
+     * @param callable $callable mongodb中元首
+     *
      * @return $this
      */
-    public function _or()
+    public function _or(callable $callable = null)
     {
+        $history = $this->opIsAnd;
         $this->opIsAnd = false;
+
+        if (is_callable($callable)) {
+            $this->lBrackets();
+            $callable();
+            $this->rBrackets();
+            $this->opIsAnd = $history;
+        }
+
         return $this;
     }
 

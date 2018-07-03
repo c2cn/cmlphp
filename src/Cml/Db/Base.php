@@ -693,7 +693,7 @@ abstract class Base implements Db
      *
      * @return $this
      */
-    public function _and($callable = null)
+    public function _and(callable $callable = null)
     {
         $history = $this->whereNeedAddAndOrOr;
         $this->whereNeedAddAndOrOr = 1;
@@ -715,7 +715,7 @@ abstract class Base implements Db
      *
      * @return $this
      */
-    public function _or($callable = null)
+    public function _or(callable $callable = null)
     {
         $history = $this->whereNeedAddAndOrOr;
         $this->whereNeedAddAndOrOr = 2;

@@ -421,16 +421,20 @@ interface Db
     /**
      * 增加 and条件操作符
      *
+     * @param callable $callable 如果传入函数则函数内执行的条件会被()包围
+     *
      * @return $this
      */
-    public function _and();
+    public function _and(callable $callable);
 
     /**
      * 增加or条件操作符
      *
+     * @param callable $callable 如果传入函数则函数内执行的条件会被()包围
+     *
      * @return $this
      */
-    public function _or();
+    public function _or(callable $callable = null);
 
     /**
      * where条件增加左括号
