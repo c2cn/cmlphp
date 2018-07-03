@@ -225,7 +225,7 @@ function studlyCase($value)
  */
 function filterArrayValue(array &$array, array $field = [], $type = 1)
 {
-    foreach($array as $key => $item) {
+    foreach ($array as $key => $item) {
         if ($type == 1) {
             if (!in_array($key, $field)) {
                 unset($array[$key]);
@@ -234,6 +234,27 @@ function filterArrayValue(array &$array, array $field = [], $type = 1)
             if (in_array($key, $field)) {
                 unset($array[$key]);
             }
+        }
+    }
+    return $array;
+}
+
+/**
+ * 将n级的关联数组格式化为索引数组-经常用于is tree插件
+ *
+ * @param array $array 待处理的数组
+ * @param string $childrenKey 子极的key
+ * @param array $push 要额外添加的项
+ *
+ * @return array
+ */
+function arrayAssocKeyToNumber(array &$array, $childrenKey = 'children', array $push = [])
+{
+    $array = array_values($array);
+    foreach ($array as &$item) {
+        $push && $item = array_merge($item, $push);
+        if ($item[$childrenKey]) {
+            $item[$childrenKey] = arrayAssocKeyToNumber($item[$childrenKey], $childrenKey, $push);
         }
     }
     return $array;

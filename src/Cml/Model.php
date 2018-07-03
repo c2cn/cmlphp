@@ -42,6 +42,9 @@ use Cml\Interfaces\Db;
  * @method Db|Model table(string $table = '', string | null $tablePrefix = null) 定义操作的表
  * @method Db|Model lBrackets() where条件增加左括号
  * @method Db|Model rBrackets() where条件增加右括号
+ * @method Db|Model join(string | array $table, string $on, string | null $tablePrefix = null) join内联结
+ * @method Db|Model leftJoin(string | array $table, string $on, string | null $tablePrefix = null) leftJoin左联结
+ * @method Db|Model rightJoin(string | array $table, string $on, string | null $tablePrefix = null) rightJoin右联结
  *
  * @package Cml
  */
