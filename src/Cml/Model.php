@@ -397,6 +397,18 @@ class Model
     }
 
     /**
+     * 静态方式获取cache实例
+     *
+     * @param string $conf 使用的缓存配置;
+     *
+     * @return \Cml\Cache\Redis | \Cml\Cache\Apc | \Cml\Cache\File | \Cml\Cache\Memcache
+     */
+    public static function staticCache($conf = 'default_cache')
+    {
+        return self::getInstance()->cache($conf);
+    }
+
+    /**
      * 当访问model中不存在的方法时直接调用$this->db()的相关方法
      *
      * @param $dbMethod
