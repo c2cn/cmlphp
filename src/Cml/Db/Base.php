@@ -701,7 +701,7 @@ abstract class Base implements Db
         if (is_callable($callable)) {
             $history === 0 && $this->whereNeedAddAndOrOr = 0;
             $this->lBrackets();
-            $callable();
+            call_user_func($callable, $this);
             $this->rBrackets();
         }
 
@@ -723,7 +723,7 @@ abstract class Base implements Db
         if (is_callable($callable)) {
             $history === 0 && $this->whereNeedAddAndOrOr = 0;
             $this->lBrackets();
-            $callable();
+            call_user_func($callable, $this);
             $this->rBrackets();
         }
 
