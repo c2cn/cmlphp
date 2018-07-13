@@ -134,6 +134,13 @@ class Acl
     private static $multiGroupDeper = '|';
 
     /**
+     * 设置权限除了检查url之外的参数。如当前请求的url为web/Index/index  这边传参?id=1则检查权限的时候是检查有无url为web/Index/index?id=1的菜单
+     *
+     * @var string
+     */
+    private static $otherAclParams = '';
+
+    /**
      * 设置单个用户归属多个用户组时多个id在mysql中的分隔符
      *
      * @param string $deper 分隔符
@@ -151,6 +158,16 @@ class Acl
     public static function getMultiGroupDeper()
     {
         return self::$multiGroupDeper;
+    }
+
+    /**
+     * 设置权限除了检查url之外的params参数。如当前请求的url为web/Index/index  这边传参?id=1则检查权限的时候是检查url为web/Index/index并且params字段为?id=1的菜单
+     *
+     * @param string $otherAclParams
+     */
+    public static function setOtherAclParams($otherAclParams = '')
+    {
+        self::$otherAclParams = $otherAclParams;
     }
 
     /**
@@ -292,7 +309,9 @@ class Acl
      * 如当前访问的方法为web/User/list则传入new \web\Controller\User()获得的实例。最常用的是在基础控制器的init方法或构造方法里传入$this。
      * 传入字符串如web/User/list时会自动 new \web\Controller\User()获取实例用于判断
      *
-     * @return int 返回1是通过检查，0是不能通过检查
+     * @throws \Exception
+     *
+     * @return bool
      */
     public static function checkAcl($controller)
     {
@@ -365,6 +384,8 @@ class Acl
             ->_or()
             ->where('a.userid', $authInfo['id'])
             ->rBrackets();
+
+        self::$otherAclParams && $acl->where('m.params', self::$otherAclParams);
 
         $acl = is_array($checkUrl) ? $acl->whereIn('m.url', $checkUrl) : $acl->where('m.url', $checkUrl);
         $acl = $acl->count('1');
