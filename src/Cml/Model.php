@@ -154,14 +154,19 @@ class Model
     /**
      * 初始化一个Model实例
      *
+     * @param null|string $table 表名
+     * @param null|string $tablePrefix 表前缀
+     *
      * @return \Cml\Model | \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base | $this
      */
-    public static function getInstance()
+    public static function getInstance($table = null, $tablePrefix = null)
     {
         static $mInstance = [];
         $class = get_called_class();
         if (!isset($mInstance[$class])) {
             $mInstance[$class] = new $class();
+            is_null($table) || $mInstance[$class]->table = $table;
+            is_null($tablePrefix) || $mInstance[$class]->$tablePrefix = $tablePrefix;
         }
         return $mInstance[$class];
     }
@@ -389,11 +394,14 @@ class Model
     /**
      * 获取model实例并同时执行mapDbAndTable
      *
+     * @param null|string $table 表名
+     * @param null|string $tablePrefix 表前缀
+     *
      * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base
      */
-    public static function getInstanceAndRunMapDbAndTable()
+    public static function getInstanceAndRunMapDbAndTable($table = null, $tablePrefix = null)
     {
-        return self::getInstance()->mapDbAndTable();
+        return self::getInstance($table, $tablePrefix)->mapDbAndTable();
     }
 
     /**
