@@ -45,8 +45,8 @@ use Cml\Interfaces\Db;
  * @method Db|Model join(string | array $table, string $on, string | null $tablePrefix = null) join内联结
  * @method Db|Model leftJoin(string | array $table, string $on, string | null $tablePrefix = null) leftJoin左联结
  * @method Db|Model rightJoin(string | array $table, string $on, string | null $tablePrefix = null) rightJoin右联结
- * @method Db|Model _and(callable $callable) and条件操作
- * @method Db|Model _or(callable $callable) or条件操作
+ * @method Db|Model _and(callable $callable = null) and条件操作
+ * @method Db|Model _or(callable $callable = null) or条件操作
  *
  * @package Cml
  */

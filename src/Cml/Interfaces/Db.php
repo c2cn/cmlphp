@@ -425,7 +425,7 @@ interface Db
      *
      * @return $this
      */
-    public function _and(callable $callable);
+    public function _and(callable $callable = null);
 
     /**
      * 增加or条件操作符
