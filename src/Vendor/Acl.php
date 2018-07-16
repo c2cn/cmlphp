@@ -349,7 +349,8 @@ class Acl
         }
 
         $checkUrl = ltrim(str_replace('\\', '/', $checkUrl), '/');
-
+        $origUrl = $checkUrl;
+        
         if (is_object($controller)) {
             //判断是否有标识 @noacl 不检查权限
             $reflection = new \ReflectionClass($controller);
@@ -367,7 +368,19 @@ class Acl
                         if (isset($aclJump[1]) && $aclJump[1]) {
                             $aclJump[1] = explode('|', $aclJump[1]);
                             foreach ($aclJump[1] as $val) {
-                                trim($val) && $checkUrlArray[] = ltrim(str_replace('\\', '/', trim($val)), '/');
+                                $val = trim($val);
+                                substr($val, 0, 3) == '../' && $val = '../' . $val;
+                                if (false !== $times = preg_match_all('#\./#i', $val)) {
+                                    $origUrlArray = explode('/', $origUrl);
+                                    $val = explode('./', $val);
+
+                                    for ($i = 0; $i < $times; $i++) {
+                                        array_pop($origUrlArray);
+                                        array_shift($val);
+                                    }
+                                    $val = implode('/', array_merge($origUrlArray, $val));
+                                }
+                                $val && $checkUrlArray[] = ltrim(str_replace('\\', '/', trim($val)), '/') . self::$otherAclParams;
                             }
                         }
                         empty($checkUrlArray) || $checkUrl = $checkUrlArray;
