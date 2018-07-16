@@ -350,7 +350,7 @@ class Acl
 
         $checkUrl = ltrim(str_replace('\\', '/', $checkUrl), '/');
         $origUrl = $checkUrl;
-        
+
         if (is_object($controller)) {
             //判断是否有标识 @noacl 不检查权限
             $reflection = new \ReflectionClass($controller);
@@ -370,7 +370,7 @@ class Acl
                             foreach ($aclJump[1] as $val) {
                                 $val = trim($val);
                                 substr($val, 0, 3) == '../' && $val = '../' . $val;
-                                if (false !== $times = preg_match_all('#\./#i', $val)) {
+                                if ($times = preg_match_all('#\./#i', $val)) {
                                     $origUrlArray = explode('/', $origUrl);
                                     $val = explode('./', $val);
 
