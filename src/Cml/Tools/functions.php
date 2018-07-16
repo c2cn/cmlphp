@@ -244,16 +244,21 @@ function filterArrayValue(array &$array, array $field = [], $type = 1)
  *
  * @param array $array 待处理的数组
  * @param string $childrenKey 子极的key
- * @param array $push 要额外添加的项
+ * @param array|callable $push 要额外添加的项
  *
  * @return array
  */
-function arrayAssocKeyToNumber(array &$array, $childrenKey = 'children', array $push = [])
+function arrayAssocKeyToNumber(array &$array, $childrenKey = 'children', $push = [])
 {
     $array = array_values($array);
     foreach ($array as &$item) {
-        $push && $item = array_merge($item, $push);
-        if ($item[$childrenKey]) {
+        if (is_callable($push)) {
+            $pushData = call_user_func($push, $item);
+        } else {
+            $pushData = $push;
+        }
+        $pushData && $item = array_merge($item, $pushData);
+        if (isset($item[$childrenKey]) && $item[$childrenKey]) {
             $item[$childrenKey] = arrayAssocKeyToNumber($item[$childrenKey], $childrenKey, $push);
         }
     }
