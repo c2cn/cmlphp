@@ -850,8 +850,8 @@ abstract class Base implements Db
      */
     public function having($column, $operator = '=', $value)
     {
-        $having = $this->sql['having'] == '' ? 'HAVING' : ',';
-        $this->sql['having'] = "{$having} {$column}{$operator}%s ";
+        $having = $this->sql['having'] == '' ? 'HAVING' : ' AND ';
+        $this->sql['having'] .= "{$having} {$column} {$operator} %s ";
         $this->bindParams[] = $value;
         return $this;
     }
