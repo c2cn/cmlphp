@@ -228,7 +228,9 @@ class Response
             'm4a' => 'audio/ogg',
             'mp4' => 'video/mp4 ',
             'wmv' => 'video/x-ms-wmv',
-            'avi' => 'video/x-msvideo'
+            'avi' => 'video/x-msvideo',
+            'woff' => 'application/font-woff',
+            'eot' => 'application/vnd.ms-fontobject'
         ];
         $mine = isset($mines[$subFix]) ? $mines[$subFix] : 'text/html';
         header("Content-Type:{$mine};charset=utf-8");
