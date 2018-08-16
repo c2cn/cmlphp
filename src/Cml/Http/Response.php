@@ -182,9 +182,11 @@ class Response
     }
 
     /**
-     * 通过后缀名输出contentType
+     * 通过后缀名输出contentType并返回
      *
      * @param string $subFix
+     *
+     * @return string
      */
     public static function sendContentTypeBySubFix($subFix = 'html')
     {
@@ -234,5 +236,6 @@ class Response
         ];
         $mine = isset($mines[$subFix]) ? $mines[$subFix] : 'text/html';
         header("Content-Type:{$mine};charset=utf-8");
+        return $mine;
     }
 }
