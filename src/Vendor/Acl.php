@@ -217,8 +217,10 @@ class Acl
      * @param bool $sso 是否为单点登录，即踢除其它登录用户
      * @param int $cookieExpire 登录的过期时间，为0则默认保持到浏览器关闭，> 0的值为登录有效期的秒数。默认为0
      * @param int $notOperationAutoLogin 当$cookieExpire设置为0时，这个值为用户多久不操作则自动退出。默认为1个小时
+     * @param string $cookiePath path
+     * @param string $cookieDomain domain
      */
-    public static function setLoginStatus($uid, $sso = true, $cookieExpire = 0, $notOperationAutoLogin = 3600)
+    public static function setLoginStatus($uid, $sso = true, $cookieExpire = 0, $notOperationAutoLogin = 3600, $cookiePath = '', $cookieDomain = '')
     {
         $cookieExpire > 0 && $notOperationAutoLogin = 0;
         $user = [
@@ -235,7 +237,7 @@ class Acl
             //如果是刚刚从要单点切换成不要单点。这边要把ssosign置为cache中的
             empty($user['ssosign']) && $user['ssosign'] = Model::getInstance()->cache()->get("SSOSingleSignOn{$uid}");
         }
-        Cookie::set(Config::get('userauthid'), Encry::encrypt(json_encode($user, JSON_UNESCAPED_UNICODE), self::$encryptKey), $cookieExpire);
+        Cookie::set(Config::get('userauthid'), Encry::encrypt(json_encode($user, JSON_UNESCAPED_UNICODE), self::$encryptKey), $cookieExpire, $cookiePath, $cookieDomain);
     }
 
     /**
