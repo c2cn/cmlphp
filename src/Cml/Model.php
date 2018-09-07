@@ -53,6 +53,13 @@ use Cml\Interfaces\Db;
 class Model
 {
     /**
+     * 快捷方法-读是否强制使用主库
+     *
+     * @var bool
+     */
+    protected $useMaster = false;
+
+    /**
      * 表前缀
      *
      * @var null|string
@@ -212,7 +219,7 @@ class Model
         is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $tablePrefix);
         return $this->db($this->getDbConf())->table($tableName, $tablePrefix)
             ->where($column, $val)
-            ->getOne();
+            ->getOne($this->useMaster);
     }
 
     /**
@@ -232,7 +239,7 @@ class Model
         is_null($column) && $column = $this->db($this->getDbConf())->getPk($tableName, $tablePrefix);
         return $this->db($this->getDbConf())->table($tableName, $tablePrefix)
             ->where($column, $val)
-            ->select();
+            ->select(null, null, $this->useMaster);
     }
 
     /**
@@ -322,7 +329,7 @@ class Model
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         is_null($pkField) && $pkField = $this->db($this->getDbConf())->getPk($tableName, $tablePrefix);
-        return $this->db($this->getDbConf())->table($tableName, $tablePrefix)->count($pkField);
+        return $this->db($this->getDbConf())->table($tableName, $tablePrefix)->count($pkField, false, $this->useMaster);
     }
 
     /**
@@ -347,7 +354,7 @@ class Model
             $dbInstance->orderBy($key, $val);
         }
         return $dbInstance->limit($offset, $limit)
-            ->select();
+            ->select(null, null, $this->useMaster);
     }
 
     /**
@@ -370,7 +377,7 @@ class Model
         foreach ($order as $key => $val) {
             $dbInstance->orderBy($key, $val);
         }
-        return $dbInstance->paginate($limit);
+        return $dbInstance->paginate($limit, $this->useMaster);
     }
 
     /**
