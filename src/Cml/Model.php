@@ -172,12 +172,13 @@ class Model
     {
         static $mInstance = [];
         $class = get_called_class();
-        if (!isset($mInstance[$class])) {
-            $mInstance[$class] = new $class();
-            is_null($table) || $mInstance[$class]->table = $table;
-            is_null($tablePrefix) || $mInstance[$class]->$tablePrefix = $tablePrefix;
+        $classKey = $class . '-' . $tablePrefix . $table;
+        if (!isset($mInstance[$classKey])) {
+            $mInstance[$classKey] = new $class();
+            is_null($table) || $mInstance[$classKey]->table = $table;
+            is_null($tablePrefix) || $mInstance[$classKey]->$tablePrefix = $tablePrefix;
         }
-        return $mInstance[$class];
+        return $mInstance[$classKey];
     }
 
     /**
