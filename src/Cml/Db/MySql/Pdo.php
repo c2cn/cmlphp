@@ -299,8 +299,8 @@ class Pdo extends Base
     /**
      * 根据key更新一条数据
      *
-     * @param string|array $key eg 'user-uid-$uid' 如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组
-     * @param array | null $data eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
+     * @param string|array $key eg: 'user'(表名)、'user-uid-$uid'(表名+条件) 、['xx'=>'xx' ...](即:$data数组如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组)
+     * @param array | null $data eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com'] 可以直接通过$key参数传递
      * @param bool $and 多个条件之间是否为and  true为and false为or
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      *
@@ -348,7 +348,7 @@ class Pdo extends Base
     /**
      * 根据key值删除数据
      *
-     * @param string $key eg: 'user-uid-$uid'
+     * @param string $key eg: 'user'(表名，即条件通过where()传递)、'user-uid-$uid'(表名+条件)、啥也不传(即通过table传表名)
      * @param bool $and 多个条件之间是否为and  true为and false为or
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      *
