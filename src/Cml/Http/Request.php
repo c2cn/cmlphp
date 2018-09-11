@@ -10,6 +10,8 @@
 namespace Cml\Http;
 
 use Cml\Cml;
+use Cml\Config;
+use Cml\Route;
 
 /**
  * 请求处理类，获取用户请求信息以发起curl请求
@@ -62,7 +64,7 @@ class Request
     }
 
     /**
-     * 获取基本URL地址
+     * 获取基本地址
      *
      * @param bool $joinPort 是否带上端口
      *
@@ -72,6 +74,26 @@ class Request
     {
         $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
         return $protocol . self::host($joinPort);
+    }
+
+    /**
+     * 获取带全参数的url地址
+     *
+     * @param bool $addSufFix 是否添加伪静态后缀
+     * @param bool $joinParams 是否带上GET请求参数
+     *
+     * @return string
+     */
+    public static function fullUrl($addSufFix = true, $joinParams = true)
+    {
+        $params = '';
+        if ($joinParams) {
+            $get = $_GET;
+            unset($get[Config::get('var_pathinfo')]);
+            $params = http_build_query($get);
+            $params && $params = '?' . $params;
+        }
+        return Request::baseUrl() . '/' . implode('/', Route::getPathInfo()) . ($addSufFix ? Config::get('url_html_suffix') : '') . $params;
     }
 
     /**
