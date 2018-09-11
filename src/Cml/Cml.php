@@ -410,6 +410,7 @@ class Cml
             if (!empty($deBugLogData)) {
                 Config::get('dump_use_php_console') ? dumpUsePHPConsole($deBugLogData) : Cml::requireFile(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'ConsoleLog.php', ['deBugLogData' => $deBugLogData]);
             };
+            Plugin::hook('cml.before_ob_end_flush');
             CML_OB_START && ob_end_flush();
         }
         exit();
