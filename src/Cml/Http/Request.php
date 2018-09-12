@@ -257,11 +257,12 @@ class Request
      * @param array $parameter 请求参数
      * @param array $header header头信息
      * @param string $type 请求的数据类型 json/post/file/get/raw
-     * @param int $timeout 请求的超时时间默认10s
+     * @param int $connectTimeout 请求连接超时时间默认10s
+     * @param int $execTimeout 等待执行输出的超时时间默认30s
      *
      * @return bool|mixed
      */
-    public static function curl($url, $parameter = [], $header = [], $type = 'json', $timeout = 10)
+    public static function curl($url, $parameter = [], $header = [], $type = 'json', $connectTimeout = 10, $execTimeout = 30)
     {
         $ssl = substr($url, 0, 8) == "https://" ? true : false;
         $ch = curl_init();
@@ -300,7 +301,8 @@ class Request
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $execTimeout);
 
         if (!empty($header)) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
@@ -310,7 +312,7 @@ class Request
         $error = curl_error($ch);
 
         curl_close($ch);
-        if ('' === $ret || !empty($error)) {
+        if (!$ret || !empty($error)) {
             return false;
         } else {
             return $ret;
