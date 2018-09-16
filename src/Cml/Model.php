@@ -165,10 +165,11 @@ class Model
      *
      * @param null|string $table 表名
      * @param null|string $tablePrefix 表前缀
+     * @param null|string|array $db db配置，默认default_db
      *
      * @return \Cml\Model | \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base | $this
      */
-    public static function getInstance($table = null, $tablePrefix = null)
+    public static function getInstance($table = null, $tablePrefix = null, $db = null)
     {
         static $mInstance = [];
         $class = get_called_class();
@@ -176,7 +177,8 @@ class Model
         if (!isset($mInstance[$classKey])) {
             $mInstance[$classKey] = new $class();
             is_null($table) || $mInstance[$classKey]->table = $table;
-            is_null($tablePrefix) || $mInstance[$classKey]->$tablePrefix = $tablePrefix;
+            is_null($tablePrefix) || $mInstance[$classKey]->tablePrefix = $tablePrefix;
+            is_null($db) || $mInstance[$classKey]->db = $db;
         }
         return $mInstance[$classKey];
     }
