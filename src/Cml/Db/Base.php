@@ -1001,6 +1001,7 @@ abstract class Base implements Db
     {
         if (!$this->paramsAutoReset) {
             $this->alwaysClearColumns && $this->sql['columns'] = '';
+            $this->sql['limit'] = '';
             if ($this->alwaysClearTable) {
                 $this->table = []; //操作的表
                 $this->join = []; //是否内联
