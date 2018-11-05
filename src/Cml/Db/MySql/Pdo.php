@@ -179,7 +179,7 @@ class Pdo extends Base
         }
 
         if ($return === false) { //cache中不存在这条记录
-            $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
+            $stmt = $this->prepare($sql, ($this->onTransAction || $useMaster) ? $this->wlink : $this->rlink);
             $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             $this->openCache && $this->currentQueryUseCache && Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
@@ -626,7 +626,7 @@ class Pdo extends Base
         }
 
         if ($return === false) {
-            $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
+            $stmt = $this->prepare($sql, ($this->onTransAction || $useMaster) ? $this->wlink : $this->rlink);
             $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             $this->openCache && $this->currentQueryUseCache && Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
@@ -909,6 +909,7 @@ class Pdo extends Base
      */
     public function startTransAction()
     {
+        $this->onTransAction = true;
         return $this->wlink->beginTransaction();
     }
 
@@ -919,6 +920,8 @@ class Pdo extends Base
      */
     public function commit()
     {
+
+        $this->onTransAction = false;
         return $this->wlink->commit();
     }
 
@@ -943,6 +946,7 @@ class Pdo extends Base
      */
     public function rollBack($rollBackTo = false)
     {
+        $this->onTransAction = false;
         if ($rollBackTo === false) {
             return $this->wlink->rollBack();
         } else {

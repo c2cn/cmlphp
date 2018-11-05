@@ -23,6 +23,13 @@ use Cml\Model;
 abstract class Base implements Db
 {
     /**
+     * 是否在事务中--事务中查询强制走主库
+     *
+     * @var bool
+     */
+    protected $onTransAction = false;
+
+    /**
      * 启用数据缓存
      *
      * @var bool
@@ -844,15 +851,23 @@ abstract class Base implements Db
      *
      * @param string $column 字段名
      * @param string $operator 操作符
-     * @param string $value 值
+     * @param string|array $value 值
+     * @param string $logic 逻辑AND OR
      *
      * @return $this
      */
-    public function having($column, $operator = '=', $value)
+    public function having($column, $operator = '=', $value, $logic = 'AND')
     {
-        $having = $this->sql['having'] == '' ? 'HAVING' : ' AND ';
-        $this->sql['having'] .= "{$having} {$column} {$operator} %s ";
-        $this->bindParams[] = $value;
+        $having = $this->sql['having'] == '' ? 'HAVING' : " {$logic} ";
+        $this->sql['having'] .= "{$having} {$column} {$operator} ";
+        if ($value) {
+            if (is_array($value)) {//手动传%s
+                $this->bindParams = array_merge($this->bindParams, $value);
+            } else {
+                $this->sql['having'] .= ' %s ';
+                $this->bindParams[] = $value;
+            }
+        }
         return $this;
     }
 
