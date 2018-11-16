@@ -65,6 +65,8 @@ return [
                 'host' => '127.0.0.1',
                 'port' => 11211,//必须是整形
                 //'weight' => 100 //权重memcached扩展有效
+                //'username'=>'sals_username'
+                //'password'=>'sals_password'
             ],
             //多台...
         ],

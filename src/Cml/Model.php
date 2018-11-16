@@ -85,7 +85,7 @@ class Model
      *
      * @var array
      */
-    private static $dbInstance = [];
+    private $dbInstance = [];
 
     /**
      * Cache驱动实例
@@ -112,12 +112,12 @@ class Model
         }
         $config['mark'] = $conf;
 
-        if (isset(self::$dbInstance[$conf])) {
-            return self::$dbInstance[$conf];
+        if (isset($this->dbInstance[$conf])) {
+            return $this->dbInstance[$conf];
         } else {
             $pos = strpos($config['driver'], '.');
-            self::$dbInstance[$conf] = Cml::getContainer()->make('db_' . strtolower($pos ? substr($config['driver'], 0, $pos) : $config['driver']), $config);
-            return self::$dbInstance[$conf];
+            $this->dbInstance[$conf] = Cml::getContainer()->make('db_' . strtolower($pos ? substr($config['driver'], 0, $pos) : $config['driver']), $config);
+            return $this->dbInstance[$conf];
         }
     }
 
@@ -277,6 +277,41 @@ class Model
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         return $this->db($this->getDbConf())->setMulti($tableName, $field, $data, $tablePrefix, $openTransAction);
+    }
+
+    /**
+     * 插入或更新一条记录，当UNIQUE index or PRIMARY KEY存在的时候更新，不存在的时候插入
+     * 若AUTO_INCREMENT存在则返回 AUTO_INCREMENT 的值.
+     *
+     * @param array $data 插入的值 eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
+     * @param array $up 更新的值-会自动merge $data中的数据
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
+     * @param mixed $tablePrefix 表前缀 不传会自动从当前Model中$tablePrefix属性获取再没有则获取配置中配置的前缀
+     *
+     * @return int
+     */
+    public function upSet(array $data, array $up = [], $tableName = null, $tablePrefix = null)
+    {
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        return $this->db($this->getDbConf())->upSet($tableName, $data, $up, $tablePrefix);
+    }
+
+    /**
+     * 插入或替换一条记录
+     * 若AUTO_INCREMENT存在则返回 AUTO_INCREMENT 的值.
+     *
+     * @param array $data 插入/更新的值 eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
+     * @param mixed $tablePrefix 表前缀 不传会自动从当前Model中$tablePrefix属性获取再没有则获取配置中配置的前缀
+     *
+     * @return int
+     */
+    public function replaceInto(array $data, $tableName = null, $tablePrefix = null)
+    {
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        return $this->db($this->getDbConf())->replaceInto($tableName, $data, $tablePrefix);
     }
 
     /**

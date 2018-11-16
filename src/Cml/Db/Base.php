@@ -23,11 +23,14 @@ use Cml\Model;
 abstract class Base implements Db
 {
     /**
-     * 是否在事务中--事务中查询强制走主库
+     * 多个Model中共享db连接实例
      *
-     * @var bool
+     * @var array
      */
-    protected $onTransAction = false;
+    protected static $dbInst = [
+        'rlink' => null,
+        'wlink' => null,
+    ];
 
     /**
      * 启用数据缓存
@@ -172,17 +175,33 @@ abstract class Base implements Db
      */
     public function __get($db)
     {
+        if (self::$dbInst[$db]) {
+            return self::$dbInst[$db];
+        }
+        return $this->connectDb($db);
+    }
+
+    /**
+     * 连接数据库
+     *
+     * @param string $db rlink/wlink
+     * @param bool $reConnect 是否重连--用于某些db如mysql.长连接被服务端断开的情况
+     *
+     * @return bool|false|mixed|resource
+     */
+    protected function connectDb($db, $reConnect = false)
+    {
         if ($db == 'rlink') {
             //如果没有指定从数据库，则使用 master
             if (empty($this->conf['slaves'])) {
-                $this->rlink = $this->wlink;
+                self::$dbInst[$db] = $this->rlink = $reConnect ? $this->connectDb('wlink', true) : $this->wlink;
                 return $this->rlink;
             }
 
             $n = mt_rand(0, count($this->conf['slaves']) - 1);
             $conf = $this->conf['slaves'][$n];
             empty($conf['engine']) && $conf['engine'] = '';
-            $this->rlink = $this->connect(
+            self::$dbInst[$db] = $this->rlink = $this->connect(
                 $conf['host'],
                 $conf['username'],
                 $conf['password'],
@@ -195,7 +214,7 @@ abstract class Base implements Db
         } elseif ($db == 'wlink') {
             $conf = $this->conf['master'];
             empty($conf['engine']) && $conf['engine'] = '';
-            $this->wlink = $this->connect(
+            self::$dbInst[$db] = $this->wlink = $this->connect(
                 $conf['host'],
                 $conf['username'],
                 $conf['password'],
@@ -1016,7 +1035,6 @@ abstract class Base implements Db
     {
         if (!$this->paramsAutoReset) {
             $this->alwaysClearColumns && $this->sql['columns'] = '';
-            $this->sql['limit'] = '';
             if ($this->alwaysClearTable) {
                 $this->table = []; //操作的表
                 $this->join = []; //是否内联
@@ -1079,9 +1097,11 @@ abstract class Base implements Db
         foreach ($arr as $k => $v) {
             if (is_array($v)) { //自增或自减
                 switch (key($v)) {
+                    case '+':
                     case 'inc':
                         $p = "`{$k}`= `{$k}`+" . abs(intval(current($v)));
                         break;
+                    case '-':
                     case 'dec':
                         $p = "`{$k}`= `{$k}`-" . abs(intval(current($v)));
                         break;
