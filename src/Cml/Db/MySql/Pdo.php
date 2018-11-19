@@ -282,6 +282,33 @@ class Pdo extends Base
     }
 
     /**
+     * 插入或替换一条记录
+     * 若AUTO_INCREMENT存在则返回 AUTO_INCREMENT 的值.
+     *
+     * @param string $table 表名
+     * @param array $data 插入/更新的值 eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
+     * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
+     *
+     * @return int
+     */
+    public function replaceInto($table, array $data, $tablePrefix = null)
+    {
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        $tableName = $tablePrefix . $table;
+        if (is_array($data)) {
+            $s = $this->arrToCondition($data);
+            $this->currentQueryIsMaster = true;
+            $stmt = $this->prepare("REPLACE INTO {$tableName} SET {$s}", $this->wlink);
+            $this->execute($stmt);
+
+            $this->setCacheVer($tableName);
+            return $this->insertId();
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 插入或更新一条记录，当UNIQUE index or PRIMARY KEY存在的时候更新，不存在的时候插入
      * 若AUTO_INCREMENT存在则返回 AUTO_INCREMENT 的值.
      *
