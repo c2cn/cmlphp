@@ -85,7 +85,7 @@ class Memcache extends namespace\Base
 
         if ($this->type == 2) {//memcache
             foreach ($this->conf['server'] as $val) {
-                if (!$this->memcache->addServer($val['host'], $val['port'])) {
+                if (!$this->memcache->addServer($val['host'], $val['port'], true, isset($val['weight']) ? $val['weight'] : null)) {
                     Log::emergency('memcache server down', ['downServer' => $val]);
                 }
             }
