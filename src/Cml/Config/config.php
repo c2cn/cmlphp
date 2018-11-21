@@ -19,6 +19,7 @@ return [
         'driver' => 'MySql.Pdo', //数据库驱动
         'master' => [
             'host' => 'localhost', //数据库主机
+            //'host' => 'unix_socket=/path/', //使用unix_socket
             'username' => 'root', //数据库用户名
             'password' => '', //数据库密码
             'dbname' => 'cmlphp', //数据库名

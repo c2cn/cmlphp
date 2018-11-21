@@ -738,7 +738,12 @@ class Pdo extends Base
         $link = '';
         try {
             $host = explode(':', $host);
-            $dsn = "mysql:host={$host[0]};" . (isset($host[1]) ? "port={$host[1]};" : '') . "dbname={$dbName}";
+            if (substr($host[0], 0, 11) === 'unix_socket') {
+                $dsn = "mysql:dbname={$dbName};unix_socket=" . substr($host[0], 12);
+            } else {
+                $dsn = "mysql:host={$host[0]};" . (isset($host[1]) ? "port={$host[1]};" : '') . "dbname={$dbName}";
+            }
+
             if ($pConnect) {
                 $link = new \PDO($dsn, $username, $password, [
                     \PDO::ATTR_PERSISTENT => true,
