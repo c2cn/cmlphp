@@ -263,11 +263,10 @@ class Acl
             } else {
                 self::$ssoSign = self::$authUser['ssosign'];
 
-                $user = Model::getInstance()->db()->get(self::$tables['users'] . '-id-' . self::$authUser['uid'] . '-status-1');
+                $user = Model::getInstance(self::$tables['users'])->where('status', 1)->getByColumn(self::$authUser['uid']);
                 if (empty($user)) {
                     self::$authUser = false;
                 } else {
-                    $user = $user[0];
                     $tmp = [
                         'id' => $user['id'],
                         'username' => $user['username'],
@@ -275,17 +274,10 @@ class Acl
                         'groupid' => explode(self::$multiGroupDeper, trim($user['groupid'], self::$multiGroupDeper)),
                         'from_type' => $user['from_type']
                     ];
-                    $groups = Model::getInstance()->db()->table(self::$tables['groups'])
-                        ->columns('name')
+                    $tmp['groupname'] = Model::getInstance(self::$tables['groups'])->mapDbAndTable()
                         ->whereIn('id', $tmp['groupid'])
                         ->where('status', 1)
-                        ->select();
-
-                    $tmp['groupname'] = [];
-                    foreach ($groups as $group) {
-                        $tmp['groupname'][] = $group['name'];
-                    }
-
+                        ->plunk('name');
                     $tmp['groupname'] = implode(',', $tmp['groupname']);
                     //有操作登录超时时间重新设置为expire时间
                     if (self::$authUser['expire'] > 0 && (
@@ -391,19 +383,19 @@ class Acl
             }
         }
 
-        $acl = Model::getInstance()->db()
-            ->table([self::$tables['access'] => 'a'])
+        $acl = Model::getInstance()->table([self::$tables['access'] => 'a'])
             ->join([self::$tables['menus'] => 'm'], 'a.menuid=m.id')
-            ->lBrackets()
-            ->whereIn('a.groupid', $authInfo['groupid'])
-            ->_or()
-            ->where('a.userid', $authInfo['id'])
-            ->rBrackets();
-
-        self::$otherAclParams && $acl->where('m.params', self::$otherAclParams);
-
-        $acl = is_array($checkUrl) ? $acl->whereIn('m.url', $checkUrl) : $acl->where('m.url', $checkUrl);
-        $acl = $acl->count('1');
+            ->_and(function ($model) use ($authInfo) {
+                $model->whereIn('a.groupid', $authInfo['groupid'])
+                    ->_or()
+                    ->where('a.userid', $authInfo['id']);
+            })->when(self::$otherAclParams, function ($model) {
+                $model->where('m.params', self::$otherAclParams);
+            })->when(is_array($checkUrl), function ($model) use ($checkUrl) {
+                $model->whereIn('m.url', $checkUrl);
+            }, function ($model) use ($checkUrl) {
+                $model->where('m.url', $checkUrl);
+            })->count('1');
         return $acl > 0;
     }
 
@@ -423,26 +415,19 @@ class Acl
             return $res;
         }
 
-        Model::getInstance()->db()->table([self::$tables['menus'] => 'm'])
-            ->columns(['distinct m.id', 'm.pid', 'm.title', 'm.url', 'm.params' . ($columns ? " ,{$columns}" : '')]);
-
-        //当前登录用户是否为超级管理员
-        if (!self::isSuperUser()) {
-            Model::getInstance()->db()
-                ->join([self::$tables['access'] => 'a'], 'a.menuid=m.id')
-                ->lBrackets()
-                ->whereIn('a.groupid', $authInfo['groupid'])
-                ->_or()
-                ->where('a.userid', $authInfo['id'])
-                ->rBrackets()
-                ->_and();
-        }
-
-        $result = Model::getInstance()->db()->where('m.isshow', 1)
+        $result = Model::getInstance()->table([self::$tables['menus'] => 'm'])
+            ->columns(['distinct m.id', 'm.pid', 'm.title', 'm.url', 'm.params' . ($columns ? " ,{$columns}" : '')])
+            ->when(!self::isSuperUser(), function ($model) use ($authInfo) {//当前登录用户是否为超级管理员
+                $model->join([self::$tables['access'] => 'a'], 'a.menuid=m.id')
+                    ->_and(function ($model) use ($authInfo) {
+                        $model->whereIn('a.groupid', $authInfo['groupid'])
+                            ->_or()
+                            ->where('a.userid', $authInfo['id']);
+                    });
+            })->where('m.isshow', 1)
             ->orderBy('m.sort', 'DESC')
             ->orderBy('m.id', 'ASC')
-            ->limit(0, 5000)
-            ->select();
+            ->select(0, 5000);
 
         $res = $format ? Tree::getTreeNoFormat($result, 0) : $result;
         return $res;
@@ -470,6 +455,7 @@ class Acl
         if (!$authInfo) {//登录超时
             return false;
         }
-        return Config::get('administratorid') === intval($authInfo['id']);
+        $admin = Config::get('administratorid');
+        return is_array($admin) ? in_array($authInfo['id'], $admin) : ($authInfo['id'] === $admin);
     }
 }
