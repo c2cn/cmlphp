@@ -175,8 +175,8 @@ abstract class Base implements Db
      */
     public function __get($db)
     {
-        if (self::$dbInst[$db]) {
-            return self::$dbInst[$db];
+        if (self::$dbInst[$this->conf['mark'] . $db]) {
+            return self::$dbInst[$this->conf['mark'] . $db];
         }
         return $this->connectDb($db);
     }
