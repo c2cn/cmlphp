@@ -187,22 +187,25 @@ class Model
      * 获取表名
      *
      * @param bool $addTablePrefix 是否返回带表前缀的完整表名
+     * @param bool $addDbName 是否带上dbname
      *
      * @return string
      */
-    public function getTableName($addTablePrefix = false)
+    public function getTableName($addTablePrefix = false, $addDbName = false)
     {
         if (is_null($this->table)) {
             $tmp = get_class($this);
             $this->table = strtolower(substr($tmp, strrpos($tmp, '\\') + 1, -5));
         }
 
+        $dbName = $addDbName ? Config::get($this->getDbConf() . '.master.dbname') . '.' : '';
+
         if ($addTablePrefix) {
             $tablePrefix = $this->tablePrefix;
             $tablePrefix || $tablePrefix = Config::get($this->getDbConf() . '.master.tableprefix');
-            return $tablePrefix . $this->table;
+            return $dbName . $tablePrefix . $this->table;
         }
-        return $this->table;
+        return $dbName . $this->table;
     }
 
     /**
