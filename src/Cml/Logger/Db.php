@@ -17,10 +17,10 @@
  * `ctime` int(11) unsigned DEFAULT '0' COMMENT '写入日期',
  * PRIMARY KEY (`id`),
  * KEY `skey` (`level`,`ctime`)
- * ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COMMENT='cmlphp db日志驱动数据表';
+ * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='cmlphp db日志驱动数据表';
  *
  * 相关配置:
- * db_log_use_db 配置数据表所在的db标识 默认db_log_use_db
+ * db_log_use_db 配置数据表所在的db标识 默认default_db
  * db_log_use_table 配置数据表除前缀的表名 默认 cmlphp_log
  * db_log_use_tableprefix 配置数据表前缀 默认取db中配置的前缀
  */
