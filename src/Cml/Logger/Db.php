@@ -27,6 +27,7 @@
 
 namespace Cml\Logger;
 
+use Cml\Cml;
 use Cml\Config;
 use Cml\Model;
 
