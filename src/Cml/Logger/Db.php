@@ -59,7 +59,8 @@ class Db extends Base
         return Model::getInstance($table, $tablePrefix, $db)->set([
             'level' => $level,
             'message' => $message,
-            'context' => json_encode($context, JSON_UNESCAPED_UNICODE)
+            'context' => json_encode($context, JSON_UNESCAPED_UNICODE),
+            'ctime' => Cml::$nowTime
         ]);
     }
 }
