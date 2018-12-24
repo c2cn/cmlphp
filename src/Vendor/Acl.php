@@ -267,18 +267,21 @@ class Acl
                 if (empty($user)) {
                     self::$authUser = false;
                 } else {
-                    $tmp = [
+                    $authUser = [
                         'id' => $user['id'],
                         'username' => $user['username'],
                         'nickname' => $user['nickname'],
-                        'groupid' => explode(self::$multiGroupDeper, trim($user['groupid'], self::$multiGroupDeper)),
+                        'groupid' => array_values(array_filter(explode(self::$multiGroupDeper, trim($user['groupid'], self::$multiGroupDeper)), function($v) {
+                            return !empty($v);
+                        })),
                         'from_type' => $user['from_type']
                     ];
-                    $tmp['groupname'] = Model::getInstance(self::$tables['groups'])->mapDbAndTable()
-                        ->whereIn('id', $tmp['groupid'])
+
+                    $authUser['groupname'] = Model::getInstance(self::$tables['groups'])->mapDbAndTable()
+                        ->whereIn('id', $authUser['groupid'])
                         ->where('status', 1)
                         ->plunk('name');
-                    $tmp['groupname'] = implode(',', $tmp['groupname']);
+                    $authUser['groupname'] = implode(',', $authUser['groupname']);
                     //有操作登录超时时间重新设置为expire时间
                     if (self::$authUser['expire'] > 0 && (
                             (self::$authUser['expire'] - Cml::$nowTime) < (self::$authUser['not_op'] / 2)
@@ -288,7 +291,7 @@ class Acl
                     }
 
                     unset($user, $group);
-                    self::$authUser = $tmp;
+                    self::$authUser = $authUser;
                 }
             }
         }
