@@ -15,6 +15,7 @@
  * `message` text,
  * `context` longtext COMMENT '上下文',
  * `ctime` int(11) unsigned DEFAULT '0' COMMENT '写入日期',
+ * `ip` char(15) NOT NULL DEFAULT '',
  * PRIMARY KEY (`id`),
  * KEY `skey` (`level`,`ctime`)
  * ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='cmlphp db日志驱动数据表';
@@ -61,6 +62,7 @@ class Db extends Base
             'level' => $level,
             'message' => $message,
             'context' => json_encode($context, JSON_UNESCAPED_UNICODE),
+            'ip' => $_SERVER['SERVER_ADDR'] ?: '',
             'ctime' => Cml::$nowTime
         ]);
     }
