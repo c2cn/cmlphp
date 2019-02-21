@@ -254,9 +254,12 @@ class MongoDB extends Base
     /**
      * orm参数重置
      *
+     * @param bool $must 是否强制重置
+     *
      */
-    protected function reset()
+    public function reset($must = false)
     {
+        $must && $this->paramsAutoReset();
         if (!$this->paramsAutoReset) {
             $this->alwaysClearColumns && $this->sql['columns'] = [];
             if ($this->alwaysClearTable) {
