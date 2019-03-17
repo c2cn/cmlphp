@@ -1122,6 +1122,9 @@ abstract class Base implements Db
                     case 'column':
                         $p = "`{$k}`= `" . current($v) . "`";
                         break;
+                    case 'raw':
+                        $p = "`{$k}`= " . addslashes(current($v));//flags = (flags | 2) ^ 3
+                        break;
                     default ://计算类型
                         $conKey = key($v);
                         if (!in_array(key(current($v)), ['+', '-', '*', '/', '%', '^', '&', '|', '<<', '>>', '~'])) {
