@@ -259,10 +259,11 @@ class Request
      * @param string $type 请求的数据类型 json/post/file/get/raw
      * @param int $connectTimeout 请求的连接超时时间默认10s
      * @param int $execTimeout 等待执行输出的超时时间默认30s
+     * @param bool $writeLog 是否写入错误日志
      *
      * @return bool|mixed
      */
-    public static function curl($url, $parameter = [], $header = [], $type = 'json', $connectTimeout = 10, $execTimeout = 30)
+    public static function curl($url, $parameter = [], $header = [], $type = 'json', $connectTimeout = 10, $execTimeout = 30, $writeLog = false)
     {
         $ssl = substr($url, 0, 8) == "https://" ? true : false;
         $ch = curl_init();
@@ -312,12 +313,17 @@ class Request
         $error = curl_error($ch);
         curl_close($ch);
         if (!$ret || !empty($error)) {
+            $writeLog && Log::error('curl-error', [
+                'url' => $url,
+                'params' => $parameter,
+                'error' => $error,
+                'ret' => $ret
+            ]);
             return false;
         } else {
             return $ret;
         }
     }
-
     /**
      * 返回操作系统类型
      *

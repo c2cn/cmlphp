@@ -6,6 +6,7 @@
  * @version  @see \Cml\Cml::VERSION
  * cmlphp框架 系统DEBUG调试类
  * *********************************************************** */
+
 namespace Cml;
 
 use Cml\Http\Request;
@@ -323,18 +324,14 @@ EOT;
     public function stopAndShowDebugInfo()
     {
         if (Request::isAjax()) {
+            $dump = [
+                'sql' => self::$sql,
+                'tipInfo' => self::$tipInfo
+            ];
             if (Config::get('dump_use_php_console')) {
-                self::$sql && \Cml\dumpUsePHPConsole(self::$sql, 'sql');
-                \Cml\dumpUsePHPConsole(self::$tipInfo, 'tipInfo');
-                \Cml\dumpUsePHPConsole(self::$includeFile, 'includeFile');
+                \Cml\dumpUsePHPConsole($dump, strip_tags($_SERVER['REQUEST_URI']));
             } else {
-                $deBugLogData = [
-                    'tipInfo' => self::$tipInfo
-                ];
-                self::$sql && $deBugLogData['sql'] = self::$sql;
-                if (!empty($deBugLogData)) {
-                    Cml::requireFile(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'ConsoleLog.php', ['deBugLogData' => $deBugLogData]);
-                }
+                Cml::requireFile(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'ConsoleLog.php', ['deBugLogData' => $dump]);
             }
         } else {
             View::getEngine('html')

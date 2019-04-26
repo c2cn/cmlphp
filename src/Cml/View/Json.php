@@ -31,14 +31,12 @@ class Json extends Base
         if (Cml::$debug) {
             $sql = Debug::getSqls();
             if (Config::get('dump_use_php_console')) {
-                $sql && \Cml\dumpUsePHPConsole($sql, 'sql');
-                \Cml\dumpUsePHPConsole(Debug::getTipInfo(), 'tipInfo');
-                \Cml\dumpUsePHPConsole(Debug::getIncludeFiles(), 'includeFile');
-            } else {
-                if (isset($sql[0])) {
-                    $this->args['sql'] = implode($sql, ', ');
-                }
+                \Cml\dumpUsePHPConsole([
+                    'sql' => $sql,
+                    'tipInfo' => Debug::getTipInfo()
+                ], strip_tags($_SERVER['REQUEST_URI']));
             }
+            $this->args['sql'] = $sql;
         } else {
             $deBugLogData = \Cml\dump('', 1);
             if (!empty($deBugLogData)) {

@@ -19,30 +19,25 @@ use Cml\Cml;
 class File extends Base
 {
     /**
-     * 上锁
+     * 加锁的具体实现-每个驱动自行实现原子性加锁
      *
-     * @param string $key 要上的锁的key
+     * @param string $lock 锁的标识key
      * @param bool $wouldBlock 是否堵塞
      *
-     * @return mixed
+     * @return bool
      */
-    public function lock($key, $wouldBlock = false)
+    protected function execLock($lock, $wouldBlock = false)
     {
-        if (empty($key)) {
-            return false;
-        }
-
-        if (isset($this->lockCache[$key])) {//FileLock不支持设置过期时间
+        if (isset($this->lockCache[$lock])) {//FileLock不支持设置过期时间
             return true;
         }
 
-        $fileName = $this->getFileName($key);
-        if (!$fp = fopen($fileName, 'w+')) {
+        if (!$fp = fopen($lock, 'w+')) {
             return false;
         }
 
         if (flock($fp, LOCK_EX | LOCK_NB)) {
-            $this->lockCache[$fileName] = $fp;
+            $this->lockCache[$lock] = $fp;
             return true;
         }
 
@@ -56,26 +51,25 @@ class File extends Base
             usleep(200);
         } while (!flock($fp, LOCK_EX | LOCK_NB));
 
-        $this->lockCache[$fileName] = $fp;
+        $this->lockCache[$lock] = $fp;
         return true;
     }
 
     /**
-     * 解锁
+     * 解锁的具体实现-每个驱动自行实现原子性解锁
      *
-     * @param string $key 要解锁的锁的key
+     * @param string $lock 锁的标识key
+     *
+     * @return bool
      */
-    public function unlock($key)
+    protected function execUnlock($lock)
     {
-        $fileName = $this->getFileName($key);
-
-        if (isset($this->lockCache[$fileName])) {
-            flock($this->lockCache[$fileName], LOCK_UN);//5.3.2 在文件资源句柄关闭时不再自动解锁。现在要解锁必须手动进行。
-            fclose($this->lockCache[$fileName]);
-            is_file($fileName) && unlink($fileName);
-            $this->lockCache[$fileName] = null;
-            unset($this->lockCache[$fileName]);
-        }
+        flock($this->lockCache[$lock], LOCK_UN);//5.3.2 在文件资源句柄关闭时不再自动解锁。现在要解锁必须手动进行。
+        fclose($this->lockCache[$lock]);
+        is_file($lock) && unlink($lock);
+        $this->lockCache[$lock] = null;
+        unset($this->lockCache[$lock]);
+        return true;
     }
 
     /**
@@ -99,9 +93,10 @@ class File extends Base
      *
      * @return string
      */
-    private function getFileName($key)
+    protected function getKey($key)
     {
-        $md5Key = md5($this->getKey($key));
+        $key = parent::getKey($key);
+        $md5Key = md5($key);
 
         $dir = Cml::getApplicationDir('runtime_cache_path') . DIRECTORY_SEPARATOR . 'LockFileCache' . DIRECTORY_SEPARATOR . substr($key, 0, strrpos($key, '/')) . DIRECTORY_SEPARATOR;
         $dir .= substr($md5Key, 0, 2) . DIRECTORY_SEPARATOR . substr($md5Key, 2, 2);

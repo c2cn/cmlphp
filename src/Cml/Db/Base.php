@@ -28,8 +28,6 @@ abstract class Base implements Db
      * @var array
      */
     protected static $dbInst = [
-        'rlink' => null,
-        'wlink' => null,
     ];
 
     /**
@@ -194,14 +192,14 @@ abstract class Base implements Db
         if ($db == 'rlink') {
             //如果没有指定从数据库，则使用 master
             if (empty($this->conf['slaves'])) {
-                self::$dbInst[$db] = $this->rlink = $reConnect ? $this->connectDb('wlink', true) : $this->wlink;
+                self::$dbInst[$this->conf['mark'] . $db] = $this->rlink = $reConnect ? $this->connectDb('wlink', true) : $this->wlink;
                 return $this->rlink;
             }
 
             $n = mt_rand(0, count($this->conf['slaves']) - 1);
             $conf = $this->conf['slaves'][$n];
             empty($conf['engine']) && $conf['engine'] = '';
-            self::$dbInst[$db] = $this->rlink = $this->connect(
+            self::$dbInst[$this->conf['mark'] . $db] = $this->rlink = $this->connect(
                 $conf['host'],
                 $conf['username'],
                 $conf['password'],
@@ -214,7 +212,7 @@ abstract class Base implements Db
         } elseif ($db == 'wlink') {
             $conf = $this->conf['master'];
             empty($conf['engine']) && $conf['engine'] = '';
-            self::$dbInst[$db] = $this->wlink = $this->connect(
+            self::$dbInst[$this->conf['mark'] . $db] = $this->wlink = $this->connect(
                 $conf['host'],
                 $conf['username'],
                 $conf['password'],

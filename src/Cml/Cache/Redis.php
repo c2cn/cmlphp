@@ -61,10 +61,14 @@ class Redis extends namespace\Base
             $instance = new \Redis();
 
             $connectToRedisFunction = function ($host, $port, $isPersistentConnect) use ($instance) {
-                if ($isPersistentConnect) {
-                    return $instance->pconnect($host, $port, 1.5);
-                } else {
-                    return $instance->connect($host, $port, 1.5);
+                try {
+                    if ($isPersistentConnect) {
+                        return $instance->pconnect($host, $port, 1.5);
+                    } else {
+                        return $instance->connect($host, $port, 1.5);
+                    }
+                } catch (\Exception $e) {
+                    return false;
                 }
             };
 

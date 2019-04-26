@@ -286,7 +286,19 @@ class Route implements RouteInterface
                 return strlen($item1) >= strlen($item2) ? 0 : 1;
             });
 
+            $parseGet = function () use ($isSuccess, &$pathInfo) {
+                $successRoute = explode('/', $isSuccess[0]);
+                foreach ($successRoute as $key => $val) {
+                    $t = explode('\d', $val);
+                    if (strpos($t[0], ':') !== false) {
+                        $_GET[ltrim($t[0], ':')] = $pathInfo[$key];
+                    }
+                    unset($pathInfo[$key]);
+                }
+            };
+
             if (is_callable($route[$isSuccess[0]])) {
+                $parseGet();
                 \Cml\Route::executeCallableRoute($route[$isSuccess[0]], substr($isSuccess[0], 1));
             }
 
@@ -298,14 +310,8 @@ class Route implements RouteInterface
             }
 
             $returnArr[0] = true;
-            $successRoute = explode('/', $isSuccess[0]);
-            foreach ($successRoute as $key => $val) {
-                $t = explode('\d', $val);
-                if (strpos($t[0], ':') !== false) {
-                    $_GET[ltrim($t[0], ':')] = $pathInfo[$key];
-                }
-                unset($pathInfo[$key]);
-            }
+
+            $parseGet();
 
             if (substr($isSuccess[0], 0, 1) == self::REST_ROUTE) {
                 $actions = explode('/', $route[$isSuccess[0]]);
