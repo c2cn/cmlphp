@@ -30,6 +30,7 @@ namespace Cml\Logger;
 
 use Cml\Cml;
 use Cml\Config;
+use Cml\Http\Request;
 use Cml\Model;
 
 /**
@@ -53,6 +54,8 @@ class Db extends Base
         $db = Config::get('db_log_use_db', 'default_db');
         $table = Config::get('db_log_use_table', 'cmlphp_log');
         $tablePrefix = Config::get('db_log_use_tableprefix', null);
+
+        $context['cmlphp_log_src'] = Request::isCli() ? 'cli' : 'web';
 
         if ($level === self::EMERGENCY) {//致命错误记文件一份，防止db挂掉什么信息都没有
             $file = new File();

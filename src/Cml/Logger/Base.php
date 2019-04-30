@@ -6,9 +6,11 @@
  * @version  @see \Cml\Cml::VERSION
  * cmlphp框架 Logger 抽象类 参考 https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md
  * *********************************************************** */
+
 namespace Cml\Logger;
 
 use Cml\Config;
+use Cml\Http\Request;
 use Cml\Interfaces\Logger;
 
 /**
@@ -173,6 +175,7 @@ abstract class Base implements Logger
     public function format($message, array $context = [])
     {
         is_array($context) || $context = [$context];
+        $context['cmlphp_log_src'] = Request::isCli() ? 'cli' : 'web';
         return '[' . date('Y-m-d H:i:s') . '] ' . Config::get('log_prefix', 'cml_log') . ': ' . $message . ' ' . json_encode($context, JSON_UNESCAPED_UNICODE);
     }
 }

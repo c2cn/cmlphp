@@ -677,8 +677,11 @@ abstract class Base implements Db
         $this->whereNeedAddAndOrOr = 1;
 
         if ($operator == 'IN' || $operator == 'NOT IN') {
-            empty($value) && $value = [0];
-            //这边可直接跳过不组装sql，但是为了给用户提示无条件 便于调试还是加上where field in(0)
+            //empty($value) && $value = [0];
+            if (empty($value)) {
+                $this->sql['where'] .= ' 1 =  -1 ';//强制返回一个空的结果
+                return $this;
+            }
             $inValue = '(';
             foreach ($value as $val) {
                 $inValue .= '%s ,';

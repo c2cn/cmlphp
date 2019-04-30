@@ -99,34 +99,36 @@ class Redis extends namespace\Base
                 ));
             }
 
+
+            $instance->setOption(\Redis::OPT_PREFIX, $this->conf['prefix']);
+            $instance->setOption(\Redis::OPT_READ_TIMEOUT, -1);
+            $this->redis[$success] = $instance;
+
             $password = false;
             if (is_null($failOver)) {
                 if (isset($this->conf['server'][$success]['password']) && !empty($this->conf['server'][$success]['password'])) {
                     $password = $this->conf['server'][$success]['password'];
                 }
 
-                if ($password && !$instance->auth($password)) {
+                if ($password && !$this->redis[$success]->auth($password)) {
                     throw new \RuntimeException('redis password error!');
                 }
 
-                isset($this->conf['server'][$success]['db']) && $instance->select($this->conf['server'][$success]['db']);
+                isset($this->conf['server'][$success]['db']) && $this->redis[$success]->select($this->conf['server'][$success]['db']);
             } else {
                 if (isset($failOver['password']) && !empty($failOver['password'])) {
                     $password = $failOver['password'];
                 }
 
-                if ($password && !$instance->auth($password)) {
+                if ($password && !$this->redis[$success]->auth($password)) {
                     throw new \RuntimeException('redis password error!');
                 }
 
-                isset($failOver['db']) && $instance->select($failOver['db']);
+                isset($failOver['db']) && $this->redis[$success]->select($failOver['db']);
 
                 Log::emergency('redis server down', ['downServer' => $this->conf['server'][$success], 'failOverTo' => $failOver]);
                 Plugin::hook('cml.redis_server_down_fail_over', ['downServer' => $this->conf['server'][$success], 'failOverTo' => $failOver]);
             }
-
-            $instance->setOption(\Redis::OPT_PREFIX, $this->conf['prefix']);
-            $this->redis[$success] = $instance;
         }
         return $this->redis[$success];
     }
