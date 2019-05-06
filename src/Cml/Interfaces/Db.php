@@ -179,10 +179,11 @@ interface Db
      *
      * @param int $limit 每页返回的条数
      * @param bool $useMaster 是否使用主库 默认读取从库
+     * @param null|int $page 当前页数-不传则获取配置中var_page配置的request值
      *
      * @return array
      */
-    public function paginate($limit, $useMaster = false);
+    public function paginate($limit, $useMaster = false, $page = null);
 
     /**
      * 获取表主键

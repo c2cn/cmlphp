@@ -97,7 +97,7 @@ class Html extends Base
             '#' . $this->options['leftDelimiter'] . '\/(loop|foreach)' . $this->options['rightDelimiter'] . '#',//替换 /foreach|/loop
             '#' . $this->options['leftDelimiter'] . 'hook\s+(\w+?)\s*' . $this->options['rightDelimiter'] . '#i',//替换 hook
             '#' . $this->options['leftDelimiter'] . '(get|post|request)\s+(\w+?)\s*' . $this->options['rightDelimiter'] . '#i',//替换 get/post/request
-            '#' . $this->options['leftDelimiter'] . 'lang\s+([A-Za-z0-9_\.]+)\s*(.*?)' . $this->options['rightDelimiter'] . '#i',//替换 lang
+            '#' . $this->options['leftDelimiter'] . 'lang\s+([A-Za-z0-9_\.\s*]+)(.*?)' . $this->options['rightDelimiter'] . '#i',//替换 lang
             '#' . $this->options['leftDelimiter'] . 'config\s+([A-Za-z0-9_\.]+)\s*' . $this->options['rightDelimiter'] . '#i',//替换 config
             '#' . $this->options['leftDelimiter'] . 'url\s+(.*?)\s*' . $this->options['rightDelimiter'] . '#i',//替换 url
             '#' . $this->options['leftDelimiter'] . 'public' . $this->options['rightDelimiter'] . '#i',//替换 {{public}}

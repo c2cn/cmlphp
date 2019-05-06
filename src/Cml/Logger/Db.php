@@ -65,7 +65,7 @@ class Db extends Base
             'level' => $level,
             'message' => $message,
             'context' => json_encode($context, JSON_UNESCAPED_UNICODE),
-            'ip' => $_SERVER['SERVER_ADDR'] ?: '',
+            'ip' => isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '',
             'ctime' => Cml::$nowTime
         ]);
     }
