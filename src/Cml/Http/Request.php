@@ -11,6 +11,7 @@ namespace Cml\Http;
 
 use Cml\Cml;
 use Cml\Config;
+use Cml\Log;
 use Cml\Route;
 
 /**
@@ -260,10 +261,11 @@ class Request
      * @param int $connectTimeout 请求的连接超时时间默认10s
      * @param int $execTimeout 等待执行输出的超时时间默认30s
      * @param bool $writeLog 是否写入错误日志
+     * @param null|callable $cusFunc 可自定义调用curl相关参数
      *
      * @return bool|mixed
      */
-    public static function curl($url, $parameter = [], $header = [], $type = 'json', $connectTimeout = 10, $execTimeout = 30, $writeLog = false)
+    public static function curl($url, $parameter = [], $header = [], $type = 'json', $connectTimeout = 10, $execTimeout = 30, $writeLog = false, $cusFunc = null)
     {
         $ssl = substr($url, 0, 8) == "https://" ? true : false;
         $ch = curl_init();
@@ -302,12 +304,14 @@ class Request
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
         curl_setopt($ch, CURLOPT_TIMEOUT, $execTimeout);
 
         if (!empty($header)) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         }
+        is_callable($cusFunc) && $cusFunc($ch);
 
         $ret = curl_exec($ch);
         $error = curl_error($ch);
@@ -324,6 +328,7 @@ class Request
             return $ret;
         }
     }
+
     /**
      * 返回操作系统类型
      *
