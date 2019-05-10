@@ -205,7 +205,7 @@ class Html extends Base
      *
      * @return string
      */
-    private function getFile($file, $type = 0)
+    public function getFile($file, $type = 0)
     {
         $type == 1 && $file = $this->initBaseDir($file);//初始化路径
         //$file = str_replace([('/', '\\'], DIRECTORY_SEPARATOR, $file);
