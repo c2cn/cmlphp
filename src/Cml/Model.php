@@ -60,6 +60,18 @@ class Model
     protected $useMaster = false;
 
     /**
+     * 查询数据缓存时间
+     *
+     *  表数据有变动会自动更新缓存。设置为0表示表数据没变动时缓存不过期。
+     * 这边设置为3600意思是即使表数据没变动也让缓存每3600s失效一次,这样可以让缓存空间更合理的利用.
+     * 如果不想启用缓存直接配置为false
+     * 默认为null： 使用 db配置中的cache_expire
+     *
+     * @var mixed
+     */
+    protected $cacheExpire = null;
+
+    /**
      * 表前缀
      *
      * @var null|string
@@ -116,6 +128,7 @@ class Model
             return $this->dbInstance[$conf];
         } else {
             $pos = strpos($config['driver'], '.');
+            is_null($this->cacheExpire) || $config['cache_expire'] = $this->cacheExpire;
             $this->dbInstance[$conf] = Cml::getContainer()->make('db_' . strtolower($pos ? substr($config['driver'], 0, $pos) : $config['driver']), $config);
             return $this->dbInstance[$conf];
         }
@@ -133,11 +146,29 @@ class Model
     }
 
     /**
+     * 设置查询数据缓存时间
+     *
+     *  表数据有变动会自动更新缓存。设置为0表示表数据没变动时缓存不过期。
+     * 这边设置为3600意思是即使表数据没变动也让缓存每3600s失效一次,这样可以让缓存空间更合理的利用.
+     * 如果不想启用缓存直接配置为false
+     * 默认为null： 使用 db配置中的cache_expire
+     * @param mixed $cacheExpire
+     *
+     * @return $this
+     */
+    public function setCacheExpire($cacheExpire = null)
+    {
+        $this->cacheExpire = $cacheExpire;
+
+        return $this;
+    }
+
+    /**
      * 获取cache实例
      *
      * @param string $conf 使用的缓存配置;
      *
-     * @return \Cml\Cache\Redis | \Cml\Cache\Apc | \Cml\Cache\File | \Cml\Cache\Memcache
+     * @return \Cml\Cache\Redis | \Cml\Cache\Apc | \Cml\Cache\File | \Cml\Cache\Memcache | \Cml\Cache\RedisCluster
      */
     public function cache($conf = 'default_cache')
     {
@@ -298,6 +329,24 @@ class Model
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         return $this->db($this->getDbConf())->upSet($tableName, $data, $up, $tablePrefix);
+    }
+
+    /**
+     * 插入或替换多条记录
+     *
+     * @param array $field 要插入的字段 eg: ['title', 'msg', 'status', 'ctime’]
+     * @param array $data 多条数据的值 eg:  [['标题1', '内容1', 1, '2017'], ['标题2', '内容2', 1, '2017']]
+     * @param string $tableName 表名 不传会自动从当前Model中$table属性获取
+     * @param mixed $tablePrefix 表前缀 不传会自动从当前Model中$tablePrefix属性获取再没有则获取配置中配置的前缀
+     * @param bool $openTransAction 是否开启事务 默认开启
+     *
+     * @return bool | array
+     */
+    public function replaceMulti($field, $data, $tableName = null, $tablePrefix = null, $openTransAction = true)
+    {
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        return $this->db($this->getDbConf())->replaceMulti($tableName, $field, $data, $tablePrefix, $openTransAction);
     }
 
     /**

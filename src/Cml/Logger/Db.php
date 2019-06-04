@@ -61,7 +61,7 @@ class Db extends Base
             $file = new File();
             $file->log($level, $message, $context);
         }
-        return Model::getInstance($table, $tablePrefix, $db)->set([
+        return Model::getInstance($table, $tablePrefix, $db)->setCacheExpire(false)->set([
             'level' => $level,
             'message' => $message,
             'context' => json_encode($context, JSON_UNESCAPED_UNICODE),

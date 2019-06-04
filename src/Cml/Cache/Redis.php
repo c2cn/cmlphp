@@ -207,12 +207,15 @@ class Redis extends namespace\Base
             if (!isset($this->redis[$key]) || !is_object($this->redis[$key])) {
                 $instance = new \Redis();
                 if ($instance->pconnect($val['host'], $val['port'], 1.5)) {
+                    $val['password'] && $instance->auth($val['password']);
                     $this->redis[$key] = $instance;
                 } else {
                     throw new \RuntimeException(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Redis'));
                 }
             }
             $this->redis[$key]->flushDB();
+            $this->redis[$key]->close();
+            unset($this->redis[$key]);
         }
         return true;
     }

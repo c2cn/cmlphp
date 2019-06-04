@@ -232,14 +232,15 @@ abstract class Base implements Db
      * @param int $limit 每页返回的条数
      * @param bool $useMaster 是否使用主库 默认读取从库
      * @param null|int $page 当前页数-不传则获取配置中var_page配置的request值
+     * @param mixed $fieldAsKey 返回以某个字段做为key的数组
      *
      * @return array
      */
-    public function paginate($limit, $useMaster = false, $page = null)
+    public function paginate($limit, $useMaster = false, $page = null, $fieldAsKey = false)
     {
         is_int($page) || $page = Input::requestInt(Config::get('var_page'), 1);
         $page < 1 && $page = 1;
-        return call_user_func_array([$this, 'select'], [($page - 1) * $limit, $limit, $useMaster]);
+        return call_user_func_array([$this, 'select'], [($page - 1) * $limit, $limit, $useMaster, $fieldAsKey]);
     }
 
     /**

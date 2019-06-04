@@ -46,7 +46,6 @@ class Memcache extends Base
             $isLock = $inst->add($lock, $unique, 0, $this->expire);
         }
         if ($isLock) {
-            Log::error('lock', $lockValue = $inst->get($lock, null, \Memcached::GET_EXTENDED));
             $this->lockCache[$lock] = $unique;
             return true;
         }

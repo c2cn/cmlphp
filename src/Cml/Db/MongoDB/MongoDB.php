@@ -1177,10 +1177,11 @@ class MongoDB extends Base
      * @param int $offset 偏移量
      * @param int $limit 返回的条数
      * @param bool $useMaster 是否使用主库 默认读取从库
+     * @param mixed $fieldAsKey 返回以某个字段做为key的数组
      *
      * @return array
      */
-    public function select($offset = null, $limit = null, $useMaster = false)
+    public function select($offset = null, $limit = null, $useMaster = false, $fieldAsKey = false)
     {
         is_null($offset) || $this->limit($offset, $limit);
 
@@ -1190,12 +1191,21 @@ class MongoDB extends Base
         isset($this->sql['limit'][0]) && $filter['skip'] = $this->sql['limit'][0];
         isset($this->sql['limit'][1]) && $filter['limit'] = $this->sql['limit'][1];
 
-        return $this->runMongoQuery(
+        $return = $this->runMongoQuery(
             $this->getRealTableName(key($this->table)),
             $this->sql['where'],
             $filter,
             $useMaster
         );
+
+        if ($fieldAsKey) {
+            $result = [];
+            foreach ($return as $row) {
+                $result[$row[$fieldAsKey]] = $row;
+            }
+            $return = $result;
+        }
+        return $return;
     }
 
     /**

@@ -338,6 +338,53 @@ class Pdo extends Base
     }
 
     /**
+     * 插入或替换多条记录
+     *
+     * @param string $table
+     * @param array $field 字段 eg: ['title', 'msg', 'status', 'ctime‘]
+     * @param array $data eg: 多条数据的值 [['标题1', '内容1', 1, '2017'], ['标题2', '内容2', 1, '2017']]
+     * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
+     * @param bool $openTransAction 是否开启事务 默认开启
+     * @throws \InvalidArgumentException
+     *
+     * @return bool|array
+     */
+    public function replaceMulti($table, $field, $data, $tablePrefix = null, $openTransAction = true)
+    {
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        $tableName = $tablePrefix . $table;
+        if (is_array($data) && is_array($field)) {
+            $field = array_flip(array_values($field));
+            foreach ($field as $key => $val) {
+                $field[$key] = $data[0][$val];
+            }
+            $s = $this->arrToCondition($field);
+
+            try {
+                $openTransAction && $this->startTransAction();
+                $this->currentQueryIsMaster = true;
+                $stmt = $this->prepare("REPLACE INTO {$tableName} SET {$s}", $this->wlink);
+                $idArray = [];
+                foreach ($data as $row) {
+                    $this->bindParams = array_values($row);
+                    $this->execute($stmt);
+                    $idArray[] = $this->insertId();
+                }
+                $openTransAction && $this->commit();
+            } catch (\InvalidArgumentException $e) {
+                $openTransAction && $this->rollBack();
+
+                throw new \InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
+            }
+
+            $this->setCacheVer($tableName);
+            return $idArray;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 根据key更新一条数据
      *
      * @param string|array $key eg: 'user'(表名)、'user-uid-$uid'(表名+条件) 、['xx'=>'xx' ...](即:$data数组如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组)
@@ -660,15 +707,16 @@ class Pdo extends Base
      * @param int $offset 偏移量
      * @param int $limit 返回的条数
      * @param bool $useMaster 是否使用主库 默认读取从库
+     * @param mixed $fieldAsKey 返回以某个字段做为key的数组
      *
      * @return array
      */
-    public function select($offset = null, $limit = null, $useMaster = false)
+    public function select($offset = null, $limit = null, $useMaster = false, $fieldAsKey = false)
     {
         list($sql, $cacheKey) = $this->buildSql($offset, $limit, true);
 
         if ($this->openCache && $this->currentQueryUseCache) {
-            $cacheKey = md5($sql . json_encode($this->bindParams)) . implode('', $cacheKey);
+            $cacheKey = md5($sql . json_encode($this->bindParams)) . implode('', $cacheKey) . $fieldAsKey;
             $return = Model::getInstance()->cache()->get($cacheKey);
         } else {
             $return = false;
@@ -679,6 +727,15 @@ class Pdo extends Base
             $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
             $this->execute($stmt);
             $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            if ($fieldAsKey) {
+                $result = [];
+                foreach ($return as $row) {
+                    $result[$row[$fieldAsKey]] = $row;
+                }
+                $return = $result;
+            }
+
             $this->openCache && $this->currentQueryUseCache && Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
             $this->currentQueryUseCache = true;
         } else {

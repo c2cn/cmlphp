@@ -132,8 +132,8 @@ abstract class Base implements Lock
      */
     public function __destruct()
     {
-        foreach ($this->lockCache as $key => $isMyLock) {
-            $this->execUnlock($key);
+        foreach ($this->lockCache as $lock => $isMyLock) {
+            $this->execUnlock($lock);
         }
     }
 }

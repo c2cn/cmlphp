@@ -105,6 +105,17 @@ return [
         //    'port' => 6379
         //]
     ],
+     //Redis集群
+     'default_cache' => [
+        'on' => 1, //为1则启用，或者不启用
+        'driver' => 'RedisCluster',
+        'prefix' => 'bx_',//配置缓存前缀防止冲突
+        'server' => [
+           'host1:port1',
+           'host2:port2',
+        ],
+        'password' => 'pwd'
+     ],
     */
 
     /*模板设置*/
