@@ -30,9 +30,23 @@ class Controller
     protected $htmlEngineRenderTplArray = [];
 
     /**
+     * 自定义异常处理
+     *
+     * @param \Exception $e
+     *
+     * @throws \Exception
+     */
+    protected function customHandlerActionException(\Exception $e)
+    {
+        throw $e;
+    }
+
+    /**
      * 运行对应的控制器
      *
      * @param string $method 要执行的控制器方法
+     *
+     * @throws \Exception
      *
      * @return void
      */
@@ -65,7 +79,12 @@ class Controller
 
         //根据动作去找对应的方法
         if (method_exists($this, $method)) {
-            $response = $this->$method();
+            try {
+                $response = $this->$method();
+            } catch (\Exception $e) {
+                $this->customHandlerActionException($e);
+            }
+
             if (is_array($response)) {
                 if (Request::acceptJson()) {
                     View::getEngine('Json')

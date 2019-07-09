@@ -1232,16 +1232,24 @@ abstract class Base implements Db
     }
 
     /**
-     * 执行
+     * 执行事务操作
+     *
      * @param callable $query
+     *
+     * @throws
      *
      * @return bool
      */
     public function transaction(callable $query)
     {
-        $this->startTransAction();
-        $query();
-        return $this->commit();
+        try {
+            $this->startTransAction();
+            $query();
+            return $this->commit();
+        } catch (\Exception $e) {
+            $this->rollBack();
+            throw $e;
+        }
     }
 
     /**

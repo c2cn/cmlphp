@@ -59,7 +59,7 @@ class Request
      */
     public static function host($joinPort = true)
     {
-        $host = strip_tags(isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST']);
+        $host = strip_tags(isset($_SERVER['HTTP_HOST']) ? explode(':', $_SERVER['HTTP_HOST'])[0] : $_SERVER['SERVER_NAME']);
         $joinPort && $host = $host . (in_array($_SERVER['SERVER_PORT'], [80, 443]) ? '' : ':' . $_SERVER['SERVER_PORT']);
         return $host;
     }
@@ -274,6 +274,7 @@ class Request
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); //检查证书中是否设置域名
         }
 
+        $type = strtolower($type);
         if ($type == 'json' || $type == 'raw') {
             $type == 'json' && ($parameter = json_encode($parameter, JSON_UNESCAPED_UNICODE)) && ($header[] = 'Content-Type: application/json');
             //$queryStr = str_replace(['\/','[]'], ['/','{}'], $queryStr);//兼容

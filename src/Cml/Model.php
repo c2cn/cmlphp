@@ -47,6 +47,7 @@ use Cml\Interfaces\Db;
  * @method Db|Model rightJoin(string | array $table, string $on, string | null $tablePrefix = null) rightJoin右联结
  * @method Db|Model _and(callable $callable = null) and条件操作
  * @method Db|Model _or(callable $callable = null) or条件操作
+ * @method Db|Model transaction(callable $query) 执行事务操作
  *
  * @package Cml
  */

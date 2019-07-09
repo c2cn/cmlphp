@@ -1034,6 +1034,7 @@ class Pdo extends Base
      */
     public function startTransAction()
     {
+        Cml::$debug && Debug::addSqlInfo('beginTransaction');
         return $this->wlink->beginTransaction();
     }
 
@@ -1044,6 +1045,7 @@ class Pdo extends Base
      */
     public function commit()
     {
+        Cml::$debug && Debug::addSqlInfo('commit');
         return $this->wlink->commit();
     }
 
@@ -1056,6 +1058,7 @@ class Pdo extends Base
      */
     public function savePoint($pointName)
     {
+        Cml::$debug && Debug::addSqlInfo("SAVEPOINT {$pointName}");
         return $this->wlink->exec("SAVEPOINT {$pointName}");
     }
 
@@ -1069,8 +1072,10 @@ class Pdo extends Base
     public function rollBack($rollBackTo = false)
     {
         if ($rollBackTo === false) {
+            Cml::$debug && Debug::addSqlInfo('ROLLBACK');
             return $this->wlink->rollBack();
         } else {
+            Cml::$debug && Debug::addSqlInfo("ROLLBACK TO {$rollBackTo}");
             return $this->wlink->exec("ROLLBACK TO {$rollBackTo}");
         }
     }
