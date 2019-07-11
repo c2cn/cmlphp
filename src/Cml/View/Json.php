@@ -20,12 +20,12 @@ use Cml\Debug;
  */
 class Json extends Base
 {
-
     /**
-     * 输出数据
+     * 获取json输出
      *
+     * @return string
      */
-    public function display()
+    public function fetch()
     {
         header('Content-Type: application/json;charset=' . Config::get('default_charset'));
         if (Cml::$debug) {
@@ -43,7 +43,15 @@ class Json extends Base
                 Config::get('dump_use_php_console') ? \Cml\dumpUsePHPConsole($deBugLogData, 'debug') : $this->args['cml_debug_info'] = $deBugLogData;
             }
         }
+        return json_encode($this->args, JSON_UNESCAPED_UNICODE) ?: json_last_error_msg();
+    }
 
-        exit(json_encode($this->args, JSON_UNESCAPED_UNICODE) ?: json_last_error_msg());
+    /**
+     * 输出数据
+     *
+     */
+    public function display()
+    {
+        exit($this->fetch());
     }
 }
