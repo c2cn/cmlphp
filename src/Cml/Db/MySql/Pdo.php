@@ -48,6 +48,13 @@ class Pdo extends Base
     private $currentSql = '';
 
     /**
+     * 用来存储prepare方法的$resetParams参数 重连用
+     *
+     * @var bool
+     */
+    private $currentPrepareIsResetParams = true;
+
+    /**
      * 强制某表使用某索引
      *
      * @var array
@@ -425,7 +432,12 @@ class Pdo extends Base
             throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'update'));
         }
         $this->currentQueryIsMaster = true;
-        $stmt = $this->prepare("UPDATE {$tableName} SET {$s} {$whereCondition}", $this->wlink);
+        $limit = '';
+        if ($this->sql['limit']) {
+            $limit = explode(',', $this->sql['limit']);
+            $limit = 'LIMIT ' . $limit[1];
+        }
+        $stmt = $this->prepare("UPDATE {$tableName} SET {$s} {$whereCondition} {$limit}", $this->wlink);
         $this->execute($stmt);
 
         foreach ($upCacheTables as $tb) {
@@ -793,34 +805,51 @@ class Pdo extends Base
     public function connect($host, $username, $password, $dbName, $charset = 'utf8', $engine = '', $pConnect = false)
     {
         $link = '';
-        try {
-            $host = explode(':', $host);
-            if (substr($host[0], 0, 11) === 'unix_socket') {
-                $dsn = "mysql:dbname={$dbName};unix_socket=" . substr($host[0], 12);
-            } else {
-                $dsn = "mysql:host={$host[0]};" . (isset($host[1]) ? "port={$host[1]};" : '') . "dbname={$dbName}";
-            }
 
+        $host = explode(':', $host);
+        if (substr($host[0], 0, 11) === 'unix_socket') {
+            $dsn = "mysql:dbname={$dbName};unix_socket=" . substr($host[0], 12);
+        } else {
+            $dsn = "mysql:host={$host[0]};" . (isset($host[1]) ? "port={$host[1]};" : '') . "dbname={$dbName}";
+        }
+
+        $doConnect = function () use ($dsn, $pConnect, $charset, $username, $password) {
             if ($pConnect) {
-                $link = new \PDO($dsn, $username, $password, [
+                return new \PDO($dsn, $username, $password, [
                     \PDO::ATTR_PERSISTENT => true,
                     \PDO::ATTR_EMULATE_PREPARES => false,
                     \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $charset"
                 ]);
             } else {
-                $link = new \PDO($dsn, $username, $password, [
+                return new \PDO($dsn, $username, $password, [
                     \PDO::ATTR_EMULATE_PREPARES => false,
                     \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $charset"
                 ]);
             }
+        };
+
+        try {
+            $link = $doConnect();
         } catch (\PDOException $e) {
-            throw new PdoConnectException(
-                'Pdo Connect Error! ｛' .
-                $host[0] . (isset($host[1]) ? ':' . $host[1] : '') . ', ' . $dbName .
-                '} Code:' . $e->getCode() . ', ErrorInfo!:' . $e->getMessage(),
-                0,
-                $e
-            );
+            $connectError = true;
+
+            if (in_array($e->getCode(), [2006, 2013])) {
+                try {
+                    $link = $doConnect();
+                    $connectError = false;
+                } catch (\PDOException $e) {
+                }
+            }
+
+            if ($connectError) {
+                throw new PdoConnectException(
+                    'Pdo Connect Error! ｛' .
+                    $host[0] . (isset($host[1]) ? ':' . $host[1] : '') . ', ' . $dbName .
+                    '} Code:' . $e->getCode() . ', ErrorInfo!:' . $e->getMessage(),
+                    0,
+                    $e
+                );
+            }
         }
         //$link->exec("SET names $charset");
         isset($this->conf['sql_mode']) && $link->exec('set sql_mode="' . $this->conf['sql_mode'] . '";'); //放数据库配 特殊情况才开
@@ -909,6 +938,7 @@ class Pdo extends Base
         }
 
         $this->currentSql = $sql;
+        $this->currentPrepareIsResetParams = $resetParams;
         $sql = vsprintf($sql, $sqlParams);
 
         $stmt = $link->prepare($sql);//pdo默认情况prepare出错不抛出异常只返回Pdo::errorInfo
@@ -947,9 +977,26 @@ class Pdo extends Base
 
         //empty($param) && $param = $this->bindParams;
         $this->conf['log_slow_sql'] && $startQueryTimeStamp = microtime(true);
+
+        $error = false;
         if (!$stmt->execute()) {
             $error = $stmt->errorInfo();
-            throw new \InvalidArgumentException('Pdo execute Sql error!,【Sql : ' . $this->buildDebugSql() . '】,【Error:' . $error[2] . '】');
+            if (in_array($error[1], [2006, 2013])) {
+                $link = $this->connectDb($this->currentQueryIsMaster ? 'wlink' : 'rlink', true);
+                $stmt = $this->prepare($this->currentSql, $link, $this->currentPrepareIsResetParams);
+                foreach ($this->bindParams as $key => $val) {
+                    is_int($val) ? $stmt->bindValue(':param' . $key, $val, \PDO::PARAM_INT) : $stmt->bindValue(':param' . $key, $val, \PDO::PARAM_STR);
+                }
+                if (!$stmt->execute()) {
+                    $error = $stmt->errorInfo();
+                } else {
+                    $error = false;
+                }
+            }
+        }
+
+        if ($error) {
+            throw new \InvalidArgumentException('Pdo execute Sql error!,【Sql : ' . $this->buildDebugSql() . '】,【Code: ' . $error[1] . '】,【Error:' . $error[2] . '】');
         }
 
         $slow = 0;

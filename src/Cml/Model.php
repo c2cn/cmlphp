@@ -9,6 +9,7 @@
 
 namespace Cml;
 
+use Cml\Interfaces\Cache;
 use Cml\Interfaces\Db;
 
 /**
@@ -112,7 +113,7 @@ class Model
      *
      * @param string $conf 使用的数据库配置;
      *
-     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base
+     * @return Db
      */
     public function db($conf = '')
     {
@@ -143,7 +144,7 @@ class Model
     public function closeDb($conf = 'default_db')
     {
         //$this->db($conf)->close();释放对象时会执行析构回收
-        unset(self::$dbInstance[$conf]);
+        unset($this->dbInstance[$conf]);
     }
 
     /**
@@ -169,7 +170,7 @@ class Model
      *
      * @param string $conf 使用的缓存配置;
      *
-     * @return \Cml\Cache\Redis | \Cml\Cache\Apc | \Cml\Cache\File | \Cml\Cache\Memcache | \Cml\Cache\RedisCluster
+     * @return Cache
      */
     public function cache($conf = 'default_cache')
     {
@@ -199,7 +200,7 @@ class Model
      * @param null|string $tablePrefix 表前缀
      * @param null|string|array $db db配置，默认default_db
      *
-     * @return \Cml\Model | \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base | $this
+     * @return Db | $this
      */
     public static function getInstance($table = null, $tablePrefix = null, $db = null)
     {
@@ -484,7 +485,7 @@ class Model
     /**
      * 自动根据 db属性执行$this->db(xxx)方法; table/tablePrefix属性执行$this->db('xxx')->table('tablename', 'tablePrefix')方法
      *
-     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base
+     * @return  Db
      */
     public function mapDbAndTable()
     {
@@ -497,7 +498,7 @@ class Model
      * @param null|string $table 表名
      * @param null|string $tablePrefix 表前缀
      *
-     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | \Cml\Db\Base
+     * @return Db
      */
     public static function getInstanceAndRunMapDbAndTable($table = null, $tablePrefix = null)
     {
@@ -509,7 +510,7 @@ class Model
      *
      * @param string $conf 使用的缓存配置;
      *
-     * @return \Cml\Cache\Redis | \Cml\Cache\Apc | \Cml\Cache\File | \Cml\Cache\Memcache
+     * @return Cache
      */
     public static function staticCache($conf = 'default_cache')
     {
@@ -559,7 +560,7 @@ class Model
      * @param callable $trueCallback 条件成立执行的闭包
      * @param callable|null $falseCallback 条件不成立执行的闭包
      *
-     * @return Db | \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | $this
+     * @return Db | $this
      */
     public function when($condition, callable $trueCallback, callable $falseCallback = null)
     {
