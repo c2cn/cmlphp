@@ -26,13 +26,15 @@ class Request
      *
      * @return string
      */
-    public static function ip()
+    public static function ip($prox = false)
     {
-        if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-            return strip_tags($_SERVER['HTTP_CLIENT_IP']);
-        }
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return strip_tags($_SERVER['HTTP_X_FORWARDED_FOR']);
+        if ($prox) {
+            if (isset($_SERVER['HTTP_CLIENT_IP'])) {
+                return strip_tags($_SERVER['HTTP_CLIENT_IP']);
+            }
+            if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                return strip_tags($_SERVER['HTTP_X_FORWARDED_FOR']);
+            }
         }
         if (isset($_SERVER['REMOTE_ADDR'])) {
             return strip_tags($_SERVER['REMOTE_ADDR']);

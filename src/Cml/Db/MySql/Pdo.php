@@ -38,28 +38,21 @@ class Pdo extends Base
      *
      * @var \PDO
      */
-    private $currentQueryIsMaster = true;
+    protected $currentQueryIsMaster = true;
 
     /**
      * 当前执行的sql 异常情况用来显示在错误页/日志
      *
      * @var string
      */
-    private $currentSql = '';
+    protected $currentSql = '';
 
     /**
      * 用来存储prepare方法的$resetParams参数 重连用
      *
      * @var bool
      */
-    private $currentPrepareIsResetParams = true;
-
-    /**
-     * 强制某表使用某索引
-     *
-     * @var array
-     */
-    private $forceIndex = [];
+    protected $currentPrepareIsResetParams = true;
 
     /**
      * 数据库连接串
@@ -268,8 +261,10 @@ class Pdo extends Base
                 $openTransAction && $this->startTransAction();
                 $this->currentQueryIsMaster = true;
                 $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s}", $this->wlink);
+                $currentSql = $this->currentSql;
                 $idArray = [];
                 foreach ($data as $row) {
+                    $this->currentSql = $currentSql;
                     $this->bindParams = array_values($row);
                     $this->execute($stmt);
                     $idArray[] = $this->insertId();
@@ -437,7 +432,7 @@ class Pdo extends Base
             $limit = explode(',', $this->sql['limit']);
             $limit = 'LIMIT ' . $limit[1];
         }
-        $stmt = $this->prepare("UPDATE {$tableName} SET {$s} {$whereCondition} {$limit}", $this->wlink);
+        $stmt = $this->prepare("UPDATE {$tableName} SET {$s} {$whereCondition} {$this->sql['orderBy']} {$limit}", $this->wlink);
         $this->execute($stmt);
 
         foreach ($upCacheTables as $tb) {
@@ -486,7 +481,7 @@ class Pdo extends Base
             $limit = explode(',', $this->sql['limit']);
             $limit = 'LIMIT ' . $limit[1];
         }
-        $stmt = $this->prepare("DELETE FROM {$tableName} {$whereCondition} {$limit}", $this->wlink);
+        $stmt = $this->prepare("DELETE FROM {$tableName} {$whereCondition} {$this->sql['orderBy']} {$limit}", $this->wlink);
         $this->execute($stmt);
 
         foreach ($upCacheTables as $tb) {
@@ -502,7 +497,7 @@ class Pdo extends Base
      *
      * @return string
      */
-    private function getRealTableName($table)
+    protected function getRealTableName($table)
     {
         return substr($table, strpos($table, '_') + 1);
     }
@@ -604,7 +599,7 @@ class Pdo extends Base
      *
      * @return mixed
      */
-    private function aggregation($field, $isMulti = false, $useMaster = false, $operation = 'COUNT')
+    protected function aggregation($field, $isMulti = false, $useMaster = false, $operation = 'COUNT')
     {
         is_string($isMulti) && $this->groupBy($isMulti)->columns($isMulti);
         $count = $this->columns(["{$operation}({$field})" => '__res__'])->select(null, null, $useMaster);
@@ -626,7 +621,7 @@ class Pdo extends Base
      *
      * @return array
      */
-    private function tableFactory($isRead = true)
+    protected function tableFactory($isRead = true)
     {
         $table = $operator = '';
         $cacheKey = [];
@@ -660,22 +655,6 @@ class Pdo extends Base
             throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', $isRead ? 'select' : 'update/delete'));
         }
         return [$table, $cacheKey];
-    }
-
-    /**
-     * 强制使用索引
-     *
-     * @param string $table 要强制索引的表名(不带前缀)
-     * @param string $index 要强制使用的索引
-     * @param string $tablePrefix 表前缀 不传则获取配置中配置的前缀
-     *
-     * @return $this
-     */
-    public function forceIndex($table, $index, $tablePrefix = null)
-    {
-        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        $this->forceIndex[$tablePrefix . $table] = $index;
-        return $this;
     }
 
     /**
@@ -835,6 +814,8 @@ class Pdo extends Base
 
             if (in_array($e->getCode(), [2006, 2013])) {
                 try {
+                    $link = null;
+                    unset($link);
                     $link = $doConnect();
                     $connectError = false;
                 } catch (\PDOException $e) {
@@ -1026,7 +1007,7 @@ class Pdo extends Base
      * @param int $type
      * @param int $other $other type = SQL_TYPE_SLOW时带上执行时间
      */
-    private function debugLogSql($type = Debug::SQL_TYPE_NORMAL, $other = 0)
+    protected function debugLogSql($type = Debug::SQL_TYPE_NORMAL, $other = 0)
     {
         Debug::addSqlInfo($this->buildDebugSql(), $type, $other);
     }
@@ -1036,7 +1017,7 @@ class Pdo extends Base
      *
      * @return string
      */
-    private function buildDebugSql()
+    protected function buildDebugSql()
     {
         $bindParams = $this->bindParams;
         foreach ($bindParams as $key => $val) {

@@ -47,7 +47,7 @@ class Db extends Base
      * @param string $message 要记录到log的信息
      * @param array $context 上下文信息
      *
-     * @return null
+     * @return bool
      */
     public function log($level, $message, array $context = [])
     {

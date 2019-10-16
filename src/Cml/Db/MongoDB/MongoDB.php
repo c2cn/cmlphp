@@ -280,6 +280,7 @@ class MongoDB extends Base
             'having' => '',
         ];
 
+        $this->forceIndex = [];//强制索引
         $this->table = []; //操作的表
         $this->join = []; //是否内联
         $this->leftJoin = []; //是否左联结
@@ -1191,8 +1192,11 @@ class MongoDB extends Base
         isset($this->sql['limit'][0]) && $filter['skip'] = $this->sql['limit'][0];
         isset($this->sql['limit'][1]) && $filter['limit'] = $this->sql['limit'][1];
 
+        $tableName = $this->getRealTableName(key($this->table));
+        $this->forceIndex[$tableName] && $filter['hint'] = $this->forceIndex[$tableName];
+
         $return = $this->runMongoQuery(
-            $this->getRealTableName(key($this->table)),
+            $tableName,
             $this->sql['where'],
             $filter,
             $useMaster

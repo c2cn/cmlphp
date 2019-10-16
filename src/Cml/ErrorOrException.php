@@ -23,25 +23,27 @@ class ErrorOrException implements ErrorOrExceptionInterface
      */
     public function fatalError(&$error)
     {
-        if (!Cml::$debug) {
-            //正式环境 只显示‘系统错误’并将错误信息记录到日志
-            Log::emergency('fatal_error', [$error]);
-            $error = [];
-            $error['message'] = Lang::get('_CML_ERROR_');
-        } else {
-            $error['exception'] = 'Fatal Error';
-            $error['files'][0] = [
-                'file' => $error['file'],
-                'line' => $error['line']
-            ];
-        }
-
-        if (Request::isCli()) {
-            Output::writeException(sprintf("%s\n[%s]\n%s", isset($error['files']) ? implode($error['files'][0], ':') : '', 'Fatal Error', $error['message']));
-        } else {
-            header('HTTP/1.1 500 Internal Server Error');
-            View::getEngine('html')->reset()->assign('error', $error);
-            Cml::showSystemTemplate(Config::get('html_exception'));
+        try {
+            if (!Cml::$debug) {
+                //正式环境 只显示‘系统错误’并将错误信息记录到日志
+                Log::emergency('fatal_error', [$error]);
+                $error = [];
+                $error['message'] = Lang::get('_CML_ERROR_');
+            } else {
+                $error['exception'] = 'Fatal Error';
+                $error['files'][0] = [
+                    'file' => $error['file'],
+                    'line' => $error['line']
+                ];
+            }
+        } finally {
+            if (Request::isCli()) {
+                Output::writeException(sprintf("%s\n[%s]\n%s", isset($error['files']) ? implode($error['files'][0], ':') : '', 'Fatal Error', $error['message']));
+            } else {
+                header('HTTP/1.1 500 Internal Server Error');
+                View::getEngine('html')->reset()->assign('error', $error);
+                Cml::showSystemTemplate(Config::get('html_exception'));
+            }
         }
     }
 
@@ -67,7 +69,7 @@ class ErrorOrException implements ErrorOrExceptionInterface
 
         if (!Cml::$debug) {
             //正式环境 只显示‘系统错误’并将错误信息记录到日志
-            Log::emergency($error['message'], [$error['files'][0]]);
+            Log::emergency("{$error['exception']}：{$error['message']}", [$error['files']]);
 
             $error = [];
             $error['message'] = Lang::get('_CML_ERROR_');

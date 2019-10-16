@@ -570,6 +570,24 @@ interface Db
     public function count($field = '*', $isMulti = false, $useMaster = false);
 
     /**
+     * 数据是否存在
+     *
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
+     *
+     * @return mixed
+     */
+    public function exists($useMaster = false);
+
+    /**
+     * 数据是否不存在
+     *
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
+     *
+     * @return mixed
+     */
+    public function doesntExist($useMaster = false);
+
+    /**
      * 获取 MAX(字段名或*) 的结果
      *
      * @param string $field 要统计的字段名
@@ -612,6 +630,17 @@ interface Db
      * @return mixed
      */
     public function avg($field = '*', $isMulti = false, $useMaster = false);
+
+    /**
+     * 强制使用索引
+     *
+     * @param string $table 要强制索引的表名(不带前缀)
+     * @param string $index 要强制使用的索引
+     * @param string $tablePrefix 表前缀 不传则获取配置中配置的前缀
+     *
+     * @return $this
+     */
+    public function forceIndex($table, $index, $tablePrefix = null);
 
     /**
      * 返回INSERT，UPDATE 或 DELETE 查询所影响的记录行数。

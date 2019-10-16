@@ -14,6 +14,7 @@ use Cml\Http\Input;
 use Cml\Interfaces\Db;
 use Cml\Lang;
 use Cml\Model;
+use http\Exception;
 
 /**
  * Orm 数据库抽象基类
@@ -22,6 +23,13 @@ use Cml\Model;
  */
 abstract class Base implements Db
 {
+    /**
+     * 是否是swoole协程驱动
+     *
+     * @var bool
+     */
+    protected $isSwoole = false;
+
     /**
      * 多个Model中共享db连接实例
      *
@@ -88,6 +96,13 @@ abstract class Base implements Db
         'groupBy' => '',
         'having' => '',
     ];
+
+    /**
+     * 强制某表使用某索引
+     *
+     * @var array
+     */
+    protected $forceIndex = [];
 
     /**
      * 操作的表
@@ -189,39 +204,44 @@ abstract class Base implements Db
      */
     protected function connectDb($db, $reConnect = false)
     {
+        if ($reConnect) {
+            self::$dbInst[$this->conf['mark'] . $db] = null;
+            unset(self::$dbInst[$this->conf['mark'] . $db]);
+        }
+
         if ($db == 'rlink') {
             //如果没有指定从数据库，则使用 master
             if (empty($this->conf['slaves'])) {
-                self::$dbInst[$this->conf['mark'] . $db] = $this->rlink = $reConnect ? $this->connectDb('wlink', true) : $this->wlink;
-                return $this->rlink;
+                if ($reConnect) {
+                    return self::$dbInst[$this->conf['mark'] . $db] = $this->connectDb('wlink', true);
+                } else {
+                    return self::$dbInst[$this->conf['mark'] . $db] = $this->wlink;
+                }
             }
 
             $n = mt_rand(0, count($this->conf['slaves']) - 1);
             $conf = $this->conf['slaves'][$n];
-            empty($conf['engine']) && $conf['engine'] = '';
-            self::$dbInst[$this->conf['mark'] . $db] = $this->rlink = $this->connect(
+
+            return self::$dbInst[$this->conf['mark'] . $db] = $this->connect(
                 $conf['host'],
                 $conf['username'],
                 $conf['password'],
                 $conf['dbname'],
                 $conf['charset'],
-                $conf['engine'],
+                $conf['engine'] ?: '',
                 $conf['pconnect']
             );
-            return $this->rlink;
         } elseif ($db == 'wlink') {
             $conf = $this->conf['master'];
-            empty($conf['engine']) && $conf['engine'] = '';
-            self::$dbInst[$this->conf['mark'] . $db] = $this->wlink = $this->connect(
+            return self::$dbInst[$this->conf['mark'] . $db] = $this->connect(
                 $conf['host'],
                 $conf['username'],
                 $conf['password'],
                 $conf['dbname'],
                 $conf['charset'],
-                $conf['engine'],
+                $conf['engine'] ?: '',
                 $conf['pconnect']
             );
-            return $this->wlink;
         }
         return false;
     }
@@ -349,6 +369,30 @@ abstract class Base implements Db
         $this->paramsAutoReset();
         $this->reset();
         $this->clearBindParams();
+    }
+
+    /**
+     * 数据是否存在
+     *
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
+     *
+     * @return mixed
+     */
+    public function exists($useMaster = false)
+    {
+        return $this->count('*', false, $useMaster) > 0;
+    }
+
+    /**
+     * 数据是否不存在
+     *
+     * @param bool|string $useMaster 是否使用主库 默认读取从库
+     *
+     * @return mixed
+     */
+    public function doesntExist($useMaster = false)
+    {
+        return $this->count('*', false, $useMaster) == 0;
     }
 
     /**
@@ -833,6 +877,22 @@ abstract class Base implements Db
     }
 
     /**
+     * 强制使用索引
+     *
+     * @param string $table 要强制索引的表名(不带前缀)
+     * @param string $index 要强制使用的索引
+     * @param string $tablePrefix 表前缀 不传则获取配置中配置的前缀
+     *
+     * @return $this
+     */
+    public function forceIndex($table, $index, $tablePrefix = null)
+    {
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+        $this->forceIndex[$tablePrefix . $table] = $index;
+        return $this;
+    }
+
+    /**
      * 排序
      *
      * @param string $column 要排序的字段
@@ -1058,6 +1118,7 @@ abstract class Base implements Db
             'having' => '',
         ];
 
+        $this->forceIndex = [];//强制索引
         $this->table = []; //操作的表
         $this->join = []; //是否内联
         $this->leftJoin = []; //是否左联结
@@ -1232,11 +1293,8 @@ abstract class Base implements Db
     }
 
     /**
-     * 执行事务操作
-     *
+     * 执行
      * @param callable $query
-     *
-     * @throws
      *
      * @return bool
      */

@@ -200,7 +200,7 @@ class Model
      * @param null|string $tablePrefix 表前缀
      * @param null|string|array $db db配置，默认default_db
      *
-     * @return Db | $this
+     * @return Db | self
      */
     public static function getInstance($table = null, $tablePrefix = null, $db = null)
     {
@@ -425,6 +425,30 @@ class Model
     }
 
     /**
+     * 数据是否存在
+     *
+     * @param bool|string $useMaster 是否使用主库-不传取当前Model中的配置
+     *
+     * @return mixed
+     */
+    public function exists($useMaster = null)
+    {
+        return $this->db($this->getDbConf())->table($this->getTableName(), $this->tablePrefix)->exists($this->useMaster);
+    }
+
+    /**
+     * 数据是否不存在
+     *
+     * @param bool|string $useMaster 是否使用主库 不传取当前Model中的配置
+     *
+     * @return mixed
+     */
+    public function doesntExist($useMaster = null)
+    {
+        return $this->db($this->getDbConf())->table($this->getTableName(), $this->tablePrefix)->doesntExist($this->useMaster);
+    }
+
+    /**
      * 获取数据列表
      *
      * @param int $offset 偏移量
@@ -470,6 +494,24 @@ class Model
             $dbInstance->orderBy($key, $val);
         }
         return $dbInstance->paginate($limit, $this->useMaster);
+    }
+
+    /**
+     * 强制使用索引
+     *
+     * @param string $index 要强制使用的索引
+     * @param string $table 要强制索引的表名(不带前缀) 不传会自动从当前Model中$table属性获取
+     * @param string $tablePrefix 表前缀 不传会自动从当前Model中$tablePrefix属性获取再没有则获取配置中配置的前缀
+     *
+     * @return $this
+     */
+    public function forceIndex($index, $tableName = null, $tablePrefix = null)
+    {
+        is_null($tableName) && $tableName = $this->getTableName();
+        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
+
+        $dbInstance = $this->db($this->getDbConf())->forceIndex($tableName, $index, $tablePrefix);
+        return $this;
     }
 
     /**
@@ -523,7 +565,7 @@ class Model
      * @param $dbMethod
      * @param $arguments
      *
-     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | $this
+     * @return Db | $this
      */
     public function __call($dbMethod, $arguments)
     {
@@ -541,13 +583,13 @@ class Model
      * @param $dbMethod
      * @param $arguments
      *
-     * @return \Cml\Db\MySql\Pdo | \Cml\Db\MongoDB\MongoDB | self
+     * @return Db | self
      */
     public static function __callStatic($dbMethod, $arguments)
     {
         $res = call_user_func_array([static::getInstance()->db(static::getInstance()->getDbConf()), $dbMethod], $arguments);
         if ($res instanceof Interfaces\Db) {
-            return self::getInstance();//不是返回数据直接返回model实例
+            return static::getInstance();//不是返回数据直接返回model实例
         } else {
             return $res;
         }

@@ -95,7 +95,7 @@ class Html extends Base
             '#' . $this->options['leftDelimiter'] . '(loop|foreach)\s+(\S+)\s+(\S+)\s*?' . $this->options['rightDelimiter'] . '#s',//替换loop|foreach
             '#' . $this->options['leftDelimiter'] . '(loop|foreach)\s+(\S+)\s+(\S+)\s+(\S+)\s*?' . $this->options['rightDelimiter'] . '#s',//替换loop|foreach
             '#' . $this->options['leftDelimiter'] . '\/(loop|foreach)' . $this->options['rightDelimiter'] . '#',//替换 /foreach|/loop
-            '#' . $this->options['leftDelimiter'] . 'hook\s+(\w+?)\s*' . $this->options['rightDelimiter'] . '#i',//替换 hook
+            '#' . $this->options['leftDelimiter'] . 'hook\s+([A-Za-z0-9_]+)(.*?)' . $this->options['rightDelimiter'] . '#i',//替换 hook
             '#' . $this->options['leftDelimiter'] . '(get|post|request)\s+(\w+?)\s*' . $this->options['rightDelimiter'] . '#i',//替换 get/post/request
             '#' . $this->options['leftDelimiter'] . 'lang\s+([A-Za-z0-9_\.\s*]+)(.*?)' . $this->options['rightDelimiter'] . '#i',//替换 lang
             '#' . $this->options['leftDelimiter'] . 'config\s+([A-Za-z0-9_\.]+)\s*' . $this->options['rightDelimiter'] . '#i',//替换 config
@@ -139,7 +139,7 @@ class Html extends Base
             '<?php if (is_array(${2})) { foreach (${2} as ${3}) { ?>',
             '<?php if (is_array(${2})) { foreach (${2} as ${3} => ${4}) { ?>',
             '<?php } } ?>',
-            '<?php \Cml\Plugin::hook("${1}");?>',
+            '<?php echo \Cml\Plugin::hook("${1}"${2});?>',
             '<?php echo \Cml\Http\Input::${1}String("${2}");?>',
             '<?php echo \Cml\Lang::get("${1}"${2});?>',
             '<?php echo \Cml\Config::get("${1}");?>',
