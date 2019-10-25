@@ -407,17 +407,17 @@ class Acl
      *
      * @param bool $format 是否格式化返回
      * @param string $columns 要额外获取的字段
+     * @param bool $getHideMenus 是否返回被隐藏的菜单---由前端隐藏,这样可以获取到菜单标题
      *
      * @return array
      */
-    public static function getMenus($format = true, $columns = '')
+    public static function getMenus($format = true, $columns = '', $getHideMenus = false)
     {
         $res = [];
         $authInfo = self::getLoginInfo();
         if (!$authInfo) { //登录超时
             return $res;
         }
-
         $result = Model::getInstance()->table([self::$tables['menus'] => 'm'])
             ->columns(['distinct m.id', 'm.pid', 'm.title', 'm.url', 'm.params' . ($columns ? " ,{$columns}" : '')])
             ->when(!self::isSuperUser(), function ($model) use ($authInfo) {//当前登录用户是否为超级管理员
@@ -427,7 +427,10 @@ class Acl
                             ->_or()
                             ->where('a.userid', $authInfo['id']);
                     });
-            })->where('m.isshow', 1)
+            })
+            ->when(!$getHideMenus, function ($model) {
+                $model->where('m.isshow', 1);
+            })
             ->orderBy('m.sort', 'DESC')
             ->orderBy('m.id', 'ASC')
             ->select(0, 5000);
