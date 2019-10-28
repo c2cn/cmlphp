@@ -170,7 +170,7 @@ class Response
             $return = $_SERVER['SCRIPT_NAME'] . '?' . Config::get('var_pathinfo') . '=/' . $url;
         }
 
-        $return .= (Config::get('url_model') == 2 ? Config::get('url_html_suffix') : '');
+        $return !== '/' && $return .= (Config::get('url_model') == 2 ? Config::get('url_html_suffix') : '');
 
         $return = Secure::filterScript($return);
         if ($echo) {
