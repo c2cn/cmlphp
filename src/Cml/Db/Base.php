@@ -9,12 +9,12 @@
 
 namespace Cml\Db;
 
+use BadMethodCallException;
 use Cml\Config;
 use Cml\Http\Input;
 use Cml\Interfaces\Db;
 use Cml\Lang;
 use Cml\Model;
-use http\Exception;
 
 /**
  * Orm 数据库抽象基类
@@ -192,6 +192,30 @@ abstract class Base implements Db
             return self::$dbInst[$this->conf['mark'] . $db];
         }
         return $this->connectDb($db);
+    }
+
+    /**
+     * 自动映射set方法
+     *
+     * @param string $name
+     * @param array $arguments
+     *
+     * @throws BadMethodCallException
+     *
+     * @return $this;
+     */
+    public function __call($name, $arguments)
+    {
+        switch ($name) {
+            case 'set':
+                return call_user_func_array([$this, 'insert'], $arguments);
+                break;
+            case 'setMulti':
+                return call_user_func_array([$this, 'insertMulti'], $arguments);
+                break;
+        }
+
+        throw new BadMethodCallException($name);
     }
 
     /**

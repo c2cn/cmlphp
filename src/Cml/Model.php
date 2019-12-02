@@ -294,7 +294,7 @@ class Model
     {
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        return $this->db($this->getDbConf())->set($tableName, $data, $tablePrefix);
+        return $this->db($this->getDbConf())->insert($tableName, $data, $tablePrefix);
     }
 
     /**
@@ -312,7 +312,7 @@ class Model
     {
         is_null($tableName) && $tableName = $this->getTableName();
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        return $this->db($this->getDbConf())->setMulti($tableName, $field, $data, $tablePrefix, $openTransAction);
+        return $this->db($this->getDbConf())->insertMulti($tableName, $field, $data, $tablePrefix, $openTransAction);
     }
 
     /**

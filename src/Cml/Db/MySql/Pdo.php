@@ -217,7 +217,7 @@ class Pdo extends Base
      *
      * @return bool|int
      */
-    public function set($table, $data, $tablePrefix = null)
+    public function insert($table, $data, $tablePrefix = null)
     {
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         $tableName = $tablePrefix . $table;
@@ -246,7 +246,7 @@ class Pdo extends Base
      *
      * @return bool|array
      */
-    public function setMulti($table, $field, $data, $tablePrefix = null, $openTransAction = true)
+    public function insertMulti($table, $field, $data, $tablePrefix = null, $openTransAction = true)
     {
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         $tableName = $tablePrefix . $table;
