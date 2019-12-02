@@ -318,13 +318,19 @@ class Request
 
         $ret = curl_exec($ch);
         $error = curl_error($ch);
+        if (!empty($error)) {
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $errno = curl_errno($ch);
+        }
         curl_close($ch);
         if (!$ret || !empty($error)) {
             $writeLog && Log::error('curl-error', [
                 'url' => $url,
                 'params' => $parameter,
                 'error' => $error,
-                'ret' => $ret
+                'ret' => $ret,
+                'errno' => $errno,
+                'httpCode' => $httpCode
             ]);
             return false;
         } else {

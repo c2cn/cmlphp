@@ -39,12 +39,10 @@ class Redis extends Base
         }
         $unique = uniqid('', true);
 
-        if ($inst->set(
-            $lock,
-            $unique,
-            ['nx', 'ex' => $this->expire]
-        )
-        ) {
+        $script = 'if redis.call("SET", KEYS[1], ARGV[1], "nx", "ex", ARGV[2])  then return 1 else return 0 end';
+        // eval "return redis.call('SET', KEYS[1], 'bar', 'NX', 'EX', 100)" 1 foo2
+
+        if ($inst->eval($script, [$lock, $unique, $this->expire], 1)) {
             $this->lockCache[$lock] = $unique;
             return true;
         }
@@ -57,11 +55,7 @@ class Redis extends Base
         //堵塞模式
         do {
             usleep(200);
-        } while (!$inst->set(
-            $lock,
-            $unique,
-            ['nx', 'ex' => $this->expire]
-        ));
+        } while (!$inst->eval($script, [$lock, $unique, $this->expire], 1));
 
         $this->lockCache[$lock] = $unique;
         return true;

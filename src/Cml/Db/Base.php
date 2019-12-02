@@ -1165,11 +1165,11 @@ abstract class Base implements Db
                 switch (key($v)) {
                     case '+':
                     case 'inc':
-                        $p = "`{$k}`= `{$k}`+" . abs(intval(current($v)));
+                        $p = "`{$k}`= `{$k}`+" . abs(current($v));
                         break;
                     case '-':
                     case 'dec':
-                        $p = "`{$k}`= `{$k}`-" . abs(intval(current($v)));
+                        $p = "`{$k}`= `{$k}`-" . abs(current($v));
                         break;
                     case 'func':
                         $func = strtoupper(key(current($v)));
@@ -1193,7 +1193,7 @@ abstract class Base implements Db
                         if (!in_array(key(current($v)), ['+', '-', '*', '/', '%', '^', '&', '|', '<<', '>>', '~'])) {
                             throw new \InvalidArgumentException(Lang::get('_PARSE_UPDATE_SQL_PARAMS_ERROR_'));
                         }
-                        $p = "`{$k}`= `{$conKey}`" . key(current($v)) . abs(intval(current(current($v))));
+                        $p = "`{$k}`= `{$conKey}`" . key(current($v)) . abs(current(current($v)));
                         break;
                 }
             } else {
