@@ -12,7 +12,7 @@ namespace Cml\Entity;
 use Cml\Cml;
 use Cml\Db\Query;
 use Cml\Exception\EntityNotFoundException;
-use Cml\Interfaces\Arrayable;
+use Cml\Interfaces\ArrayAble;
 use Cml\Interfaces\Jsonable;
 use ArrayAccess;
 use Exception;
@@ -31,7 +31,7 @@ use function Cml\studlyCase;
  * @mixin Query
  * @package Cml\Db
  */
-class Entity implements ArrayAccess, Arrayable, IteratorAggregate, Jsonable, JsonSerializable
+class Entity implements ArrayAccess, ArrayAble, IteratorAggregate, Jsonable, JsonSerializable
 {
     use Base;
     use ArrayJsonSpl;
