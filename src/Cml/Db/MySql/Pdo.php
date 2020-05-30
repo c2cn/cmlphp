@@ -13,11 +13,19 @@ use Cml\Cml;
 use Cml\Config;
 use Cml\Db\Base;
 use Cml\Debug;
+use Cml\Entity\Collection;
+use Cml\Entity\Convert;
 use Cml\Exception\PdoConnectException;
 use Cml\Lang;
 use Cml\Log;
 use Cml\Model;
 use Cml\Plugin;
+use Cml\Tools\LazyCollection;
+use Generator;
+use InvalidArgumentException;
+use PDOException;
+use PDOStatement;
+use function Cml\simpleFileCache;
 
 /**
  * Orm MySql数据库Pdo实现类
@@ -64,7 +72,7 @@ class Pdo extends Base
         isset($conf['mark']) || $conf['mark'] = md5(json_encode($conf));
         $this->conf = $conf;
         isset($this->conf['log_slow_sql']) || $this->conf['log_slow_sql'] = false;
-        $this->tablePrefix = $this->conf['master']['tableprefix'];
+        $this->tablePrefix = $this->conf['modelTablePrefix'] ?: $this->conf['master']['tableprefix'];
         $this->conf['cache_expire'] === false && $this->openCache = false;
     }
 
@@ -113,9 +121,10 @@ class Pdo extends Base
      *
      * @return mixed
      */
-    public function getDbFields($table, $tablePrefix = null, $filter = 0)
+    public function getDbFields($table = null, $tablePrefix = null, $filter = 0)
     {
         static $dbFieldCache = [];
+        $table || $table = $this->conf['entity']->getTableName();
 
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         if ($filter == 1 && Cml::$debug) return '*'; //debug模式时直接返回*
@@ -126,7 +135,7 @@ class Pdo extends Base
         if (isset($dbFieldCache[$table])) {
             $info = $dbFieldCache[$table];
         } else {
-            Config::get('db_fields_cache') && $info = \Cml\simpleFileCache($this->conf['master']['dbname'] . '.' . $table);
+            Config::get('db_fields_cache') && $info = simpleFileCache($this->conf['master']['dbname'] . '.' . $table);
             if (!$info || Cml::$debug) {
                 $this->currentQueryIsMaster = false;
                 $stmt = $this->prepare("SHOW COLUMNS FROM $table", $this->rlink, false);
@@ -143,15 +152,16 @@ class Pdo extends Base
                     ];
                 }
 
-                count($info) > 0 && \Cml\simpleFileCache($this->conf['master']['dbname'] . '.' . $table, $info);
+                count($info) > 0 && simpleFileCache($this->conf['master']['dbname'] . '.' . $table, $info);
             }
             $dbFieldCache[$table] = $info;
         }
 
         if ($filter) {
             if (count($info) > 0) {
-                $info = implode('`,`', array_keys($info));
-                $info = '`' . $info . '`';
+                $info = implode(', ', array_map(function ($item) {
+                    return $this->formatColumnKey($item);
+                }, array_keys($info)));
             } else {
                 return '*';
             }
@@ -167,7 +177,9 @@ class Pdo extends Base
      * @param bool|string $useMaster 是否使用主库 默认读取从库 此选项为字符串时为表前缀$tablePrefix
      * @param null|string $tablePrefix 表前缀
      *
-     * @return array
+     * @return array|Collection
+     * @deprecated
+     *
      */
     public function get($key, $and = true, $useMaster = false, $tablePrefix = null)
     {
@@ -192,7 +204,7 @@ class Pdo extends Base
             $this->currentQueryIsMaster = $useMaster;
             $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
             $this->execute($stmt);
-            $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $return = $stmt->fetchAll($this->conf['pdo_fetch_style']);
             $this->openCache && $this->currentQueryUseCache && Model::getInstance()->cache()->set($cacheKey, $return, $this->conf['cache_expire']);
             $this->currentQueryUseCache = true;
         } else {
@@ -204,7 +216,7 @@ class Pdo extends Base
 
             $this->clearBindParams();
         }
-
+        $this->isEntityModel() && $return = Convert::convertResToCollection($return, $this->conf['entity']);
         return $return;
     }
 
@@ -242,9 +254,11 @@ class Pdo extends Base
      * @param array $data eg: 多条数据的值 [['标题1', '内容1', 1, '2017'], ['标题2', '内容2', 1, '2017']]
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      * @param bool $openTransAction 是否开启事务 默认开启
-     * @throws \InvalidArgumentException
      *
      * @return bool|array
+     *
+     * @throws InvalidArgumentException
+     *
      */
     public function insertMulti($table, $field, $data, $tablePrefix = null, $openTransAction = true)
     {
@@ -270,10 +284,10 @@ class Pdo extends Base
                     $idArray[] = $this->insertId();
                 }
                 $openTransAction && $this->commit();
-            } catch (\InvalidArgumentException $e) {
+            } catch (InvalidArgumentException $e) {
                 $openTransAction && $this->rollBack();
 
-                throw new \InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
+                throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
             }
 
             $this->setCacheVer($tableName);
@@ -318,15 +332,20 @@ class Pdo extends Base
      * @param array $data 插入的值 eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com']
      * @param array $up 更新的值-会自动merge $data中的数据
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
+     * @param array $upIgnoreField 更新的时候要忽略的的字段
      *
      * @return int
      */
-    public function upSet($table, array $data, array $up = [], $tablePrefix = null)
+    public function upSet($table, array $data, array $up = [], $tablePrefix = null, $upIgnoreField = [])
     {
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
         $tableName = $tablePrefix . $table;
         if (is_array($data)) {
-            $up = $this->arrToCondition(array_merge($data, $up));
+            $up = array_merge($data, $up);
+            foreach ($upIgnoreField as $key) {
+                unset($up[$key]);
+            }
+            $up = $this->arrToCondition($up);
             $s = $this->arrToCondition($data);
             $this->currentQueryIsMaster = true;
             $stmt = $this->prepare("INSERT INTO {$tableName} SET {$s} ON DUPLICATE KEY UPDATE {$up}", $this->wlink);
@@ -347,9 +366,11 @@ class Pdo extends Base
      * @param array $data eg: 多条数据的值 [['标题1', '内容1', 1, '2017'], ['标题2', '内容2', 1, '2017']]
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      * @param bool $openTransAction 是否开启事务 默认开启
-     * @throws \InvalidArgumentException
      *
      * @return bool|array
+     *
+     * @throws InvalidArgumentException
+     *
      */
     public function replaceMulti($table, $field, $data, $tablePrefix = null, $openTransAction = true)
     {
@@ -373,10 +394,10 @@ class Pdo extends Base
                     $idArray[] = $this->insertId();
                 }
                 $openTransAction && $this->commit();
-            } catch (\InvalidArgumentException $e) {
+            } catch (InvalidArgumentException $e) {
                 $openTransAction && $this->rollBack();
 
-                throw new \InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
+                throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
             }
 
             $this->setCacheVer($tableName);
@@ -387,7 +408,7 @@ class Pdo extends Base
     }
 
     /**
-     * 根据key更新一条数据
+     * 更新数据
      *
      * @param string|array $key eg: 'user'(表名)、'user-uid-$uid'(表名+条件) 、['xx'=>'xx' ...](即:$data数组如果条件是通用whereXX()、表名是通过table()设定。这边可以直接传$data的数组)
      * @param array | null $data eg: ['username'=>'admin', 'email'=>'linhechengbush@live.com'] 可以直接通过$key参数传递
@@ -418,13 +439,13 @@ class Pdo extends Base
         }
 
         if (empty($tableName)) {
-            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'update'));
+            throw new InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'update'));
         }
         $s = $this->arrToCondition($data);
         $whereCondition = $this->sql['where'];
         $whereCondition .= empty($condition) ? '' : (empty($whereCondition) ? 'WHERE ' : '') . $condition;
         if (empty($whereCondition)) {
-            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'update'));
+            throw new InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'update'));
         }
         $this->currentQueryIsMaster = true;
         $limit = '';
@@ -448,7 +469,7 @@ class Pdo extends Base
      * @param bool $and 多个条件之间是否为and  true为and false为or
      * @param mixed $tablePrefix 表前缀 不传则获取配置中配置的前缀
      *
-     * @return boolean
+     * @return int
      */
     public function delete($key = '', $and = true, $tablePrefix = null)
     {
@@ -468,12 +489,12 @@ class Pdo extends Base
         }
 
         if (empty($tableName)) {
-            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'delete'));
+            throw new InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', 'delete'));
         }
         $whereCondition = $this->sql['where'];
         $whereCondition .= empty($condition) ? '' : (empty($whereCondition) ? 'WHERE ' : '') . $condition;
         if (empty($whereCondition)) {
-            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'delete'));
+            throw new InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_CONDITION_', 'delete'));
         }
         $this->currentQueryIsMaster = true;
         $limit = '';
@@ -499,7 +520,7 @@ class Pdo extends Base
      */
     protected function getRealTableName($table)
     {
-        return substr($table, strpos($table, '_') + 1);
+        return $this->formatColumnKey(substr($table, strpos($table, '_') + 1));
     }
 
     /**
@@ -623,6 +644,9 @@ class Pdo extends Base
      */
     protected function tableFactory($isRead = true)
     {
+        if (empty($this->table)) {
+            $this->table($this->conf['entity']->getTableName());
+        }
         $table = $operator = '';
         $cacheKey = [];
         foreach ($this->table as $key => $val) {
@@ -645,14 +669,16 @@ class Pdo extends Base
             if (is_null($val)) {
                 $table .= "{$operator} {$realTable}";
             } else {
-                $table .= "{$operator} {$realTable} AS `{$val}`";
+                $table .= "{$operator} {$realTable} AS " . $this->formatColumnKey($val);
             }
             isset($this->forceIndex[$realTable]) && $table .= ' force index(' . $this->forceIndex[$realTable] . ') ';
-            is_null($on) || $table .= " ON {$on}";
+            is_null($on) || $table .= ' ON ' . implode('=', array_map(function ($onValue) {
+                    return $this->formatColumnKey($onValue);
+                }, explode('=', $on)));
         }
 
         if (empty($table)) {
-            throw new \InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', $isRead ? 'select' : 'update/delete'));
+            throw new InvalidArgumentException(Lang::get('_PARSE_SQL_ERROR_NO_TABLE_', $isRead ? 'select' : 'update/delete'));
         }
         return [$table, $cacheKey];
     }
@@ -700,7 +726,7 @@ class Pdo extends Base
      * @param bool $useMaster 是否使用主库 默认读取从库
      * @param mixed $fieldAsKey 返回以某个字段做为key的数组
      *
-     * @return array
+     * @return array|Collection
      */
     public function select($offset = null, $limit = null, $useMaster = false, $fieldAsKey = false)
     {
@@ -717,8 +743,7 @@ class Pdo extends Base
             $this->currentQueryIsMaster = $useMaster;
             $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
             $this->execute($stmt);
-            $return = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
+            $return = $stmt->fetchAll($this->conf['pdo_fetch_style']);
             if ($fieldAsKey) {
                 $result = [];
                 foreach ($return as $row) {
@@ -736,16 +761,54 @@ class Pdo extends Base
                 $this->currentSql = '';
             }
 
-            $this->reset();
-            $this->clearBindParams();
+            $this->resetAndClear();
         }
+        $this->isEntityModel() && $return = Convert::convertResToCollection($return, $this->conf['entity']);
         return $return;
+    }
+
+    /**
+     * 返回一个迭代器
+     *
+     * @param int $offset 偏移量
+     * @param int $limit 返回的条数
+     * @param bool $useMaster 是否使用主库 默认读取从库
+     *
+     * @return Generator
+     */
+    public function cursor($offset = null, $limit = null, $useMaster = false)
+    {
+        list($sql, $cacheKey) = $this->buildSql($offset, $limit, true);
+
+        $this->currentQueryIsMaster = $useMaster;
+        $stmt = $this->prepare($sql, $useMaster ? $this->wlink : $this->rlink);
+        $this->execute($stmt);
+
+        $this->currentQueryUseCache = true;
+
+        $run = function (PDOStatement $stmt) {
+            while ($return = $stmt->fetch($this->conf['pdo_fetch_style'])) {
+                if ($this->isEntityModel()) {
+                    yield  $this->conf['entity']::make($return);
+                } else {
+                    yield $return;
+                }
+            }
+        };
+        if ($this->isEntityModel()) {
+            return new LazyCollection(function () use ($stmt, $run) {
+                yield from $run($stmt);
+
+            });
+        } else {
+            return $run($stmt);
+        }
     }
 
     /**
      * 返回INSERT，UPDATE 或 DELETE 查询所影响的记录行数。
      *
-     * @param $handle \PDOStatement
+     * @param $handle PDOStatement
      * @param int $type 执行的类型1:insert、2:update、3:delete
      *
      * @return int
@@ -809,7 +872,7 @@ class Pdo extends Base
 
         try {
             $link = $doConnect();
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $connectError = true;
 
             if (in_array($e->getCode(), [2006, 2013])) {
@@ -818,7 +881,7 @@ class Pdo extends Base
                     unset($link);
                     $link = $doConnect();
                     $connectError = false;
-                } catch (\PDOException $e) {
+                } catch (PDOException $e) {
                 }
             }
 
@@ -852,21 +915,16 @@ class Pdo extends Base
      */
     public function increment($key, $val = 1, $field = null, $tablePrefix = null)
     {
-        list($tableName, $condition) = $this->parseKey($key, true);
-        if (is_null($field) || empty($tableName) || empty($condition)) {
-            $this->clearBindParams();
-            return false;
-        }
-        $val = abs(intval($val));
-        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        $tableName = $tablePrefix . $tableName;
+        return $this->processIncDec($key, $val, $field, $tablePrefix, 'inc');
+    }
 
-        $this->currentQueryIsMaster = true;
-        $stmt = $this->prepare('UPDATE  `' . $tableName . "` SET  `{$field}` =  `{$field}` + {$val}  WHERE  $condition", $this->wlink);
-
-        $this->execute($stmt);
-        $this->setCacheVer($tableName);
-        return $stmt->rowCount();
+    private function processIncDec($key, $val, $field, $tablePrefix, $operator = 'inc')
+    {
+        return $this->update($key, [
+            $field => [
+                $operator => $val
+            ]
+        ], true, $tablePrefix);
     }
 
     /**
@@ -881,21 +939,7 @@ class Pdo extends Base
      */
     public function decrement($key, $val = 1, $field = null, $tablePrefix = null)
     {
-        list($tableName, $condition) = $this->parseKey($key, true);
-        if (is_null($field) || empty($tableName) || empty($condition)) {
-            $this->clearBindParams();
-            return false;
-        }
-        $val = abs(intval($val));
-
-        is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        $tableName = $tablePrefix . $tableName;
-        $this->currentQueryIsMaster = true;
-        $stmt = $this->prepare('UPDATE  `' . $tableName . "` SET  `$field` =  `$field` - $val  WHERE  $condition", $this->wlink);
-
-        $this->execute($stmt);
-        $this->setCacheVer($tableName);
-        return $stmt->rowCount();
+        return $this->processIncDec($key, $val, $field, $tablePrefix, 'dec');
     }
 
     /**
@@ -905,7 +949,7 @@ class Pdo extends Base
      * @param \PDO $link
      * @param bool $resetParams
      *
-     * @return \PDOStatement
+     * @return PDOStatement
      */
 
     public function prepare($sql, $link = null, $resetParams = true)
@@ -920,7 +964,8 @@ class Pdo extends Base
 
         $this->currentSql = $sql;
         $this->currentPrepareIsResetParams = $resetParams;
-        $sql = vsprintf($sql, $sqlParams);
+
+        $sqlParams && $sql = vsprintf($sql, $sqlParams);//子查询
 
         $stmt = $link->prepare($sql);//pdo默认情况prepare出错不抛出异常只返回Pdo::errorInfo
         if ($stmt === false) {
@@ -934,7 +979,7 @@ class Pdo extends Base
                     return $stmt;
                 }
             }
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Pdo Prepare Sql error! ,【Sql: ' . $this->buildDebugSql() . '】,【Code: ' . $link->errorCode() . '】, 【ErrorInfo!: 
                 ' . $error[2] . '】 '
             );
@@ -977,7 +1022,7 @@ class Pdo extends Base
         }
 
         if ($error) {
-            throw new \InvalidArgumentException('Pdo execute Sql error!,【Sql : ' . $this->buildDebugSql() . '】,【Code: ' . $error[1] . '】,【Error:' . $error[2] . '】');
+            throw new InvalidArgumentException('Pdo execute Sql error!,【Sql : ' . $this->buildDebugSql() . '】,【Code: ' . $error[1] . '】,【Error:' . $error[2] . '】');
         }
 
         $slow = 0;
@@ -1022,8 +1067,10 @@ class Pdo extends Base
         $bindParams = $this->bindParams;
         foreach ($bindParams as $key => $val) {
             $bindParams[$key] = str_replace('\\\\', '\\', addslashes($val));
+            is_numeric($bindParams[$key]) || $bindParams[$key] = "'{$bindParams[$key]}'";
         }
-        return vsprintf(str_replace('%s', "'%s'", $this->currentSql), $bindParams);
+
+        return $bindParams ? vsprintf($this->currentSql, $bindParams) : $this->currentSql;
     }
 
     /**
@@ -1056,59 +1103,6 @@ class Pdo extends Base
     }
 
     /**
-     * 开启事务
-     *
-     * @return bool
-     */
-    public function startTransAction()
-    {
-        Cml::$debug && Debug::addSqlInfo('beginTransaction');
-        return $this->wlink->beginTransaction();
-    }
-
-    /**
-     * 提交事务
-     *
-     * @return bool
-     */
-    public function commit()
-    {
-        Cml::$debug && Debug::addSqlInfo('commit');
-        return $this->wlink->commit();
-    }
-
-    /**
-     * 设置一个事务保存点
-     *
-     * @param string $pointName
-     *
-     * @return bool
-     */
-    public function savePoint($pointName)
-    {
-        Cml::$debug && Debug::addSqlInfo("SAVEPOINT {$pointName}");
-        return $this->wlink->exec("SAVEPOINT {$pointName}");
-    }
-
-    /**
-     * 回滚事务
-     *
-     * @param bool $rollBackTo 是否为还原到某个保存点
-     *
-     * @return bool
-     */
-    public function rollBack($rollBackTo = false)
-    {
-        if ($rollBackTo === false) {
-            Cml::$debug && Debug::addSqlInfo('ROLLBACK');
-            return $this->wlink->rollBack();
-        } else {
-            Cml::$debug && Debug::addSqlInfo("ROLLBACK TO {$rollBackTo}");
-            return $this->wlink->exec("ROLLBACK TO {$rollBackTo}");
-        }
-    }
-
-    /**
      * 调用存储过程
      *
      * @param string $procedureName 要调用的存储过程名称
@@ -1124,7 +1118,7 @@ class Pdo extends Base
         $stmt = $this->prepare("exec {$procedureName}", $this->wlink);
         $this->execute($stmt);
         if ($isSelect) {
-            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            return $stmt->fetchAll($this->conf['pdo_fetch_style']);
         } else {
             return $stmt->rowCount();
         }

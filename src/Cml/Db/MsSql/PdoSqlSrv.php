@@ -9,15 +9,16 @@
 
 namespace Cml\Db\MsSql;
 
-use Cml\Db\Base;
+use Cml\Db\MySql\Pdo;
 use Cml\Exception\PdoConnectException;
+use PDOException;
 
 /**
  * Orm MsSql数据库Pdo实现类
  *
  * @package Cml\Db\MsSql
  */
-class PdoSqlSrv extends \Cml\Db\MySql\Pdo
+class PdoSqlSrv extends Pdo
 {
     /**
      * Db连接
@@ -48,7 +49,7 @@ class PdoSqlSrv extends \Cml\Db\MySql\Pdo
 
         try {
             $link = $doConnect();
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw new PdoConnectException(
                 'Pdo Connect Error! ｛' .
                 $host[0] . (isset($host[1]) ? ':' . $host[1] : '') . ', ' . $dbName .
@@ -158,5 +159,14 @@ sql;
             $return[$val['TABLE_NAME']] = $val;
         }
         return $return;
+    }
+
+    protected function formatColumnKey($column)
+    {
+        $column = implode('.', array_map(function ($field) {
+            $field = trim($field, '][');
+            return "[{$field}]";
+        }, explode('.', $column)));
+        return $column;
     }
 }

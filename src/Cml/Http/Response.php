@@ -28,6 +28,7 @@ class Response
      * @param int $time 等待时间
      *
      * @return void
+     * @return void
      */
     public static function redirect($url, $time = 0)
     {
@@ -233,6 +234,7 @@ class Response
             'avi' => 'video/x-msvideo',
             'woff' => 'application/font-woff',
             'eot' => 'application/vnd.ms-fontobject'
+            , 'json' => 'application/json'
         ];
         $mine = isset($mines[$subFix]) ? $mines[$subFix] : 'text/html';
         header("Content-Type:{$mine};charset=utf-8");

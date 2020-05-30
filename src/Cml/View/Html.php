@@ -182,8 +182,8 @@ class Html extends Base
     /**
      * 设定模板配置参数
      *
-     * @param  string | array $name 参数名称
-     * @param  mixed $value 参数值
+     * @param string | array $name 参数名称
+     * @param mixed $value 参数值
      *
      * @return $this
      */
@@ -200,7 +200,7 @@ class Html extends Base
     /**
      * 获取模板文件缓存
      *
-     * @param  string $file 模板文件名称
+     * @param string $file 模板文件名称
      * @param int $type 缓存类型0当前操作的模板的缓存 1包含的模板的缓存
      *
      * @return string
@@ -261,8 +261,8 @@ class Html extends Base
     /**
      * 对模板文件进行缓存
      *
-     * @param  string $tplFile 模板文件名
-     * @param  string $cacheFile 模板缓存文件名
+     * @param string $tplFile 模板文件名
+     * @param string $cacheFile 模板缓存文件名
      * @param int $type 缓存类型0当前操作的模板的缓存 1包含的模板的缓存
      *
      * @return mixed
@@ -313,7 +313,7 @@ class Html extends Base
 
             //获取子模板内容
             $presult = preg_match_all(
-                '#' . $this->options['leftDelimiter'] . 'to\s+([a_zA-Z]+?)' . $this->options['rightDelimiter'] . '(.*?)' . $this->options['leftDelimiter'] . '\/to' . $this->options['rightDelimiter'] . '#is',
+                '#' . $this->options['leftDelimiter'] . 'to\s+([a_zA-Z]+?)' . $this->options['rightDelimiter'] . '(.*?)' . $this->options['leftDelimiter'] . '/to' . $this->options['rightDelimiter'] . '#is',
                 $tplCon,
                 $tmpl
             );
@@ -330,7 +330,7 @@ class Html extends Base
             //将子模板内容替换到布局文件返回
             $layoutBlockData = &$this->layoutBlockData;
             $layoutCon = preg_replace_callback(
-                '#' . $this->options['leftDelimiter'] . 'block\s+([a_zA-Z]+?)' . $this->options['rightDelimiter'] . '(.*?)' . $this->options['leftDelimiter'] . '\/block' . $this->options['rightDelimiter'] . '#is',
+                '#' . $this->options['leftDelimiter'] . 'block\s+([a_zA-Z]+?)' . $this->options['rightDelimiter'] . '(.*?)' . $this->options['leftDelimiter'] . '/block' . $this->options['rightDelimiter'] . '#is',
                 function ($matches) use ($layoutBlockData) {
                     array_shift($matches);
                     if (isset($layoutBlockData[$matches[0]])) {
@@ -357,7 +357,7 @@ class Html extends Base
     /**
      * 获取模板文件名及路径
      *
-     * @param  string $file 模板文件名称
+     * @param string $file 模板文件名称
      *
      * @return string
      */
@@ -369,7 +369,7 @@ class Html extends Base
     /**
      * 获取模板缓存文件名及路径
      *
-     * @param  string $file 模板文件名称
+     * @param string $file 模板文件名称
      *
      * @return string
      */
@@ -381,7 +381,7 @@ class Html extends Base
     /**
      * 根据指定的路径创建不存在的文件夹
      *
-     * @param  string $path 路径/文件夹名称
+     * @param string $path 路径/文件夹名称
      *
      * @return string
      */
@@ -437,9 +437,9 @@ class Html extends Base
      */
     public function display($templateFile = '', $inOtherApp = false)
     {
-        // 网页字符编码
-        header('Content-Type:text/html; charset=' . Config::get('default_charset'));
-        echo $this->fetch($templateFile, $inOtherApp);
+        $html = $this->fetch($templateFile, $inOtherApp);
+        $this->sendHeader();
+        echo $html;
         Cml::cmlStop();
     }
 
@@ -467,6 +467,7 @@ class Html extends Base
      */
     public function fetch($templateFile = '', $inOtherApp = false, $doNotSetDir = false, $donNotWriteCacheFileImmediateReturn = false)
     {
+        $this->setHeader('Content-Type', 'text/html; charset=' . Config::get('default_charset'));
         if (Config::get('form_token')) {
             Secure::setToken();
         }
@@ -487,6 +488,26 @@ class Html extends Base
         $this->args = [];
         $this->reset();
         return ob_get_clean();
+    }
+
+    /**
+     * 使用布局模板并返回内容
+     *
+     * @param string $templateFile 模板文件
+     * @param string $layout 布局文件
+     * @param bool|false $layoutInOtherApp 布局文件是否在其它应用
+     * @param bool|false $tplInOtherApp 模板是否在其它应用
+     *
+     * @return string
+     */
+    public function fetchWithLayout($templateFile = '', $layout = 'master', $layoutInOtherApp = false, $tplInOtherApp = false)
+    {
+        $this->layout = Cml::getApplicationDir('apps_path') . DIRECTORY_SEPARATOR
+            . ($layoutInOtherApp ? $layoutInOtherApp : Cml::getContainer()->make('cml_route')->getAppName())
+            . DIRECTORY_SEPARATOR . Cml::getApplicationDir('app_view_path_name') . DIRECTORY_SEPARATOR
+            . (Config::get('html_theme') != '' ? Config::get('html_theme') . DIRECTORY_SEPARATOR : '')
+            . 'layout' . DIRECTORY_SEPARATOR . $layout . Config::get('html_template_suffix');
+        return $this->fetch($templateFile, $tplInOtherApp);
     }
 
     /**

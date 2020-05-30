@@ -28,7 +28,6 @@
 
 namespace Cml\Logger;
 
-use Cml\Cml;
 use Cml\Config;
 use Cml\Http\Request;
 use Cml\Model;
@@ -66,7 +65,7 @@ class Db extends Base
             'message' => $message,
             'context' => json_encode($context, JSON_UNESCAPED_UNICODE),
             'ip' => isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '',
-            'ctime' => Cml::$nowTime
+            'ctime' => time()
         ]);
     }
 }

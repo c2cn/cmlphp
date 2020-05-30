@@ -1,8 +1,8 @@
 <div id="cmlphp_console_info" style="font-family:Microsoft YaHei;letter-spacing: -.0em;position: fixed;bottom:0;right:0;font-size:14px;width:110px;z-index: 999999;color: #000;text-align:left;">
     <div id="cmlphp_console_info_switch" style="box-sizing:border-box;height: 31px; bottom: 0; color: rgb(0, 0, 0); cursor: pointer; display: block; width: 100%; border-top: 3px rgb(255, 102, 0) solid;">
-        <div style="box-sizing:border-box;background:#232323;color:#FFF;padding:2px 6px;height:32px;font-size:14px;">
+        <div id="cmlphp_console_info_switch_box" style="box-sizing:border-box;background:#000;color:#000;padding:4px 6px;height:32px;font-size:14px;">
             <span id="cmlphp_console_info_simpleinfo" style="display: none;">CmlPHP: {{echo \Cml\Cml::VERSION}} &nbsp;&nbsp; {{lang _PHP_VERSION_}}:<i>{{echo phpversion();}}</i> &nbsp;&nbsp; {{lang _UPTIME_}}:<i>{{$usetime}}s</i> &nbsp;&nbsp; {{lang _USED_MEMORY_}}:<i>{{$usememory}}</i> {{if isset($_SERVER['SERVER_ADDR']) }} &nbsp;&nbsp;IP: {{echo $_SERVER['SERVER_ADDR']}} {{/if}}</span>
-            <div style="float:right;margin:0 auto;width:110px;text-align:center;">
+            <div style="float:right;margin:-3px auto;width:110px;text-align:center;">
                 <svg id="cmlphp_console_info_logo" width="85" height="25" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                     <g>
                         <rect fill="none" id="canvas_background" height="27" width="87" y="-1" x="-1"/>
@@ -21,11 +21,14 @@
             </div>
         </div>
     </div>
+    <style>
+        #cmlphp_console_info_content>div::-webkit-scrollbar{width:3px;height:8px}#cmlphp_console_info_content>div::-webkit-scrollbar-track{width:6px;background-color:#eee;-webkit-border-radius:2em;-moz-border-radius:2em;border-radius:2em}#cmlphp_console_info_content>div::-webkit-scrollbar-thumb{background-color:#ff5722;background-clip:padding-box;min-height:28px;-webkit-border-radius:2em;-moz-border-radius:2em;border-radius:2em}
+    </style>
     <div id="cmlphp_console_info_content" style="box-sizing:border-box;display: none;background:white; margin:0; height: 461px; padding-bottom:8px; border-bottom: 3px solid #cddc39;">
-        <div style="box-sizing:border-box;height:38px;padding: 6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px">
+        <div style="display:none;box-sizing:border-box;height:38px;padding: 6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px">
             <span>{{lang _OPERATION_INFORMATION_}}</span>
         </div>
-        <div style="overflow:auto;height:420px;padding: 0; line-height: 24px">
+        <div style="overflow:auto;height:420px;width:100%;padding: 0; line-height: 24px">
             <ul style="padding: 0; margin:0">
 
                 {{if count($tipInfo) > 0 }}
@@ -63,25 +66,28 @@
 </div>
 <script type="text/javascript">
     (function(){
-        var show = false;
-        var switchShow  = document.getElementById('cmlphp_console_info_switch');
-        var trace    = document.getElementById('cmlphp_console_info_content');
-        var cmlphp_console_info_minisize = document.getElementById('cmlphp_console_info_minisize');
-        var cmlphp_console_info = document.getElementById("cmlphp_console_info");
-        var cmlphp_console_info_simpleinfo = document.getElementById("cmlphp_console_info_simpleinfo");
-        var cmlphp_console_info_logo = document.getElementById("cmlphp_console_info_logo");
+        let show = false;
+        let switchShow  = document.getElementById('cmlphp_console_info_switch');
+        let switchShowBox  = document.getElementById('cmlphp_console_info_switch_box');
+        let trace    = document.getElementById('cmlphp_console_info_content');
+        let cmlphp_console_info_minisize = document.getElementById('cmlphp_console_info_minisize');
+        let cmlphp_console_info = document.getElementById("cmlphp_console_info");
+        let cmlphp_console_info_simpleinfo = document.getElementById("cmlphp_console_info_simpleinfo");
+        let cmlphp_console_info_logo = document.getElementById("cmlphp_console_info_logo");
 
         cmlphp_console_info_minisize.onclick = function() {
             cmlphp_console_info_minisize.style.display = "none";
             show = true;
             trace.style.display = "none";
             cmlphp_console_info.style.width = "110px";
+            switchShowBox.style.backgroundColor = "#000";
             cmlphp_console_info_simpleinfo.style.display="none"
         };
 
-        var $showFunc = function() {
+        let $showFunc = function() {
             cmlphp_console_info_minisize.style.display = "inline-block";
             cmlphp_console_info_simpleinfo.style.display = "inline-block";
+            switchShowBox.style.backgroundColor = "#fff";
             cmlphp_console_info.style.width = "100%";
         };
         cmlphp_console_info_logo.onclick = $showFunc;

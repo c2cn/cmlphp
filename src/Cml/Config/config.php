@@ -75,19 +75,16 @@ return [
     /**
     //文件缓存
     'default_cache' => [
-        'on' => 0, //为1则启用，或者不启用
         'driver' => 'File', //使用入口中绑定的cache_file驱动
         'prefix' => 'cml_'
     ],
     //apc缓存
     'default_cache' => [
-        'on' => 0, //为1则启用，或者不启用
         'driver' => 'Apc',  //使用入口中绑定的cache_apc驱动
         'prefix' => 'cml_'
     ],
     //Redis缓存
     'default_cache' => [
-        'on' => 0, //为1则启用，或者不启用
         'driver' => 'Redis', //使用入口中绑定的cache_redis驱动
         'prefix' => 'cml_',
         'server' => [
@@ -107,7 +104,6 @@ return [
     ],
      //Redis集群
      'default_cache' => [
-        'on' => 1, //为1则启用，或者不启用
         'driver' => 'RedisCluster',  //使用入口中绑定的cache_rediscluster驱动
         'prefix' => 'bx_',//配置缓存前缀防止冲突
         'server' => [

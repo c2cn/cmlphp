@@ -10,12 +10,14 @@
 namespace Cml\Cache;
 
 use Cml\Config;
-use Cml\Exception\CacheConnectFailException;
-use Cml\Exception\PhpExtendNotInstall;
+use Cml\Exception\PhpExtendNotInstallException;
 use Cml\Lang;
 use Cml\Lock;
 use Cml\Log;
-use Cml\Plugin;
+use Cml\Model;
+use RedisCluster as RedisClusterDriver;
+use RuntimeException;
+
 
 /**
  * Redis缓存驱动
@@ -32,23 +34,27 @@ class RedisCluster extends namespace\Base
     /**
      * 使用的缓存配置 默认为使用default_cache配置的参数
      *
-     * @param bool ｜array $conf
-     *
-     * @throws
+     * @param array $conf
      */
-    public function __construct($conf = false)
+    public function __construct($conf)
     {
         $this->conf = $conf ? $conf : Config::get('default_cache');
 
         if (!extension_loaded('redis')) {
-            throw new PhpExtendNotInstall(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Redis'));
+            throw new PhpExtendNotInstallException(Lang::get('_CACHE_EXTEND_NOT_INSTALL_', 'Redis'));
         }
 
         if (!$this->redis) {
-            $this->redis = new \RedisCluster(null, $this->conf['server'], 1.5, 1.5, true, $this->conf['password']);
+            try {
+                $this->redis = new RedisClusterDriver(null, $this->conf['server'], 1, 1, true, $this->conf['password']);
 
-            $this->redis->setOption(\RedisCluster::OPT_PREFIX, $this->conf['prefix']);
-            $this->redis->setOption(\RedisCluster::OPT_READ_TIMEOUT, -1);
+                $this->redis->setOption(RedisClusterDriver::OPT_PREFIX, $this->conf['prefix']);
+                $this->redis->setOption(RedisClusterDriver::OPT_READ_TIMEOUT, -1);
+            } catch (\Exception $e) {
+                Log::emergency('RedisCluster', [$e->getMessage()]);
+                $this->redis = Model::staticCache('back_cache')->getInstance('xx');
+            }
+
         }
         return $this->redis;
     }
@@ -129,7 +135,7 @@ class RedisCluster extends namespace\Base
             if ($instance->pconnect($val['host'], $val['port'], 1.5)) {
                 $val['password'] && $instance->auth($val['password']);
             } else {
-                throw new \RuntimeException(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Redis'));
+                throw new RuntimeException(Lang::get('_CACHE_NEW_INSTANCE_ERROR_', 'Redis'));
             }
             $instance->flushDB();
             $instance->close();
@@ -180,7 +186,7 @@ class RedisCluster extends namespace\Base
      *
      * @param string $key
      *
-     * @return \RedisCluster
+     * @return RedisClusterDriver
      */
     public function getInstance($key = '')
     {

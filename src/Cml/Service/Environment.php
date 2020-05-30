@@ -29,7 +29,7 @@ class Environment implements EnvironmentInterface
         if (Request::isCli()) {
             return 'cli';
         }
-
+        php_sapi_name() === 'cli-server' && $_SERVER['SERVER_ADDR'] = '';
         $host = Request::host(false);
 
         switch ($host) {

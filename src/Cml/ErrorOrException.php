@@ -12,6 +12,8 @@ namespace Cml;
 use Cml\Console\IO\Output;
 use Cml\Http\Request;
 use \Cml\Interfaces\ErrorOrException as ErrorOrExceptionInterface;
+use ReflectionClass;
+use ReflectionException;
 
 class ErrorOrException implements ErrorOrExceptionInterface
 {
@@ -51,11 +53,12 @@ class ErrorOrException implements ErrorOrExceptionInterface
      * 自定义异常处理
      *
      * @param mixed $e 异常对象
+     * @throws ReflectionException
      */
     public function appException(&$e)
     {
         $error = [];
-        $exceptionClass = new \ReflectionClass($e);
+        $exceptionClass = new ReflectionClass($e);
         $error['exception'] = '\\' . $exceptionClass->name;
         $error['message'] = $e->getMessage();
         $trace = $e->getTrace();
