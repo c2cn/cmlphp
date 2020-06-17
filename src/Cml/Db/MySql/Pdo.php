@@ -72,7 +72,7 @@ class Pdo extends Base
         isset($conf['mark']) || $conf['mark'] = md5(json_encode($conf));
         $this->conf = $conf;
         isset($this->conf['log_slow_sql']) || $this->conf['log_slow_sql'] = false;
-        $this->tablePrefix = $this->conf['modelTablePrefix'] ?: $this->conf['master']['tableprefix'];
+        $this->tablePrefix = is_null($this->conf['modelTablePrefix']) ? $this->conf['master']['tableprefix'] : $this->conf['modelTablePrefix'];
         $this->conf['cache_expire'] === false && $this->openCache = false;
     }
 
@@ -846,10 +846,11 @@ class Pdo extends Base
      * @param string $charset 字符集
      * @param string $engine 引擎
      * @param bool $pConnect 是否为长连接
+     * @param array $command 类似pdo指令
      *
      * @return mixed
      */
-    public function connect($host, $username, $password, $dbName, $charset = 'utf8', $engine = '', $pConnect = false)
+    public function connect($host, $username, $password, $dbName, $charset = 'utf8', $engine = '', $pConnect = false, $command = [])
     {
         $link = '';
 
@@ -860,18 +861,19 @@ class Pdo extends Base
             $dsn = "mysql:host={$host[0]};" . (isset($host[1]) ? "port={$host[1]};" : '') . "dbname={$dbName}";
         }
 
-        $doConnect = function () use ($dsn, $pConnect, $charset, $username, $password) {
+        $doConnect = function () use ($dsn, $pConnect, $charset, $username, $password, $command) {
+            $command = $command ?: [];
             if ($pConnect) {
-                return new \PDO($dsn, $username, $password, [
-                    \PDO::ATTR_PERSISTENT => true,
-                    \PDO::ATTR_EMULATE_PREPARES => false,
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $charset"
-                ]);
+                return new \PDO($dsn, $username, $password, $command + [
+                        \PDO::ATTR_PERSISTENT => true,
+                        \PDO::ATTR_EMULATE_PREPARES => false,
+                        \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $charset"
+                    ]);
             } else {
-                return new \PDO($dsn, $username, $password, [
-                    \PDO::ATTR_EMULATE_PREPARES => false,
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $charset"
-                ]);
+                return new \PDO($dsn, $username, $password, $command + [
+                        \PDO::ATTR_EMULATE_PREPARES => false,
+                        \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $charset"
+                    ]);
             }
         };
 

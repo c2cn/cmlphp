@@ -262,29 +262,21 @@ abstract class Base implements Db
 
             $n = mt_rand(0, count($this->conf['slaves']) - 1);
             $conf = $this->conf['slaves'][$n];
-
-            return self::$dbInst[$this->conf['mark'] . $db] = $this->connect(
-                $conf['host'],
-                $conf['username'],
-                $conf['password'],
-                $conf['dbname'],
-                $conf['charset'],
-                isset($conf['engine']) ? $conf['engine'] : '',
-                $conf['pconnect']
-            );
         } elseif ($db == 'wlink') {
             $conf = $this->conf['master'];
-            return self::$dbInst[$this->conf['mark'] . $db] = $this->connect(
-                $conf['host'],
-                $conf['username'],
-                $conf['password'],
-                $conf['dbname'],
-                $conf['charset'],
-                isset($conf['engine']) ? $conf['engine'] : '',
-                $conf['pconnect']
-            );
+        } else {
+            return false;
         }
-        return false;
+        return self::$dbInst[$this->conf['mark'] . $db] = $this->connect(
+            $conf['host'],
+            $conf['username'],
+            $conf['password'],
+            $conf['dbname'],
+            $conf['charset'],
+            isset($conf['engine']) ? $conf['engine'] : '',
+            $conf['pconnect'],
+            $conf['command'] ?? []
+        );
     }
 
     /**

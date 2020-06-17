@@ -30,21 +30,22 @@ class PdoSqlSrv extends Pdo
      * @param string $charset 字符集
      * @param string $engine 引擎
      * @param bool $pConnect 是否为长连接
+     * @param array $command 类似pdo指令
      *
      * @return mixed
      */
-    public function connect($host, $username, $password, $dbName, $charset = 'utf8', $engine = '', $pConnect = false)
+    public function connect($host, $username, $password, $dbName, $charset = 'utf8', $engine = '', $pConnect = false, $command = [])
     {
         $link = '';
         $host = explode(':', $host);
         $dsn = "sqlsrv:server={$host[0] }" . (isset($host[1]) ? ",{$host[1]}" : '') . "; Database={$dbName}";
 
-        $doConnect = function () use ($dsn, $pConnect, $charset, $username, $password) {
-            return new \PDO($dsn, $username, $password, [
-                \PDO::ATTR_CASE => \PDO::CASE_NATURAL,
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_STRINGIFY_FETCHES => false,
-            ]);
+        $doConnect = function () use ($dsn, $pConnect, $charset, $username, $password, $command) {
+            return new \PDO($dsn, $username, $password, $command + [
+                    \PDO::ATTR_CASE => \PDO::CASE_NATURAL,
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_STRINGIFY_FETCHES => false,
+                ]);
         };
 
         try {
@@ -81,7 +82,7 @@ class PdoSqlSrv extends Pdo
         $tableAndCacheKey = $this->tableFactory();
 
         empty($this->sql['limit']) && ($this->sql['limit'] = "BETWEEN 1  AND 101");
-$this->sql['orderBy'] || $this->sql['orderBy'] = 'ORDER BY rand()';
+        $this->sql['orderBy'] || $this->sql['orderBy'] = 'ORDER BY rand()';
         $sql = <<<sql
 SELECT
 	RES.* 

@@ -46,10 +46,11 @@ class Swoole extends \Cml\Db\MySql\Pdo
      * @param string $charset 字符集
      * @param string $engine 引擎
      * @param bool $pConnect 是否为长连接
+     * @param array $command 类似pdo指令
      *
      * @return mixed
      */
-    public function connect($host, $username, $password, $dbName, $charset = 'utf8', $engine = '', $pConnect = false)
+    public function connect($host, $username, $password, $dbName, $charset = 'utf8', $engine = '', $pConnect = false, $command = [])
     {
         return new Pool($host, $username, $password, $dbName, $charset, $engine, $pConnect);
     }

@@ -1327,10 +1327,11 @@ class MongoDB extends Base
      * @param string $replicaSet replicaSet名称
      * @param string $engine 无用
      * @param bool $pConnect 无用
+     * @param array $command 类似pdo指令
      *
      * @return mixed
      */
-    public function connect($host, $username, $password, $dbName, $replicaSet = '', $engine = '', $pConnect = false)
+    public function connect($host, $username, $password, $dbName, $replicaSet = '', $engine = '', $pConnect = false, $command = [])
     {
         $authString = "";
         if ($username && $password) {
