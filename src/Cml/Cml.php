@@ -369,7 +369,7 @@ class Cml
     {
         $controllerAction = Cml::getContainer()->make('cml_route')->getControllerAndAction();
 
-        if (isset(class_uses($controllerAction['class'])[MiddlewareControllerTrait::class])) {
+        if (isset(class_uses($controllerAction['class'] ?? '')[MiddlewareControllerTrait::class])) {
             $factory = self::getContainer()->make('psr17_http_factory');
             $creator = new ServerRequestCreator($factory, $factory, $factory, $factory);
 

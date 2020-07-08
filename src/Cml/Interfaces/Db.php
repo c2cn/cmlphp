@@ -253,7 +253,7 @@ interface Db
      * @param int $num 每次获取的条数
      * @param callable $func 结果集处理函数
      */
-    public function chunk($num = 100, callable $func);
+    public function chunk($num = 100, callable $func = null);
 
     /**
      * where条件组装 相等
@@ -386,7 +386,7 @@ interface Db
      *
      * @return $this
      */
-    public function whereLike($column, $leftBlur = false, $value, $rightBlur = false);
+    public function whereLike($column, $leftBlur = false, $value = null, $rightBlur = false);
 
     /**
      * where条件组装 LIKE
@@ -398,7 +398,7 @@ interface Db
      *
      * @return $this
      */
-    public function whereNotLike($column, $leftBlur = false, $value, $rightBlur = false);
+    public function whereNotLike($column, $leftBlur = false, $value = null, $rightBlur = false);
 
 
     /**
@@ -532,7 +532,7 @@ interface Db
      *
      * @return $this
      */
-    public function having($column, $operator = '=', $value);
+    public function having($column, $operator = '=', $value = null);
 
     /**
      * join内联结

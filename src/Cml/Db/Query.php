@@ -491,10 +491,9 @@ trait Query
     public function forceIndex($table, $index, $tablePrefix = null)
     {
         is_null($tablePrefix) && $tablePrefix = $this->tablePrefix;
-        $this->forceIndex[$tablePrefix . $table] = $index;
+        $this->forceIndex[$this->formatColumnKey($tablePrefix . $table)] = $index;
         return $this;
     }
-
 
     /**
      * 排序

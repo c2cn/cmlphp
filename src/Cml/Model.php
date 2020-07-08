@@ -17,11 +17,11 @@ use Cml\Model\QuickMethod;
 /**
  * Model
  *
- * @method Db|Model table(string |array $table = '', string | null $tablePrefix = null) 定义操作的表
- * @method Db|Model join(string | array $table, string $on, string | null $tablePrefix = null) join内联结
- * @method Db|Model leftJoin(string | array $table, string $on, string | null $tablePrefix = null) leftJoin左联结
- * @method Db|Model rightJoin(string | array $table, string $on, string | null $tablePrefix = null) rightJoin右联结
- * @method Db|Model noCache() 标记本次查询不使用缓存
+ * @method Model table(string |array $table = '', string | null $tablePrefix = null) 定义操作的表
+ * @method Model join(string | array $table, string $on, string | null $tablePrefix = null) join内联结
+ * @method Model leftJoin(string | array $table, string $on, string | null $tablePrefix = null) leftJoin左联结
+ * @method Model rightJoin(string | array $table, string $on, string | null $tablePrefix = null) rightJoin右联结
+ * @method Model noCache() 标记本次查询不使用缓存
  * @method array select($offset = null, $limit = null, $useMaster = false, $fieldAsKey = false) 获取多条数据
  * @method array paginate($limit, $useMaster = false, $page = null, $fieldAsKey = false) 分页获取数据
  * @method array|false getOne($useMaster = false) 获取一条数据

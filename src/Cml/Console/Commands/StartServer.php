@@ -29,7 +29,8 @@ class StartServer extends Command
         '--host=0.0.0.0' => 'The host to server the on',
         '--port=8008' => 'The port to server the on',
         '--root=dir' => 'The dir to server the on',
-        '--boot=index.php' => 'The app start script'
+        '--boot=index.php' => 'The app start script',
+        '--php-bin=php' => 'The php cli path'
     ];
 
     /**
@@ -42,12 +43,13 @@ class StartServer extends Command
      */
     public function execute(array $args, array $options = [])
     {
-        $host = isset($options['host']) ? $options['host'] : '0.0.0.0';
-        $port = isset($options['port']) ? $options['port'] : '8008';
-        $root = isset($options['root']) ? $options['root'] : CML_PROJECT_PATH . DIRECTORY_SEPARATOR . 'public';
-        $boot = isset($options['boot']) ? $options['boot'] : '';
+        $host = $options['host'] ?? '0.0.0.0';
+        $port = $options['port'] ?? '8008';
+        $root = $options['root'] ?? CML_PROJECT_PATH . DIRECTORY_SEPARATOR . 'public';
+        $boot = $options['boot'] ?? '';
+        $bin = $options['php-bin'] ?? 'php';
         $command = sprintf(
-            'php -S %s:%d -t %s %s',
+            $bin . ' -S %s:%d -t %s %s',
             $host,
             $port,
             $root,
