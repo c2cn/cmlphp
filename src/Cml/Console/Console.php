@@ -31,6 +31,7 @@ class Console implements \Cml\Interfaces\Console
         //make
         'make:symlink' => 'Cml\Console\Commands\CreateSymbolicLink',
         'make:controller' => 'Cml\Console\Commands\Make\Controller',
+        'make:entity' => 'Cml\Console\Commands\Make\Entity',
         'make:model' => 'Cml\Console\Commands\Make\Model',
         //worker
         'worker:start' => 'Cml\Console\Commands\DaemonProcessManage\Start',

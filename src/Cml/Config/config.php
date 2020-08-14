@@ -118,7 +118,7 @@ return [
     'view_render_engine' => 'html',//默认的视图渲染引擎，html/excel/json/xml
     'default_charset' => 'utf-8', // 默认输出编码
     'http_cache_control' => 'private', // 网页缓存控制
-    'output_encode' => true, // 页面压缩输出
+    'output_encode' => false, // 页面压缩输出,默认关闭，由nginx来处理
 
     /*Html引擎配置。只适用于html模板引擎*/
     'html_theme' =>'', //默认只有单主题

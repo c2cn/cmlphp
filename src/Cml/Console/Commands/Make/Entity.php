@@ -4,12 +4,13 @@
  * @Author  linhecheng<linhechengbush@live.com>
  * @Date: 2016/11/2 14:07
  * @version  @see \Cml\Cml::VERSION
- * cmlphp框架 创建Model命令
+ * cmlphp框架 创建Entity命令
  * *********************************************************** */
 
 namespace Cml\Console\Commands\Make;
 
 use Cml\Cml;
+use Cml\Config;
 use Cml\Console\Command;
 use Cml\Console\Format\Colour;
 use Cml\Console\IO\Output;
@@ -17,35 +18,39 @@ use InvalidArgumentException;
 use RuntimeException;
 
 /**
- * 创建Model
+ * 创建Entity
  *
  * @package Cml\Console\Commands\Make
  */
-class Model extends Command
+class Entity extends Command
 {
-    protected $description = "Create a new model class";
+    protected $description = "Create a new entity class";
 
     protected $arguments = [
         'name' => 'The name of the class'
     ];
 
     protected $options = [
-        '--table' => 'tablename',
+        '--table=xx' => 'tablename',
+        '--table_prefix=xx' => 'table prefix',
+        '--dbconfig' => 'db config, default: `default_db`',
         '--template=xx' => 'Use an alternative template',
-        '--dirname=xx' => 'the model dir name default:`Model`',
+        '--dirname=xx' => 'the entity dir name default:`Entity`',
     ];
 
     protected $help = <<<EOF
-this command command allows you to create a new Model class
+this command allows you to create a new Entity class
 eg:
-`php index.php make:model web/test-blog/Category`  this command will create a Model
+`php index.php make:entity web/test-blog/Category --table=category`  this command will create a Entity
 
 <?php
-namespace web\test\Model\blog;
+namespace web\test\Entity\blog;
 
-use Cml\Model;
-
-class CategoryModel extends Model
+/**
+ * @property xx
+ * ...
+ */
+class CategoryEntity extends Entity
 {
     protected \$table = 'category';
 }
@@ -53,13 +58,14 @@ EOF;
 
 
     /**
-     * 创建Model
+     * 创建Entity
      *
      * @param array $args 参数
      * @param array $options 选项
      */
     public function execute(array $args, array $options = [])
     {
+        $tablePrefix = $options['table_prefix'] ?? Config::get('default_db.master.tableprefix');
         $tableName = $options['table'] ?? false;
         if (!$tableName) {
             throw new InvalidArgumentException(sprintf(
@@ -68,9 +74,20 @@ EOF;
             ));
         }
 
+        $tableInfo = \Cml\Model::getInstance($tableName, $tablePrefix, $options['dbconfig'] ?? 'default_db')->getDbFields($tableName, $tablePrefix, 0, true);
+
+        $property = [];
+        foreach ($tableInfo as $column) {
+            $type = 'string';
+            if (stripos($column['type'], 'int')) {
+                $type = 'int';
+            }
+            array_push($property, " * @property {$type} \${$column['name']} {$column['comment']}");
+        }
+
         $template = $options['template'] ?? false;
-        $template || $template = __DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'Model.php.dist';
-        $dirName = ($options['dirname'] ?? '') ?: 'Model';
+        $template || $template = __DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'Entity.php.dist';
+        $dirName = ($options['dirname'] ?? '') ?: 'Entity';
 
         list($namespace, $module) = explode('-', trim($args[0], '/\\'));
         if (!$module) {
@@ -91,12 +108,12 @@ EOF;
         $component = explode('/', trim(trim($module, '/')));
 
         if (count($component) > 1) {
-            $className = ucfirst(array_pop($component)) . 'Model';
+            $className = ucfirst(array_pop($component)) . 'Entity';
             $component = implode(DIRECTORY_SEPARATOR, $component);
             $path .= $component . DIRECTORY_SEPARATOR;
             $component = '\\' . $component;
         } else {
-            $className = ucfirst($component[0]) . 'Model';
+            $className = ucfirst($component[0]) . 'Entity';
             $component = '';
         }
 
@@ -108,6 +125,7 @@ EOF;
         }
 
         $contents = strtr(file_get_contents($template), [
+            '$property' => implode("\r\n", $property),
             '$namespace' => str_replace('/', '\\', $namespace),
             '$component' => $component,
             '$dirName' => $dirName,
@@ -130,6 +148,6 @@ EOF;
             ));
         }
 
-        $this->info("Model created successfully. ");
+        $this->info("Entity created successfully. ");
     }
 }

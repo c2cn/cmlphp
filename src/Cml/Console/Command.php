@@ -9,6 +9,7 @@
 
 namespace Cml\Console;
 
+use Cml\Console\Format\Colour;
 use Cml\Console\Format\Format;
 use Cml\Console\IO\Output;
 
@@ -74,7 +75,7 @@ abstract class Command
     }
 
     /**
-     * 格式化输出
+     * 格式化输出并换行
      *
      * @param string $text 要输出的内容
      * @param array $option 格式化选项 @see Format
@@ -85,5 +86,44 @@ abstract class Command
     {
         Output::writeln($this->format($text, $option));
         return $this;
+    }
+
+    /**
+     * 格式化输出并换行-黄色
+     *
+     * @param string $text 要输出的内容
+     * @param bool $highlight 是否高亮
+     *
+     * @return $this
+     */
+    public function warn($text, $highlight = false)
+    {
+        return $this->writeln($text, ['foregroundColors' => $highlight ? [Colour::YELLOW, Colour::HIGHLIGHT] : [Colour::YELLOW]]);
+    }
+
+    /**
+     * 格式化输出并换行-红色
+     *
+     * @param string $text 要输出的内容
+     * @param bool $highlight 是否高亮
+     *
+     * @return $this
+     */
+    public function error($text, $highlight = false)
+    {
+        return $this->writeln($text, ['foregroundColors' => $highlight ? [Colour::RED, Colour::HIGHLIGHT] : [Colour::RED]]);
+    }
+
+    /**
+     * 格式化输出并换行-绿色
+     *
+     * @param string $text 要输出的内容
+     * @param bool $highlight 是否高亮
+     *
+     * @return $this
+     */
+    public function info($text, $highlight = false)
+    {
+        return $this->writeln($text, ['foregroundColors' => $highlight ? [Colour::GREEN, Colour::HIGHLIGHT] : [Colour::GREEN]]);
     }
 }

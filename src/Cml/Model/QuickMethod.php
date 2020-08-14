@@ -14,7 +14,7 @@ use Cml\Model;
 /**
  * Trait QuickMethod
  *
- * @see 快捷方法(http://doc.cmlphp.com/devintro/model/mysql/fastmethod/readme.html)
+ * @see 快捷方法(https://doc.cmlphp.com/devintro/model/mysql/fastmethod/)
  * @mixin Model
  *
  * @package Cml\Db

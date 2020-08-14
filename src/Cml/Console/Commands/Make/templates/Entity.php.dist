@@ -1,9 +1,12 @@
 <?php
 namespace $namespace\$dirName$component;
 
-use Cml\Model;
+use Cml\Entity\Entity;
 
-class $className extends Model
+/**
+$property
+ */
+class $className extends Entity
 {
     protected $table = '$tableName';
 }

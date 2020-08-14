@@ -54,10 +54,12 @@ class Cookie
      * @param int $expire 过期时间
      * @param string $path path
      * @param string $domain domain
+     * @param bool $secure $secure
+     * @param bool $httpOnly $httpOnly
      *
      * @return void
      */
-    public static function set($name, $value, $expire = 0, $path = '', $domain = '')
+    public static function set($name, $value, $expire = 0, $path = '', $domain = '', $secure = false, $httpOnly = false)
     {
         empty($expire) && $expire = Config::get('cookie_expire');
         empty($path) && $path = Config::get('cookie_path');
@@ -65,7 +67,7 @@ class Cookie
 
         $expire = empty($expire) ? 0 : Cml::$nowTime + $expire;
         $value = Encry::encrypt($value);
-        setcookie(Config::get('cookie_prefix') . $name, $value, $expire, $path, $domain);
+        setcookie(Config::get('cookie_prefix') . $name, $value, $expire, $path, $domain, $secure, $httpOnly);
         $_COOKIE[Config::get('cookie_prefix') . $name] = $value;
     }
 

@@ -45,12 +45,13 @@ trait OneToOne
      * @param string $joinType JOIN方式
      * @param Closure $closure 闭包条件
      * @param bool $addMainTable 是否添加主表
+     * @param bool $parentRelation 父级关联
      *
      * @return void
      */
-    public function associatedPreloadWithJoin(Entity $entity, $relation, $subField = '*', $joinType = '', Closure $closure = null, $addMainTable = false)
+    public function associatedPreloadWithJoin(Entity $entity, $relation, $subField = '*', $joinType = '', Closure $closure = null, $addMainTable = false, $parentRelation = null)
     {
-        $name = humpToLine(lcfirst(getClassBasename($this->parent)));
+        $name = $parentRelation ?: humpToLine(lcfirst(getClassBasename($this->parent)));
 
         if ($addMainTable) {
             $table = $entity->getTableName();
@@ -121,7 +122,7 @@ trait OneToOne
     {
         if ($join) {
             foreach ($resultSet as $result) {
-                $this->transFormJoinRelationField($this->entity, $relation, $result);
+                $this->transFormJoinRelationField($this->entity, $relation, $result, $subRelation);
             }
         } else {
             $this->collectAssociatedWithIn($resultSet, $relation, $subRelation, $subField, $closure);
@@ -134,17 +135,23 @@ trait OneToOne
      * @param string $relationEntityName 实体名称
      * @param string $relation 关联名
      * @param Entity $entity 实体对象实例
+     * @param array $subRelation 子关联名
      *
      * @return void
      */
-    protected function transFormJoinRelationField($relationEntityName, $relation, $entity)
+    protected function transFormJoinRelationField($relationEntityName, $relation, $entity, $subRelation)
     {
+        $subRelation = $subRelation[0] ?? null;
         $relationData = [];
+        $subRelationData = [];
         foreach ($entity->toArray() as $key => $val) {
             if (strpos($key, '___')) {
                 [$name, $attr] = explode('___', $key, 2);
                 if ($name == $relation) {
                     $relationData[$name][$attr] = $val;
+                    unset($entity->$key);
+                } else if ($subRelation && $name == $subRelation) {
+                    $subRelationData[$name][$attr] = $val;
                     unset($entity->$key);
                 }
             }
@@ -154,6 +161,16 @@ trait OneToOne
             $relationEntity = new $relationEntityName($relationData[$relation]);
         } else {
             $relationEntity = $this->getDefault();
+        }
+
+        if ($subRelation) {
+            $subRelationEntityName = $this->{$subRelation}()->getEntity();
+            if (isset($subRelationData[$subRelation]) && null !== current($subRelationData[$subRelation])) {
+                $subRelationEntity = new $subRelationEntityName($subRelationData[$subRelation]);
+            } else {
+                $subRelationEntity = $this->{$subRelation}()->getDefault();
+            }
+            $relationEntity->{$subRelation} = $subRelationEntity;
         }
         $entity->{$relation} = $relationEntity;
     }

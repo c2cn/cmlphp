@@ -128,7 +128,7 @@ class Help extends Command
     private function formatOptions($options = [], $command = '')
     {
         $dumpOptions = [
-            '-h | --help' => "display {$command}command help info",
+            '-h | --help' => "display {$command} command help info",
             '--no-ansi' => "disable ansi output"
         ];
 

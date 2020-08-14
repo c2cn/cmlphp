@@ -53,7 +53,7 @@ abstract class Base implements Lock
      *
      * @param int $expire
      *
-     * @return $this | \Cml\Lock\Redis | \Cml\Lock\Memcache | \Cml\Lock\File
+     * @return $this
      */
     public function setExpire($expire = 100)
     {

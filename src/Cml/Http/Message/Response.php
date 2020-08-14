@@ -170,13 +170,11 @@ class Response
      * @param string $toUrl 重写向的目标地址
      * @param int $status HTTP状态码
      *
-     * @return Response 根据psr规范返回的是一个新的对象
+     * @return null
      */
     public function redirect($toUrl, $status = 302)
     {
-        strpos($toUrl, 'http') === false && $toUrl = StaticResponse::url($toUrl, false);
-
-        return $this->withStatus($status)->withAddedHeader('Location', $toUrl);
+        \Cml\Http\Response::redirect($toUrl, 0, $status);
     }
 
     /**

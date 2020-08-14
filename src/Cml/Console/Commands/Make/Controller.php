@@ -31,17 +31,16 @@ class Controller extends Command
     ];
 
     protected $options = [
-        '--env=xxx' => "the environment [cli, product, development] load accordingly config",
         '--template=xx' => 'Use an alternative template',
     ];
 
     protected $help = <<<EOF
-The breakpoint command allows you to create a new controller class
+this command command allows you to create a new Controller class
 eg:
-`php index.php make:controller adminbase/test-Blog/Category`  this command will create a controller
+`php index.php make:controller web/test-Blog/Category`  this command will create a controller
 
 <?php
-namespace adminbase\test\Controller\Blog;
+namespace web\test\Controller\Blog;
 
 use Cml\Controller;
 
@@ -66,7 +65,7 @@ EOF;
         $name = explode('-', $name);
         if (count($name) < 1) {
             throw new InvalidArgumentException(sprintf(
-                'The arg name "%s" is invalid. eg: adminbase-Blog/Category',
+                'The arg name "%s" is invalid. eg: web-Blog/Category',
                 $name
             ));
         }
@@ -110,6 +109,6 @@ EOF;
             ));
         }
 
-        Output::writeln(Colour::colour('Controller created successfully. ', Colour::GREEN));
+        $this->info("Controller created successfully. ");
     }
 }

@@ -119,7 +119,7 @@
                         <tr>
                             <td>sign</td>
                             <td>Y</td>
-                            <td>md5(key+time) 签名</td>
+                            <td>md5(key+time+params中的参数[按英文字母顺序排序] <br/>如:params={d:2, b:1}时md5(key + time + 1 + 2) 签名</td>
                         </tr>
                         <tr>
                             <td>time</td>
@@ -140,7 +140,7 @@
                         {{/if}}
                         <tr>
                             <td>method</td>
-                            <td>1-1</td>
+                            <td>login</td>
                             <td>Y</td>
                             <td>方法</td>
                         </tr>
@@ -152,7 +152,7 @@
                     </table>
                     <h5>请求示例:</h5>
                     <p>
-                    <h6>在本示例中请求的是V1版本的接口。来源是ios。请求的接口是1-1。参数有3个分别是username、password、nickname</h6>
+                    <h6>在本示例中请求的是V1版本的接口。来源是ios。请求的接口是login。参数有3个分别是username、password、nickname</h6>
                     <pre>
                             <code class="language-javascript">
 {
@@ -165,7 +165,7 @@
 {{/if}}
         "time": "1445482366"
     },
-    "method": "1-1",
+    "method": "login",
     "params": {
         "username" : "test001@163.com",
         "password" : "123456",

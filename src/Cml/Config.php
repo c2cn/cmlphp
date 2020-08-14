@@ -37,6 +37,29 @@ class Config
     public static function init()
     {
         self::$isLocal = Cml::getContainer()->make('cml_environment')->getEnv();
+
+        //引入框架惯例配置文件
+        $cmlConfig = Cml::requireFile(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'config.php');
+
+        //应用正式配置文件
+        $appConfig = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . self::$isLocal . DIRECTORY_SEPARATOR . 'normal.php';
+
+        is_file($appConfig) ? $appConfig = Cml::requireFile($appConfig)
+            : exit('Config File [' . Config::$isLocal . '/normal.php] Not Found Please Check！');
+        is_array($appConfig) || $appConfig = [];
+
+        $commonConfig = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'common.php';
+        $commonConfig = is_file($commonConfig) ? Cml::requireFile($commonConfig) : [];
+
+        Config::set(array_merge($cmlConfig, $commonConfig, $appConfig));//合并配置
+
+        if (Config::get('debug')) {
+            Cml::$debug = true;
+            $GLOBALS['debug'] = true;//开启debug
+            Debug::addTipInfo(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'config.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+            Debug::addTipInfo(Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . Config::$isLocal . DIRECTORY_SEPARATOR . 'normal.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+            empty($commonConfig) || Debug::addTipInfo(Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'common.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
+        }
     }
 
     /**

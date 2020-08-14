@@ -16,6 +16,7 @@ use Cml\View;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionMethod;
+use function Cml\dd;
 
 /**
  * 从注释生成文档实现类
@@ -30,10 +31,11 @@ class AnnotationToDoc
      * @param string $theme 主题layui/bootstrap两种
      * @param bool|string 为字符串时从其所在的app下读取。否则从执行当前方法的app下读取
      * @param bool $render 是否渲染输出
+     * @param string $filter 过滤只显示某个来源有权限的api
      *
      * @return array|bool
      */
-    public static function parse($theme = 'layui', $onCurrentApp = true, $render = true)
+    public static function parse($theme = 'layui', $onCurrentApp = true, $render = true, $filter = '')
     {
         if (!in_array($theme, ['bootstrap', 'layui'])) {
             throw new InvalidArgumentException(Lang::get('_PARAM_ERROR_', 'theme', '[bootstrap / layui]'));
@@ -41,9 +43,20 @@ class AnnotationToDoc
         $result = [];
         $app = is_string($onCurrentApp) ? $onCurrentApp : (Config::get('route_app_hierarchy', 1) < 1 ? true : false);
         $config = Config::load('api', $app);
+
         foreach ($config['version'] as $version => $apiList) {
             isset($result[$version]) || $result[$version] = [];
+            if ($filter && isset($config['white_list'][$filter]) && !isset($config['white_list'][$filter][$version])) {
+                continue;
+            }
             foreach ($apiList as $model => $api) {
+                if ($filter && isset($config['white_list'][$filter]) && !in_array($model, $config['white_list'][$filter][$version])) {
+                    continue;
+                }
+
+                if ($filter && isset($config['black_list'][$filter]) && in_array($model, $config['black_list'][$filter][$version])) {
+                    continue;
+                }
                 $pos = strrpos($api, '\\');
                 $controller = substr($api, 0, $pos);
                 $action = substr($api, $pos + 1);

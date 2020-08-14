@@ -136,7 +136,7 @@ class CurlClient
     }
 
     /**
-     * 设置要请求的url
+     * 设置要请求的参数
      *
      * @param array|string $params 除了self::REQUEST_TYPE_RAW类型的请求是传string，其它情况都传array
      *

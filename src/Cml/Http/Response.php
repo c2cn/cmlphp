@@ -26,14 +26,15 @@ class Response
      *
      * @param string $url 重写向的目标地址
      * @param int $time 等待时间
+     * @param int $statusCode http状态码
      *
      * @return void
-     * @return void
      */
-    public static function redirect($url, $time = 0)
+    public static function redirect($url, $time = 0, $statusCode = 302)
     {
         strpos($url, 'http') === false && $url = self::url($url, 0);
         if (!headers_sent()) {
+            static::sendHttpStatus($statusCode);
             ($time === 0) && header("Location: {$url}");
             header("refresh:{$time};url={$url}");
             exit();

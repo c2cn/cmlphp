@@ -12,9 +12,6 @@ namespace Cml;
 use Cml\Exception\ControllerNotFoundException;
 use Cml\Http\Request;
 use Cml\Http\Response;
-use Cml\Lock\File;
-use Cml\Lock\Memcache;
-use Cml\Lock\Redis;
 use Exception;
 use Cml\Http\Message\Response as PsrResponse;
 
@@ -51,7 +48,7 @@ class Controller
      * @param Request $request
      * @param Response $response
      *
-     * @return void
+     * @return void|PsrResponse
      * @throws Exception
      *
      */
@@ -73,7 +70,11 @@ class Controller
 
         //如果有子类中有init()方法 执行Init() eg:做权限控制
         if (method_exists($this, "init")) {
-            $this->init();
+            try {
+                $this->init();
+            } catch (Exception $e) {
+                $this->customHandlerActionException($e);
+            }
         }
 
         //根据动作去找对应的方法
@@ -116,10 +117,11 @@ class Controller
 
     /**
      * 获取Lock实例
+     * @deprecated 直接使用Lock::lock
      *
      * @param string|null $useCache 使用的锁的配置
      *
-     * @return Redis | Memcache | File | false
+     * @return Lock\Base
      * @throws Exception
      */
     public function locker($useCache = null)

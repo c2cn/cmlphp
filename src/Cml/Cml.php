@@ -115,40 +115,6 @@ class Cml
     }
 
     /**
-     * 处理配置及语言包相关
-     *
-     */
-    private static function handleConfigLang()
-    {
-        //引入框架惯例配置文件
-        $cmlConfig = Cml::requireFile(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'config.php');
-        Config::init();
-
-        //应用正式配置文件
-        $appConfig = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . Config::$isLocal . DIRECTORY_SEPARATOR . 'normal.php';
-
-        is_file($appConfig) ? $appConfig = Cml::requireFile($appConfig)
-            : exit('Config File [' . Config::$isLocal . '/normal.php] Not Found Please Check！');
-        is_array($appConfig) || $appConfig = [];
-
-        $commonConfig = Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'common.php';
-        $commonConfig = is_file($commonConfig) ? Cml::requireFile($commonConfig) : [];
-
-        Config::set(array_merge($cmlConfig, $commonConfig, $appConfig));//合并配置
-
-        if (Config::get('debug')) {
-            self::$debug = true;
-            $GLOBALS['debug'] = true;//开启debug
-            Debug::addTipInfo(CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'config.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
-            Debug::addTipInfo(Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . Config::$isLocal . DIRECTORY_SEPARATOR . 'normal.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
-            empty($commonConfig) || Debug::addTipInfo(Cml::getApplicationDir('global_config_path') . DIRECTORY_SEPARATOR . 'common.php', Debug::TIP_INFO_TYPE_INCLUDE_FILE);
-        }
-
-        //引入系统语言包
-        Lang::set(Cml::requireFile((CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Lang' . DIRECTORY_SEPARATOR . Config::get('lang') . '.php')));
-    }
-
-    /**
      * 初始化运行环境
      *
      */
@@ -158,7 +124,10 @@ class Cml
         define('CML_CORE_PATH', CML_PATH . DIRECTORY_SEPARATOR . 'Cml');// 系统核心类库目录
         define('CML_EXTEND_PATH', CML_PATH . DIRECTORY_SEPARATOR . 'Vendor');// 系统扩展类库目录
 
-        self::handleConfigLang();
+        //初始化配置
+        Config::init();
+        //引入系统语言包
+        Lang::set(Cml::requireFile((CML_CORE_PATH . DIRECTORY_SEPARATOR . 'Lang' . DIRECTORY_SEPARATOR . Config::get('lang') . '.php')));
 
         //后面自动载入的类都会自动收集到Debug类下
         spl_autoload_register('Cml\Cml::autoloadComposerAdditional', true, true);

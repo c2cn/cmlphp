@@ -106,6 +106,11 @@ class Collection extends \Cml\Tools\Collection
         return json_encode($this->jsonSerialize($transform), $options);
     }
 
+    /**
+     * 延迟预加载
+     *
+     * @param $with
+     */
     public function load($with)
     {
         if (!$this->items) {

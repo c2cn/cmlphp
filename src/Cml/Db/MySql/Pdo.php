@@ -139,7 +139,7 @@ class Pdo extends Base
             if (!$info || Cml::$debug) {
                 $this->currentQueryIsMaster = false;
                 $table = $this->formatColumnKey($table);
-                $stmt = $this->prepare("SHOW COLUMNS FROM $table", $this->rlink, false);
+                $stmt = $this->prepare("SHOW FULL COLUMNS FROM $table", $this->rlink, false);
                 $this->execute($stmt, false);
                 $info = [];
                 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -150,6 +150,7 @@ class Pdo extends Base
                         'default' => $row['Default'],
                         'primary' => (strtolower($row['Key']) == 'pri'),
                         'autoinc' => (strtolower($row['Extra']) == 'auto_increment'),
+                        'comment' => $row['Comment']
                     ];
                 }
 
@@ -438,6 +439,7 @@ class Pdo extends Base
             $tableName = $tablePrefix . $tableName;
             $upCacheTables = [$tableName];
             isset($this->forceIndex[$tableName]) && $tableName .= ' force index(' . $this->forceIndex[$tableName] . ') ';
+            $tableName = $this->formatColumnKey($tableName);
         }
 
         if (empty($tableName)) {
@@ -455,7 +457,7 @@ class Pdo extends Base
             $limit = explode(',', $this->sql['limit']);
             $limit = 'LIMIT ' . $limit[1];
         }
-        $tableName = $this->formatColumnKey($tableName);
+
         $stmt = $this->prepare("UPDATE {$tableName} SET {$s} {$whereCondition} {$this->sql['orderBy']} {$limit}", $this->wlink);
         $this->execute($stmt);
 

@@ -191,15 +191,26 @@ trait Relation
      */
     public function associatedPreloadWithJoin($entity, $relation, $subField = '*', $joinType = '', Closure $closure = null, $addMainTable = false)
     {
-        $relation = studlyCase($relation, false);
-        $class = $this->$relation();
+        $relations = explode('.', $relation, 2);
 
-        if ($class instanceof OneToOne) {
-            $class->associatedPreloadWithJoin($entity, $relation, $subField, $joinType, $closure, $addMainTable);
-            return true;
-        } else {
-            throw new InvalidArgumentException('withJoin must be [HasOne、BelongsTo]');
+        $class = $parentRelation = null;
+        foreach ($relations as $relation) {
+            $relation = studlyCase($relation, false);
+            if ($class === null) {
+                $class = $this->$relation();
+            } else {
+                $addMainTable = false;
+                $class = $class->getEntity()->$relation();
+            }
+
+            if (class_uses($class)[OneToOne::class]) {
+                $class->associatedPreloadWithJoin($entity, $relation, $subField, $joinType, $closure, $addMainTable, $parentRelation);
+            } else {
+                throw new InvalidArgumentException('withJoin must be [HasOne、BelongsTo]');
+            }
+            $parentRelation = $relation;
         }
+        return true;
     }
 
     /**
@@ -230,6 +241,16 @@ trait Relation
             } elseif (is_string($key) && is_string($relation)) {
                 $subField = $relation;
                 $relation = $key;
+            } elseif (false === $relation) {
+                if (isset(class_uses($this->{$key}())[OneToOne::class])) {
+                    $empty = null;
+                } else {
+                    $empty = Collection::make();
+                }
+                foreach ($resultSet as $item) {
+                    $item->setItem($key, $empty);
+                }
+                continue;
             }
 
             $relationName = $relation;
@@ -520,6 +541,7 @@ trait Relation
      * ['profile'=> function(Entity $entity) {$entity->whereGt('id', 1);}]子条件
      * ['logs' => ['detail', 'detail2']] 嵌套查询
      * ['logs.detail'] 嵌套查询
+     * ['logs' => false] 代表logs不发出实际的查询而是返回null|空集合
      * @param Entity $entity 以实例方法调用时传入对象 可用来配置要查询的字段
      *
      * @return static
@@ -553,7 +575,7 @@ trait Relation
             if ($relation instanceof Closure) {
                 $closure = $relation;
                 $relation = $key;
-            } elseif (is_string($relation)) {
+            } elseif (is_string($relation) && is_string($key)) {
                 $subField = $relation;
                 $relation = $key;
             }
